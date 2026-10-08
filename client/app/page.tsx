@@ -472,7 +472,7 @@ export default async function HomePage() {
         )}
 
         {/* =========================================================
-            CONTACT & REVIEWS
+           REVIEWS
         ========================================================= */}
         <section className="bg-stone-100 px-4 py-16 dark:bg-slate-900/70 sm:px-6">
           <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2">
@@ -482,7 +482,7 @@ export default async function HomePage() {
               </p>
 
               <h2 className="mt-2 text-3xl font-bold">
-                {text("review.home.heading", "Contact us & leave a review")}
+                {text("review.home.heading", " Leave A Review")}
               </h2>
 
               <p className="mt-3 leading-7 text-slate-700 dark:text-slate-200">
