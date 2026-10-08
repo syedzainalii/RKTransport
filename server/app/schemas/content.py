@@ -15,6 +15,7 @@ class HeroBannerIn(BaseModel):
     button_link: str | None = Field(default=None, max_length=255)
     image_url: str | None = Field(default=None, max_length=2048)
     image_alt: str | None = Field(default=None, max_length=255)
+    portrait_image_url: str | None = Field(default=None, max_length=2048)
     sort_order: int = Field(default=0, ge=0)
     is_active: bool = True
 

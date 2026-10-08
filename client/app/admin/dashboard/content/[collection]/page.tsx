@@ -10,7 +10,7 @@ import ImageUpload, { type UploadedImage } from "../../components/image-upload";
 import useUnsavedChanges from "../../components/use-unsaved-changes";
 
 type Row = Record<string, unknown> & { id?: number };
-type Field = { key: string; label: string; help?: string; kind?: "text" | "textarea" | "rich" | "number" | "select" | "boolean" | "single-image"; options?: [string, string][]; required?: boolean; min?: number; max?: number };
+type Field = { key: string; label: string; help?: string; kind?: "text" | "textarea" | "rich" | "number" | "select" | "boolean" | "single-image" | "string-list"; options?: [string, string][]; required?: boolean; min?: number; max?: number; showDescription?: boolean };
 type Collection = { title: string; path: string; singular: string; fields: Field[]; defaults: Row; view?: (row: Row, rows: Row[]) => string };
 
 const pageDestinations: [string, string][] = [
@@ -20,20 +20,22 @@ const cityOptions: [string, string][] = [["Dubai", "Dubai"], ["Abu Dhabi", "Abu 
 const serviceTypes: [string, string][] = [["transport", "Car transport"], ["recovery", "Recovery"], ["storage", "Storage"]];
 
 const collections: Record<string, Collection> = {
-  banners: { title: "Homepage banners", singular: "banner", path: "/hero-banners", defaults: { title: "", subtitle: "", description: "", badge_text: "", button_text: "Book now", button_link: "/quote", button_custom_link: "", image_url: "", image_alt: "", sort_order: 0, is_active: true }, fields: [
+  banners: { title: "Homepage banners", singular: "banner", path: "/hero-banners", defaults: { title: "", subtitle: "", description: "", badge_text: "", button_text: "Book now", button_link: "/quote", button_custom_link: "", image_url: "", image_alt: "", portrait_image_url: "", sort_order: 0, is_active: true }, fields: [
     { key: "title", label: "Heading", help: "The big text on the banner.", required: true },
     { key: "subtitle", label: "Sub-heading" },
     { key: "description", label: "Short description", kind: "textarea", help: "Optional supporting text." },
     { key: "badge_text", label: "Small badge text", help: 'For example, "Open 24/7".' },
     { key: "button_text", label: "Button text", required: true },
     { key: "button_link", label: "Button destination", kind: "select", options: [...pageDestinations, ["custom", "Custom link"]] },
-    { key: "image_url", label: "Banner picture", kind: "single-image", help: "Recommended size: 1920 × 900 pixels." },
+    { key: "image_url", label: "Landscape image", kind: "single-image", help: "Shown on laptops and desktops. Recommended size: 1920 × 900 pixels." },
+    { key: "portrait_image_url", label: "Portrait image", kind: "single-image", showDescription: false, help: "Shown on phones and tablets. Recommended size: 1080 × 1600 pixels. Shares the landscape image description." },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
   services: { title: "Services", singular: "service", path: "/services", defaults: { title: "", short_description: "", detailed_description: "", starting_price_note: "", features: [], image_url: "", image_alt: "", icon: "Truck", category: "transport", sort_order: 0, is_active: true }, fields: [
     { key: "title", label: "Service name", required: true },
     { key: "short_description", label: "Short summary", kind: "textarea", help: "One or two lines shown on service cards.", required: true },
     { key: "detailed_description", label: "Full description", kind: "rich", help: "Use the buttons for bold text, bullet points, and links." },
+    { key: "features", label: "Service detail cards", kind: "string-list", help: "Add one card per line. These appear on this service's detail page, for example: Both directions, Door-to-door options, Available 24/7." },
     { key: "starting_price_note", label: "Starting price note", help: 'Optional, for example "From AED 350".' },
     { key: "category", label: "Service type", kind: "select", options: serviceTypes },
     { key: "image_url", label: "Main picture", kind: "single-image" },
@@ -164,13 +166,20 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
     const payload: Row = { ...draft };
     for (const field of collection.fields.filter((candidate) => candidate.kind === "single-image")) {
       const image = payload[field.key];
+      const altKey = field.key.replace(/_url$/, "_alt");
       if (image && typeof image === "object" && "url" in image) {
         const uploaded = image as UploadedImage;
         payload[field.key] = uploaded.url;
-        payload[field.key.replace(/_url$/, "_alt")] = uploaded.alt || "";
+        if (altKey in payload) payload[altKey] = uploaded.alt || "";
       } else if (image === null || image === "") {
-        payload[field.key.replace(/_url$/, "_alt")] = null;
+        if (altKey in payload) payload[altKey] = null;
       }
+    }
+    for (const field of collection.fields.filter((candidate) => candidate.kind === "string-list")) {
+      payload[field.key] = stringValue(payload[field.key])
+        .split(/\r?\n/)
+        .map((item) => item.trim())
+        .filter(Boolean);
     }
     if (collectionKey === "banners") {
       if (payload.button_link === "custom") payload.button_link = payload.button_custom_link || "";
@@ -241,6 +250,8 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
   }
 
   const pageLink = collection.path === "/hero-banners" ? "/" : collection.path === "/services" ? "/services" : collection.path === "/faqs" ? "/" : undefined;
+  const landscapePreview = imageUrlValue(draft.image_url) || imageUrlValue(draft.portrait_image_url);
+  const portraitPreview = imageUrlValue(draft.portrait_image_url);
 
   return <main className="min-h-screen bg-stone-50 px-4 py-8 pt-16 dark:bg-slate-950 sm:px-6 md:pt-8"><div className="mx-auto max-w-5xl">
     <Link href="/admin/dashboard" className="inline-flex min-h-11 items-center font-semibold text-emerald-800 hover:underline dark:text-emerald-300">← Dashboard</Link>
@@ -265,7 +276,7 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
         <form ref={formRef} onSubmit={(event) => void save(event)} className="mt-4 space-y-4">
             {collection.fields.map((field) => <FieldControl key={field.key} field={field} value={draft[field.key]} imageAlt={draft[field.key.replace(/_url$/, "_alt")]} onChange={(value) => update(field.key, value)} locations={locations} />)}
             {collectionKey === "banners" && draft.button_link === "custom" && <FieldControl field={{ key: "button_custom_link", label: "Custom page or website address", help: "For example, https://example.com/offer.", required: true }} value={draft.button_custom_link} onChange={(value) => update("button_custom_link", value)} locations={locations} />}
-                  {collectionKey === "banners" && <section aria-label="Banner preview" className="overflow-hidden rounded-xl border dark:border-slate-700"><h3 className="p-3 font-semibold">Live banner preview</h3><div className="relative min-h-52 bg-emerald-950 p-6 text-white">{(typeof draft.image_url === "string" ? draft.image_url : stringValue(asRecord(draft.image_url).url)) && <Image src={typeof draft.image_url === "string" ? draft.image_url : stringValue(asRecord(draft.image_url).url)} alt="" fill unoptimized sizes="640px" className="object-cover opacity-70" />}<div className="relative z-10"><p className="font-bold">{stringValue(draft.badge_text)}</p><h4 className="mt-3 text-2xl font-bold">{stringValue(draft.title) || "Your banner heading"}</h4><p className="mt-2 text-lg">{stringValue(draft.subtitle)}</p><p className="mt-2">{stringValue(draft.description)}</p><span className="mt-4 inline-flex min-h-11 items-center rounded-full bg-white px-4 font-semibold text-emerald-950">{stringValue(draft.button_text) || "Button text"}</span></div></div></section>}
+                  {collectionKey === "banners" && <section aria-label="Banner preview" className="overflow-hidden rounded-xl border dark:border-slate-700"><h3 className="p-3 font-semibold">Live banner preview</h3><div className="relative min-h-52 bg-emerald-950 p-6 text-white">{landscapePreview && <picture className="absolute inset-0"><source media="(max-width: 1023px)" srcSet={portraitPreview || landscapePreview} /><Image src={landscapePreview} alt="" fill unoptimized sizes="640px" className="object-cover opacity-70" /></picture>}<div className="relative z-10"><p className="font-bold">{stringValue(draft.badge_text)}</p><h4 className="mt-3 text-2xl font-bold">{stringValue(draft.title) || "Your banner heading"}</h4><p className="mt-2 text-lg">{stringValue(draft.subtitle)}</p><p className="mt-2">{stringValue(draft.description)}</p><span className="mt-4 inline-flex min-h-11 items-center rounded-full bg-white px-4 font-semibold text-emerald-950">{stringValue(draft.button_text) || "Button text"}</span></div></div></section>}
           <footer className="sticky bottom-0 flex gap-3 bg-white py-3 dark:bg-slate-900"><button type="submit" disabled={busy} className="min-h-12 flex-1 rounded-xl bg-emerald-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-white border-r-transparent align-[-3px]" />Saving…</> : "Save changes"}</button><button type="button" onClick={closeEdit} className="min-h-12 rounded-xl border px-4 font-semibold dark:border-slate-700">Cancel</button></footer>
         </form>
       </section>
@@ -274,13 +285,18 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
 }
 
 function collectionKeyForPath(path: string) { return Object.keys(collections).find((key) => collections[key].path === path); }
+function imageUrlValue(value: unknown) {
+  if (typeof value === "string") return value;
+  const url = asRecord(value).url;
+  return typeof url === "string" ? url : "";
+}
 
 function FieldControl({ field, value, imageAlt, onChange, locations }: { field: Field; value: unknown; imageAlt?: unknown; onChange: (value: unknown) => void; locations: Row[] }) {
   const inputClass = "mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950";
   if (field.kind === "single-image") {
     const imageValue = value && typeof value === "object" && "url" in value ? value as UploadedImage : null;
     const image: UploadedImage | null = imageValue ?? (stringValue(value) ? { url: stringValue(value), alt: stringValue(imageAlt) } : null);
-    return <ImageUpload label={field.label} hint={field.help} value={image} onChange={(next) => onChange(next && !Array.isArray(next) ? next : null)} />;
+    return <ImageUpload label={field.label} hint={field.help} value={image} onChange={(next) => onChange(next && !Array.isArray(next) ? next : null)} showDescription={field.showDescription} />;
   }
   if (field.kind === "boolean") return <label className="flex min-h-12 items-center gap-3 rounded-lg border p-3 text-sm font-semibold dark:border-slate-700"><input type="checkbox" checked={booleanValue(value)} onChange={(event) => onChange(event.target.checked)} className="size-5 accent-emerald-800" />{field.label}</label>;
   if (field.key === "rating") return <fieldset><legend className="font-semibold">{field.label}</legend><div className="mt-1 flex gap-1" role="radiogroup" aria-label="Star rating">{[1, 2, 3, 4, 5].map((rating) => <button key={rating} type="button" role="radio" aria-checked={Number(value) === rating} aria-label={`${rating} star${rating === 1 ? "" : "s"}`} onClick={() => onChange(rating)} className="min-h-11 min-w-11 rounded-lg text-2xl text-amber-500 hover:bg-amber-50 dark:hover:bg-slate-800"> {Number(value) >= rating ? "★" : "☆"} </button>)}</div></fieldset>;
@@ -293,6 +309,7 @@ function FieldControl({ field, value, imageAlt, onChange, locations }: { field: 
     return <label className="block text-sm font-semibold">{field.label}{field.required && <span className="text-red-700"> *</span>}{field.help && <span className="mt-1 block font-normal text-slate-600">{field.help}</span>}<select required={field.required} value={stringValue(value)} onChange={(event) => onChange(event.target.value)} className={inputClass}><option value="">Choose…</option>{options.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>;
   }
   if (field.kind === "rich") return <RichTextField label={field.label} value={stringValue(value)} onChange={onChange} help={field.help} required={field.required} />;
+  if (field.kind === "string-list") return <label className="block text-sm font-semibold">{field.label}{field.help && <span className="mt-1 block font-normal text-slate-600 dark:text-slate-300">{field.help}</span>}<textarea value={Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").join("\n") : stringValue(value)} onChange={(event) => onChange(event.target.value)} rows={4} className={inputClass} /></label>;
   const common = { value: stringValue(value), onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(field.kind === "number" ? event.target.value === "" ? "" : Number(event.target.value) : event.target.value), required: field.required, min: field.min, max: field.max, className: inputClass };
   return <label className="block text-sm font-semibold">{field.label}{field.required && <span className="text-red-700"> *</span>}{field.help && <span className="mt-1 block font-normal text-slate-600 dark:text-slate-300">{field.help}</span>}{field.kind === "textarea" ? <textarea {...common} rows={4} /> : <input {...common} type={field.kind === "number" ? "number" : "text"} />}</label>;
 }

@@ -17,5 +17,6 @@ class HeroBanner(Base, TimestampMixin):
     button_link: Mapped[str | None] = mapped_column(String(255), nullable=True)
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_alt: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    portrait_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)

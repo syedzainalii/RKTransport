@@ -71,6 +71,7 @@ export default async function HomePage() {
     button_link: "/quote",
     image_url: null,
     image_alt: "",
+    portrait_image_url: null,
   }];
   const steps = bookingSteps(copy.find((item: PageCopy) => item.key === "booking.steps")?.value);
   const aboutImage = about?.images?.find((image) => image.url);

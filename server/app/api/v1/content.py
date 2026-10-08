@@ -205,6 +205,13 @@ async def get_about(db: Session = Depends(get_db)):
     return db.query(About).all()
 
 
+@about_router.get("/admin/about", response_model=list[AboutResponse])
+async def get_about_admin(
+    db: Session = Depends(get_db), _: User = Depends(get_current_admin_user)
+):
+    return db.query(About).order_by(About.id).all()
+
+
 @about_router.post("/admin/about", response_model=AboutResponse)
 async def create_about(
     payload: AboutIn, background_tasks: BackgroundTasks, db: Session = Depends(get_db), _: User = Depends(get_current_admin_user)

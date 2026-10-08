@@ -167,6 +167,7 @@ export type HeroBanner = {
   button_link: string | null;
   image_url: string | null;
   image_alt: string | null;
+  portrait_image_url: string | null;
 };
 
 const API_PREFIX = "/api/v1";

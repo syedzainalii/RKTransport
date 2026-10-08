@@ -35,18 +35,32 @@ export default function HeroSlideshow({ slides }: { slides: HeroBanner[] }) {
         touchStart.current = null;
       }}
     >
-      {slides.map((banner, index) => banner.image_url && (
-        <Image
-          key={banner.id}
-          src={apiImageUrl(banner.image_url) || banner.image_url}
-          alt={banner.image_alt || ""}
-          fill
-          priority={index === 0}
-          unoptimized={!isImageOptimizable(banner.image_url)}
-          sizes="100vw"
-          className={`-z-20 object-cover transition-opacity duration-700 ${active === index ? "opacity-100" : "opacity-0"}`}
-        />
-      ))}
+      {slides.map((banner, index) => {
+        const landscapeImage = banner.image_url || banner.portrait_image_url;
+        const portraitImage = banner.portrait_image_url || landscapeImage;
+        if (!landscapeImage) return null;
+        const landscapeSrc = apiImageUrl(landscapeImage) || landscapeImage;
+        const portraitSrc = portraitImage ? apiImageUrl(portraitImage) || portraitImage : undefined;
+        return (
+          <picture
+            key={banner.id}
+            className={`absolute inset-0 -z-20 transition-opacity duration-700 ${active === index ? "opacity-100" : "opacity-0"}`}
+          >
+            {banner.portrait_image_url && portraitSrc && (
+              <source media="(max-width: 1023px)" srcSet={portraitSrc} />
+            )}
+            <Image
+              src={landscapeSrc}
+              alt={banner.image_alt || ""}
+              fill
+              priority={index === 0}
+              unoptimized={!isImageOptimizable(landscapeImage)}
+              sizes="100vw"
+              className="object-cover"
+            />
+          </picture>
+        );
+      })}
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-emerald-950/80 via-emerald-950/55 to-emerald-950/25" />
       <div className="absolute inset-x-0 top-0 -z-10 h-48 bg-gradient-to-b from-slate-950/80 to-transparent" />
       {slide && (
