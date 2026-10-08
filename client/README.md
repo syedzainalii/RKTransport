@@ -28,6 +28,6 @@ npm run build
 
 Deploy `client/` as the Vercel Next.js project. Set `API_BASE_URL` to the deployed FastAPI origin, set `SECRET_KEY` and `COOKIE_NAME` to match the backend, and set `REVALIDATE_SECRET` to the same value configured by the backend. Do not add a `/api/v1` suffix to `API_BASE_URL`.
 
-Image URLs stored in site content should point to Vercel Blob or Cloudinary. For additional image hosts, add a narrowly scoped host to `next.config.mjs`.
+Image URLs stored in site content should point to Cloudinary. For additional image hosts, add a narrowly scoped host to `next.config.mjs`.
 
 See the repository's [deployment guide](../DEPLOYMENT.md) for the full two-project Vercel setup, database migration/seed sequence, cookie and CORS settings, and launch checklist.

@@ -21,7 +21,7 @@ Run the seed command from the `server/` directory after migrations. It creates t
 
 ## Deploy
 
-Deploy `server/` as the backend Vercel project using its `vercel.json` and `api/index.py`. Configure `DATABASE_URL` with the database provider's pooled connection string and strong secrets as Vercel environment variables. Run `alembic upgrade head` and `python scripts/seed_database.py` as a deployment task before routing traffic to the new build. For production, set `COOKIE_SECURE=true`, restrict `ALLOWED_ORIGINS` to the frontend origin, and configure a Vercel Blob or Cloudinary upload provider. `FRONTEND_URL` and `REVALIDATE_SECRET` must refer to the deployed frontend and match its revalidation route. Vercel's `VERCEL` environment variable selects SQLAlchemy `NullPool` for per-invocation connections.
+Deploy `server/` as the backend Vercel project using its `vercel.json` and `api/index.py`. Configure `DATABASE_URL` with the database provider's pooled connection string and strong secrets as Vercel environment variables. Run `alembic upgrade head` and `python scripts/seed_database.py` as a deployment task before routing traffic to the new build. For production, set `COOKIE_SECURE=true`, restrict `ALLOWED_ORIGINS` to the frontend origin, and configure `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` for image uploads. `FRONTEND_URL` and `REVALIDATE_SECRET` must refer to the deployed frontend and match its revalidation route. Vercel's `VERCEL` environment variable selects SQLAlchemy `NullPool` for per-invocation connections.
 
 The frontend proxies browser requests through its same-origin `/api/v1` route. Keep `API_BASE_URL` private in the frontend deployment environment; it is the backend origin, without `/api/v1`.
 

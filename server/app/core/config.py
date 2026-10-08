@@ -28,8 +28,7 @@ class Settings(BaseSettings):
     COOKIE_SAMESITE: str = "lax"  # lax | strict | none
     COOKIE_DOMAIN: str | None = None
 
-    # Uploads: Vercel Blob (preferred) or Cloudinary
-    BLOB_READ_WRITE_TOKEN: str | None = None
+    # Image uploads are stored in Cloudinary.
     CLOUDINARY_CLOUD_NAME: str | None = None
     CLOUDINARY_API_KEY: str | None = None
     CLOUDINARY_API_SECRET: str | None = None
@@ -79,10 +78,8 @@ class Settings(BaseSettings):
                 missing.append("REVALIDATE_SECRET")
             if self.FRONTEND_URL.startswith("http://localhost"):
                 missing.append("FRONTEND_URL")
-            if not self.BLOB_READ_WRITE_TOKEN and not all(
-                (self.CLOUDINARY_CLOUD_NAME, self.CLOUDINARY_API_KEY, self.CLOUDINARY_API_SECRET)
-            ):
-                missing.append("image storage credentials")
+            if not all((self.CLOUDINARY_CLOUD_NAME, self.CLOUDINARY_API_KEY, self.CLOUDINARY_API_SECRET)):
+                missing.append("Cloudinary credentials")
             if self.DEBUG:
                 missing.append("DEBUG=false")
             if missing:

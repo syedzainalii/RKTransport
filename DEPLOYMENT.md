@@ -28,7 +28,7 @@ Run these commands from `server/` with the backend environment configured to use
    - `FRONTEND_URL`: canonical frontend origin, without a trailing slash.
    - `REVALIDATE_SECRET`: random secret matching the frontend value.
    - `COOKIE_SECURE=true`, `COOKIE_SAMESITE=lax`, `COOKIE_NAME=access_token`.
-   - One upload provider: `BLOB_READ_WRITE_TOKEN`, or all of `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`.
+   - Cloudinary image storage: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`.
    - `DEBUG=false`.
 5. Deploy and check `/health`. A healthy response does not replace migration/seed verification.
 
@@ -48,7 +48,7 @@ Run these commands from `server/` with the backend environment configured to use
 
 ## 4. Uploads, domain, CORS, and cookies
 
-- For Vercel Blob, create a Blob store and add its `BLOB_READ_WRITE_TOKEN` to the **backend** project. Alternatively, configure all Cloudinary values on the backend. Uploads are held in memory during processing and sent to the provider; the app does not persist uploads to local disk.
+- Configure all three Cloudinary values on the **backend** project. Uploads are held in memory during processing and sent to Cloudinary; the app does not persist uploads to local disk.
 - Assign the chosen custom domain to the frontend project. Use that exact `https://` origin for `NEXT_PUBLIC_SITE_URL`, `FRONTEND_URL`, and an entry in backend `ALLOWED_ORIGINS`.
 - If using a separate API subdomain, point the backend project to it and set `API_BASE_URL` to that origin. Do not add a browser CORS wildcard.
 - The preferred setup leaves `COOKIE_DOMAIN` blank: the same-origin frontend proxy sets a host-only cookie on the frontend domain. If the cookie must be shared by sibling subdomains, use a parent domain such as `.example.com`; keep HTTPS and `COOKIE_SECURE=true`. Do not set `SameSite=None` unless cross-site cookie use is genuinely required; browsers require `Secure` with `None`.

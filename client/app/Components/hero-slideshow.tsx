@@ -42,9 +42,9 @@ export default function HeroSlideshow({ slides }: { slides: HeroBanner[] }) {
       priority={index === 0}
       unoptimized={!isImageOptimizable(banner.image_url)}
       sizes="100vw"
-      className={`-z-20 object-cover transition-opacity duration-700 ${active === index ? "opacity-35" : "opacity-0"}`}
+      className={`-z-20 object-cover transition-opacity duration-700 ${active === index ? "opacity-100" : "opacity-0"}`}
     />)}
-    <div className="absolute inset-0 -z-10 bg-gradient-to-r from-emerald-950 via-emerald-950/90 to-emerald-950/45" />
+    <div className="absolute inset-0 -z-10 bg-gradient-to-r from-emerald-950/80 via-emerald-950/55 to-emerald-950/25" />
     <div className="absolute inset-x-0 top-0 -z-10 h-48 bg-gradient-to-b from-slate-950/80 to-transparent" />
     {slide && <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-24">
       <div className="max-w-3xl">

@@ -220,10 +220,7 @@ export function isImageOptimizable(url: string | null | undefined): boolean {
   if (url.startsWith("/") && !url.startsWith("//")) return true;
   try {
     const imageUrl = new URL(url);
-    return imageUrl.protocol === "https:" && (
-      imageUrl.hostname === "res.cloudinary.com" ||
-      imageUrl.hostname.endsWith(".public.blob.vercel-storage.com")
-    );
+    return imageUrl.protocol === "https:" && imageUrl.hostname === "res.cloudinary.com";
   } catch {
     return false;
   }

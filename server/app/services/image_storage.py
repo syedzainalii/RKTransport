@@ -1,4 +1,4 @@
-"""Upload images to Vercel Blob or Cloudinary. No local disk writes."""
+"""Validate, optimize, and upload images to Cloudinary without local disk writes."""
 import asyncio
 import hashlib
 import io
@@ -15,12 +15,11 @@ from app.core.config import settings
 
 ALLOWED = {".jpg", ".jpeg", ".png", ".webp"}
 MAX_WIDTH = 1920
-BLOB_TOKEN_PREFIX = "vercel_blob_rw_"
 logger = logging.getLogger(__name__)
 
 
 class StorageNotConfigured(RuntimeError):
-    """Storage credentials are missing or malformed."""
+    """Cloudinary credentials are missing or malformed."""
 
 
 def _validate(file: UploadFile) -> None:
@@ -32,8 +31,8 @@ def _validate(file: UploadFile) -> None:
         raise HTTPException(400, "File must be an image")
 
 
-def _clean_token(value: str | None) -> str:
-    """Remove stray whitespace or quotes that sneak in when pasting env values."""
+def _clean_credential(value: str | None) -> str:
+    """Remove stray whitespace or quotes pasted around an environment value."""
     return (value or "").strip().strip("'\"").strip()
 
 
@@ -43,7 +42,7 @@ def _optimize(contents: bytes) -> Tuple[bytes, str, str]:
     Images with transparency stay PNG (useful for logos); everything else becomes JPEG.
     """
     img = Image.open(io.BytesIO(contents))
-    img = ImageOps.exif_transpose(img)  # fix sideways phone photos
+    img = ImageOps.exif_transpose(img)
 
     has_alpha = img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info)
 
@@ -81,74 +80,57 @@ async def upload_image(file: UploadFile, folder: str = "general") -> Tuple[str, 
         ) from exc
 
     filename = f"{folder}/{int(time.time())}-{hashlib.sha1(contents[:64]).hexdigest()[:10]}.{ext}"
-
-    blob_token = _clean_token(settings.BLOB_READ_WRITE_TOKEN)
-    cloudinary_ready = all(
-        (settings.CLOUDINARY_CLOUD_NAME, settings.CLOUDINARY_API_KEY, settings.CLOUDINARY_API_SECRET)
-    )
+    cloud_name = _clean_credential(settings.CLOUDINARY_CLOUD_NAME)
+    api_key = _clean_credential(settings.CLOUDINARY_API_KEY)
+    api_secret = _clean_credential(settings.CLOUDINARY_API_SECRET)
 
     try:
-        if blob_token:
-            url = await _vercel_blob(filename, contents, content_type, blob_token)
-        elif cloudinary_ready:
-            url = await _cloudinary(filename.rsplit(".", 1)[0], contents, content_type, ext)
-        else:
-            raise StorageNotConfigured("No BLOB_READ_WRITE_TOKEN or Cloudinary credentials set")
+        if not all((cloud_name, api_key, api_secret)):
+            raise StorageNotConfigured("Cloudinary credentials are missing")
+        url = await _cloudinary(
+            filename.rsplit(".", 1)[0],
+            contents,
+            content_type,
+            ext,
+            cloud_name,
+            api_key,
+            api_secret,
+        )
     except StorageNotConfigured as exc:
         logger.error("Image storage misconfigured: %s", exc)
         raise HTTPException(500, "Image storage is not configured") from exc
     except Exception as exc:
-        logger.exception("Image upload provider failed")
+        logger.exception("Cloudinary image upload failed")
         raise HTTPException(502, "Image storage rejected the upload. Please try again.") from exc
 
     return url, len(contents), content_type
 
 
-async def _vercel_blob(pathname: str, contents: bytes, content_type: str, token: str) -> str:
-    if not token.startswith(BLOB_TOKEN_PREFIX):
-        raise StorageNotConfigured(
-            "BLOB_READ_WRITE_TOKEN does not look like a Vercel Blob read-write token "
-            f"(expected it to start with '{BLOB_TOKEN_PREFIX}'). Connect a Blob store to this project."
-        )
-
-    async with httpx.AsyncClient(timeout=30) as client:
-        res = await client.put(
-            f"https://blob.vercel-storage.com/{pathname}",
-            content=contents,
-            headers={
-                "Authorization": f"Bearer {token}",
-                "x-api-version": "7",
-                "x-content-type": content_type,
-                "x-add-random-suffix": "1",
-                "x-cache-control-max-age": "31536000",
-            },
-        )
-
-    if res.status_code >= 400:
-        # The response body never contains the token, so it is safe to log.
-        raise RuntimeError(f"Blob upload returned HTTP {res.status_code}: {res.text[:300]}")
-
-    data = res.json()
-    url = data.get("url") or data.get("downloadUrl")
-    if not url:
-        raise RuntimeError("Blob upload response did not include an image URL")
-    return url
-
-
-async def _cloudinary(public_id: str, contents: bytes, content_type: str, ext: str) -> str:
+async def _cloudinary(
+    public_id: str,
+    contents: bytes,
+    content_type: str,
+    ext: str,
+    cloud_name: str,
+    api_key: str,
+    api_secret: str,
+) -> str:
     timestamp = int(time.time())
-    params = f"public_id={public_id}&timestamp={timestamp}{settings.CLOUDINARY_API_SECRET}"
+    params = f"public_id={public_id}&timestamp={timestamp}{api_secret}"
     signature = hashlib.sha1(params.encode()).hexdigest()
     files = {"file": (f"image.{ext}", contents, content_type)}
     data = {
-        "api_key": settings.CLOUDINARY_API_KEY,
+        "api_key": api_key,
         "timestamp": str(timestamp),
         "public_id": public_id,
         "signature": signature,
     }
-    url = f"https://api.cloudinary.com/v1_1/{settings.CLOUDINARY_CLOUD_NAME}/image/upload"
+    url = f"https://api.cloudinary.com/v1_1/{cloud_name}/image/upload"
     async with httpx.AsyncClient(timeout=30) as client:
         res = await client.post(url, data=data, files=files)
     if res.status_code >= 400:
         raise RuntimeError(f"Cloudinary upload returned HTTP {res.status_code}: {res.text[:300]}")
-    return res.json()["secure_url"] 
+    secure_url = res.json().get("secure_url")
+    if not isinstance(secure_url, str) or not secure_url.startswith("https://"):
+        raise RuntimeError("Cloudinary upload response did not include a secure image URL")
+    return secure_url

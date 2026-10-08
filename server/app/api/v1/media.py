@@ -6,7 +6,7 @@ from app.core.database import get_db
 from app.models.media import Media
 from app.models.user import User
 from app.schemas.content import MediaResponse
-from app.services.blob_storage import upload_image
+from app.services.image_storage import upload_image
 
 router = APIRouter(tags=["Media"])
 
