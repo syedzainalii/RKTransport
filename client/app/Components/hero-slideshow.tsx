@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageCircle, Phone } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiImageUrl, isImageOptimizable, type HeroBanner } from "../../lib/transport-api";
 
@@ -84,14 +83,24 @@ export default function HeroSlideshow({ slides }: { slides: HeroBanner[] }) {
                 {slide.description}
               </p>
             )}
-            {slide.button_text && (
-              <Link
-                href={slide.button_link?.startsWith("/") && !slide.button_link.startsWith("//") ? slide.button_link : "/quote"}
-                className="mt-7 inline-flex min-h-12 items-center rounded-full bg-white px-6 font-semibold text-emerald-950 hover:bg-emerald-50"
+            <div className="mt-7 flex flex-wrap gap-3">
+              <a
+                href="https://wa.me/971561379697"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-12 items-center gap-2 rounded-full bg-emerald-500 px-6 font-semibold text-white hover:bg-emerald-600"
               >
-                {slide.button_text}
-              </Link>
-            )}
+                <MessageCircle aria-hidden="true" className="size-5" />
+                WhatsApp us
+              </a>
+              <a
+                href="tel:+971561379697"
+                className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-emerald-950 hover:bg-emerald-50"
+              >
+                <Phone aria-hidden="true" className="size-5" />
+                Call us
+              </a>
+            </div>
             {slides.length > 1 && (
               <div className="mt-8 flex items-center gap-3">
                 <button type="button" onClick={previous} aria-label="Previous slide" className="grid size-11 place-items-center rounded-full border border-white/60 bg-slate-950/20 text-white hover:bg-white/15">
