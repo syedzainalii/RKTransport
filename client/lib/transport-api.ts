@@ -96,12 +96,16 @@ export type Booking = {
   dropoff_address: string | null;
   pickup_location_id: number | null;
   dropoff_location_id: number | null;
+  vehicle_type_id: number | null;
   vehicle_make: string | null;
   vehicle_model: string | null;
   vehicle_year: number | null;
   plate_number: string | null;
   vehicles: BookingVehicle[] | null;
   scheduled_at: string | null;
+  storage_plan_id: number | null;
+  storage_start_date: string | null;
+  storage_end_date: string | null;
   quoted_amount_aed: string | number | null;
   admin_notes: string | null;
   notes: string | null;
