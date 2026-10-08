@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import ContactForm from "./Components/contact-form";
+import ReviewForm from "./Components/review-form";
 import HeroSlideshow from "./Components/hero-slideshow";
 import SimpleRichText from "./Components/simple-rich-text";
 import {
@@ -102,9 +102,9 @@ export default async function HomePage() {
             : "Available 24/7",
           button_text: text(
             "home.hero.button",
-            "Contact us"
+            "Give us Review"
           ),
-          button_link: "/contact",
+          button_link: "/review",
           image_url: null,
           image_alt: "",
           portrait_image_url: null,
@@ -472,28 +472,23 @@ export default async function HomePage() {
         )}
 
         {/* =========================================================
-            CONTACT
+            CONTACT & REVIEWS
         ========================================================= */}
         <section className="bg-stone-100 px-4 py-16 dark:bg-slate-900/70 sm:px-6">
           <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2">
             <div>
               <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">
-                {settings?.available_24_7
-                  ? settings.hours_label
-                  : ""}
+                {settings?.available_24_7 ? settings.hours_label : ""}
               </p>
 
               <h2 className="mt-2 text-3xl font-bold">
-                {text(
-                  "contact.heading",
-                  "Contact RK Transport"
-                )}
+                {text("review.home.heading", "Contact us & leave a review")}
               </h2>
 
               <p className="mt-3 leading-7 text-slate-700 dark:text-slate-200">
                 {text(
-                  "contact.subheading",
-                  "Get in touch about car transport between Dubai and Abu Dhabi."
+                  "review.home.subheading",
+                  "Call or message us about car transport between Dubai and Abu Dhabi, and tell us how your trip went."
                 )}
               </p>
 
@@ -513,10 +508,7 @@ export default async function HomePage() {
                   <p>
                     <a
                       className="font-semibold underline"
-                      href={`https://wa.me/${settings.whatsapp.replace(
-                        /\D/g,
-                        ""
-                      )}`}
+                      href={`https://wa.me/${settings.whatsapp.replace(/\D/g, "")}`}
                     >
                       WhatsApp RK Transport
                     </a>
@@ -534,16 +526,14 @@ export default async function HomePage() {
                   </p>
                 )}
 
-                {settings?.address_line && (
-                  <p>{settings.address_line}</p>
-                )}
+                {settings?.address_line && <p>{settings.address_line}</p>}
               </div>
             </div>
 
-            <ContactForm />
+            <ReviewForm />
           </div>
         </section>
-      </main>
+        </main>
 
       {/* =========================================================
           TESTIMONIAL ANIMATION
