@@ -7,7 +7,7 @@ import ImageUpload, { type UploadedImage } from "../components/image-upload";
 import useUnsavedChanges from "../components/use-unsaved-changes";
 
 type Settings = AdminSiteSettings;
-type TextKey = "brand_name" | "tagline" | "phone_primary" | "phone_recovery" | "whatsapp" | "email" | "address_line" | "city" | "emirate" | "country" | "facebook_url" | "instagram_url" | "tiktok_url" | "maps_embed_url" | "hours_label" | "footer_blurb" | "notification_admin_email" | "notification_admin_phone";
+type TextKey = "brand_name" | "tagline" | "phone_primary" | "whatsapp" | "email" | "address_line" | "city" | "emirate" | "country" | "facebook_url" | "instagram_url" | "maps_embed_url" | "hours_label" | "footer_blurb" | "notification_admin_email" | "notification_admin_phone";
 
 const inputClass = "mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950";
 const PHONE_PATTERN = "^\\+971[0-9]{8,9}$";
@@ -52,9 +52,9 @@ export default function SiteSettingsPage() {
     setError(""); setNotice("");
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const invalidPhone = (["phone_primary", "phone_recovery", "whatsapp", "notification_admin_phone"] as const)
+    const invalidPhone = (["phone_primary", "whatsapp", "notification_admin_phone"] as const)
       .some((key) => { const value = String(formData.get(key) || "").trim(); return value !== "" && !/^\+971[0-9]{8,9}$/.test(value.replace(/\s+/g, "")); });
-    const invalidUrl = (["facebook_url", "instagram_url", "tiktok_url", "maps_embed_url"] as const)
+    const invalidUrl = (["facebook_url", "instagram_url", "maps_embed_url"] as const)
       .some((key) => { const value = String(formData.get(key) || "").trim(); if (!value) return false; try { return !["http:", "https:"].includes(new URL(value).protocol); } catch { return true; } });
     if (invalidPhone || invalidUrl) {
       setError(invalidPhone ? "Enter UAE phone numbers in +971 format, for example +971501234567." : "Enter a complete website link beginning with https://.");
@@ -98,7 +98,6 @@ export default function SiteSettingsPage() {
 
       <details open className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Contact details</summary><div className="mt-4 grid gap-4 sm:grid-cols-2">
         {field("phone_primary", "Main phone", { type: "tel", hint: "UAE format, for example +971501234567." })}
-        {field("phone_recovery", "Recovery phone", { type: "tel", hint: "UAE format, for example +971501234567." })}
         {field("whatsapp", "WhatsApp number", { type: "tel", hint: "UAE format, for example +971501234567." })}
         {field("email", "Contact email", { type: "email" })}
         {field("address_line", "Street address")}
@@ -111,7 +110,6 @@ export default function SiteSettingsPage() {
       <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Social media links</summary><div className="mt-4 grid gap-4 sm:grid-cols-2">
         {field("facebook_url", "Facebook page", { type: "url", hint: "Example: https://facebook.com/yourbusiness" })}
         {field("instagram_url", "Instagram page", { type: "url", hint: "Example: https://instagram.com/yourbusiness" })}
-        {field("tiktok_url", "TikTok page", { type: "url", hint: "Example: https://tiktok.com/@yourbusiness" })}
       </div></details>
 
       <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Opening hours</summary><div className="mt-4 space-y-4">

@@ -5,13 +5,13 @@ import Link from "next/link";
 import { Award, CarFront, CircleCheck, Clock3, Gauge, Headset, Heart, MapPin, ShieldCheck, Star, Truck, Wrench } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useParams } from "next/navigation";
-import { apiRequest, type About, type AdminSiteSettings, type PageCopy } from "../../../../../lib/transport-api";
+import { apiRequest, type About, type AdminSiteSettings } from "../../../../../lib/transport-api";
 import ImageUpload, { type UploadedImage } from "../../components/image-upload";
 import useUnsavedChanges from "../../components/use-unsaved-changes";
 
 type Row = Record<string, unknown> & { id?: number };
-type Field = { key: string; label: string; help?: string; kind?: "text" | "textarea" | "rich" | "number" | "select" | "boolean" | "single-image" | "multi-image"; options?: [string, string][]; required?: boolean; min?: number; max?: number };
-type Collection = { title: string; path: string; singular: string; fields: Field[]; defaults: Row; view?: (row: Row, rows: Row[]) => string; advanced?: Field[] };
+type Field = { key: string; label: string; help?: string; kind?: "text" | "textarea" | "rich" | "number" | "select" | "boolean" | "single-image"; options?: [string, string][]; required?: boolean; min?: number; max?: number };
+type Collection = { title: string; path: string; singular: string; fields: Field[]; defaults: Row; view?: (row: Row, rows: Row[]) => string };
 
 const pageDestinations: [string, string][] = [
   ["/quote", "Book now"], ["/services", "Services"], ["/contact", "Contact"], ["/about", "About"], ["/storage", "Storage"], ["/", "Home"],
@@ -30,19 +30,14 @@ const collections: Record<string, Collection> = {
     { key: "image_url", label: "Banner picture", kind: "single-image", help: "Recommended size: 1920 × 900 pixels." },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
-  services: { title: "Services", singular: "service", path: "/services", defaults: { title: "", short_description: "", detailed_description: "", starting_price_note: "", features: [], gallery: [], image_url: "", image_alt: "", icon: "Truck", category: "transport", seo_title: "", seo_description: "", sort_order: 0, is_active: true }, fields: [
+  services: { title: "Services", singular: "service", path: "/services", defaults: { title: "", short_description: "", detailed_description: "", starting_price_note: "", features: [], image_url: "", image_alt: "", icon: "Truck", category: "transport", sort_order: 0, is_active: true }, fields: [
     { key: "title", label: "Service name", required: true },
     { key: "short_description", label: "Short summary", kind: "textarea", help: "One or two lines shown on service cards.", required: true },
     { key: "detailed_description", label: "Full description", kind: "rich", help: "Use the buttons for bold text, bullet points, and links." },
     { key: "starting_price_note", label: "Starting price note", help: 'Optional, for example "From AED 350".' },
     { key: "category", label: "Service type", kind: "select", options: serviceTypes },
     { key: "image_url", label: "Main picture", kind: "single-image" },
-    { key: "gallery", label: "Extra pictures", kind: "multi-image" },
     { key: "is_active", label: "Show on website", kind: "boolean" },
-  ], advanced: [
-    { key: "slug", label: "Page address", help: "Created automatically from the service name." },
-    { key: "seo_title", label: "Page title for Google" },
-    { key: "seo_description", label: "Description for Google", kind: "textarea" },
   ] },
   locations: { title: "Locations", singular: "location", path: "/locations", defaults: { name: "", emirate: "Dubai", pickup_enabled: true, dropoff_enabled: true, is_hub: true, sort_order: 0, is_active: true }, fields: [
     { key: "name", label: "Location name", required: true },
@@ -63,12 +58,11 @@ const collections: Record<string, Collection> = {
     { key: "surcharge_aed", label: "Extra charge (AED)", kind: "number", min: 0, help: "0 means no extra charge." },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
-  storage: { title: "Storage plans", singular: "storage plan", path: "/storage-plans", defaults: { title: "", description: "", billing_period: "month", price_aed: 0, features: [], covered: false, sort_order: 0, is_active: true }, fields: [
+  storage: { title: "Storage plans", singular: "storage plan", path: "/storage-plans", defaults: { title: "", description: "", billing_period: "month", price_aed: 0, features: [], sort_order: 0, is_active: true }, fields: [
     { key: "title", label: "Plan name", required: true },
     { key: "description", label: "Description", kind: "textarea" },
     { key: "price_aed", label: "Price (AED)", kind: "number", min: 0 },
     { key: "billing_period", label: "Billing period", kind: "select", options: [["day", "Per day"], ["week", "Per week"], ["month", "Per month"]] },
-    { key: "covered", label: "Covered storage", kind: "boolean" },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
   faqs: { title: "FAQs", singular: "question", path: "/faqs", defaults: { question: "", answer: "", page_key: "home", sort_order: 0, is_active: true }, fields: [
@@ -77,11 +71,10 @@ const collections: Record<string, Collection> = {
     { key: "page_key", label: "Which page?", kind: "select", options: [["home", "Home"], ["services", "Services"], ["booking", "Booking"], ["storage", "Storage"], ["", "All pages"]] },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
-  testimonials: { title: "Testimonials", singular: "testimonial", path: "/testimonials", defaults: { customer_name: "", quote: "", rating: 5, vehicle_note: "", image_url: "", image_alt: "", is_active: true, sort_order: 0 }, fields: [
+  testimonials: { title: "Testimonials", singular: "testimonial", path: "/testimonials", defaults: { customer_name: "", quote: "", rating: 5, vehicle_note: "", is_active: true, sort_order: 0 }, fields: [
     { key: "customer_name", label: "Customer name", required: true },
     { key: "quote", label: "What they said", kind: "textarea", required: true },
     { key: "rating", label: "Star rating", kind: "number", min: 1, max: 5 },
-    { key: "image_url", label: "Customer photo", kind: "single-image" },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
 };
@@ -93,7 +86,6 @@ function locationName(rows: Row[], id: unknown) {
 function stringValue(value: unknown): string { return typeof value === "string" ? value : value == null ? "" : String(value); }
 function booleanValue(value: unknown): boolean { return value === true; }
 function asRecord(value: unknown): Row { return typeof value === "object" && value !== null ? value as Row : {}; }
-function slugValue(value: string) { return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
 function titleOf(collection: Collection, row: Row, locations: Row[]) {
   if (collection.path === "/routes") return `${locationName(locations, row.origin_location_id)} → ${locationName(locations, row.destination_location_id)}`;
   return stringValue(row.title || row.name || row.question || row.customer_name || row.key) || collection.singular;
@@ -103,58 +95,11 @@ function apiErrorMessage(reason: unknown) {
   return "We could not complete that change. Please check your connection and try again.";
 }
 
-const PAGE_TEXT: Record<string, { page: string; label: string; hint: string }> = {
-  "seo.home.title": { page: "Home", label: "Page title for Google", hint: "A short title shown in search results and browser tabs." },
-  "seo.home.description": { page: "Home", label: "Description for Google", hint: "A clear summary shown below your page title in search results." },
-  "seo.about.title": { page: "About", label: "Page title for Google", hint: "A short title shown in search results and browser tabs." },
-  "seo.about.description": { page: "About", label: "Description for Google", hint: "A clear summary shown below your page title in search results." },
-  "seo.services.title": { page: "Services", label: "Page title for Google", hint: "A short title shown in search results and browser tabs." },
-  "seo.services.description": { page: "Services", label: "Description for Google", hint: "A clear summary shown below your page title in search results." },
-  "seo.quote.title": { page: "Booking", label: "Page title for Google", hint: "A short title shown in search results and browser tabs." },
-  "seo.quote.description": { page: "Booking", label: "Description for Google", hint: "A clear summary shown below your page title in search results." },
-  "seo.contact.title": { page: "Contact", label: "Page title for Google", hint: "A short title shown in search results and browser tabs." },
-  "seo.contact.description": { page: "Contact", label: "Description for Google", hint: "A clear summary shown below your page title in search results." },
-  "seo.track.title": { page: "Track booking", label: "Page title for Google", hint: "A short title shown in search results and browser tabs." },
-  "seo.track.description": { page: "Track booking", label: "Description for Google", hint: "A clear summary shown below your page title in search results." },
-  "seo.storage.title": { page: "Storage", label: "Page title for Google", hint: "A short title shown in search results and browser tabs." },
-  "seo.storage.description": { page: "Storage", label: "Description for Google", hint: "A clear summary shown below your page title in search results." },
-  "seo.dubai-to-abu-dhabi.title": { page: "Dubai to Abu Dhabi", label: "Page title for Google", hint: "A short title shown in search results and browser tabs." },
-  "seo.dubai-to-abu-dhabi.description": { page: "Dubai to Abu Dhabi", label: "Description for Google", hint: "A clear summary shown below your page title in search results." },
-  "seo.abu-dhabi-to-dubai.title": { page: "Abu Dhabi to Dubai", label: "Page title for Google", hint: "A short title shown in search results and browser tabs." },
-  "seo.abu-dhabi-to-dubai.description": { page: "Abu Dhabi to Dubai", label: "Description for Google", hint: "A clear summary shown below your page title in search results." },
-  "seo.car-lift-recovery.title": { page: "Car lift and recovery", label: "Page title for Google", hint: "A short title shown in search results and browser tabs." },
-  "seo.car-lift-recovery.description": { page: "Car lift and recovery", label: "Description for Google", hint: "A clear summary shown below your page title in search results." },
-  "home.hero.title": { page: "Home", label: "Main heading", hint: "The large text in the homepage banner." },
-  "home.hero.description": { page: "Home", label: "Banner description", hint: "Short sentence below the homepage heading." },
-  "home.booking.heading": { page: "Home", label: "Booking form heading", hint: "Heading above the homepage booking form." },
-  "home.booking.description": { page: "Home", label: "Booking form introduction", hint: "A short note above the form." },
-  "home.services.heading": { page: "Home", label: "Services section heading", hint: "Heading above homepage service cards." },
-  "home.steps.heading": { page: "Home", label: "How booking works heading", hint: "Heading above the three booking steps." },
-  "quote.heading": { page: "Booking", label: "Main heading", hint: "Heading at the top of the booking form." },
-  "quote.subheading": { page: "Booking", label: "Introduction", hint: "Short introduction below the heading." },
-  "services.heading": { page: "Services", label: "Main heading", hint: "Heading above the service cards." },
-  "services.subheading": { page: "Services", label: "Introduction", hint: "Short introduction below the heading." },
-  "landing.dubai-to-abu-dhabi.h1": { page: "Dubai to Abu Dhabi", label: "Main heading", hint: "The large heading at the top of this route page." },
-  "landing.dubai-to-abu-dhabi.intro": { page: "Dubai to Abu Dhabi", label: "Introduction", hint: "The short introduction below the heading." },
-  "landing.dubai-to-abu-dhabi.body": { page: "Dubai to Abu Dhabi", label: "Additional details", hint: "The main information section on this route page." },
-  "landing.abu-dhabi-to-dubai.h1": { page: "Abu Dhabi to Dubai", label: "Main heading", hint: "The large heading at the top of this route page." },
-  "landing.abu-dhabi-to-dubai.intro": { page: "Abu Dhabi to Dubai", label: "Introduction", hint: "The short introduction below the heading." },
-  "landing.abu-dhabi-to-dubai.body": { page: "Abu Dhabi to Dubai", label: "Additional details", hint: "The main information section on this route page." },
-  "landing.car-lift-recovery.h1": { page: "Car lift and recovery", label: "Main heading", hint: "The large heading at the top of this service page." },
-  "landing.car-lift-recovery.intro": { page: "Car lift and recovery", label: "Introduction", hint: "The short introduction below the heading." },
-  "landing.car-lift-recovery.body": { page: "Car lift and recovery", label: "Additional details", hint: "The main information section on this service page." },
-  "contact.heading": { page: "Contact", label: "Main heading", hint: "Heading at the top of the contact page." },
-  "contact.subheading": { page: "Contact", label: "Introduction", hint: "Short introduction below the heading." },
-  "storage.heading": { page: "Storage", label: "Main heading", hint: "Heading above storage plans." },
-  "storage.subheading": { page: "Storage", label: "Introduction", hint: "Short introduction below the heading." },
-};
-
 export default function AdminCollectionPage() {
   const params = useParams<{ collection: string }>();
   const collectionKey = params.collection;
   if (collectionKey === "availability") return <AvailabilityEditor />;
   if (collectionKey === "about") return <AboutEditor />;
-  if (collectionKey === "page-text") return <PageTextEditor />;
   const collection = collections[collectionKey];
   if (!collection) return <main className="p-6">This editor is not available.</main>;
   return <CollectionEditor key={collectionKey} collectionKey={collectionKey} collection={collection} />;
@@ -318,9 +263,8 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
       <section role="dialog" aria-modal="true" aria-labelledby="editor-title" className="mx-auto my-4 max-w-2xl rounded-2xl bg-white p-4 shadow-2xl dark:bg-slate-900 sm:p-6">
         <header className="flex items-center justify-between gap-3"><h2 id="editor-title" className="text-xl font-bold">{typeof draft.id === "number" ? "Edit" : "Add"} {collection.singular}</h2><button type="button" onClick={closeEdit} aria-label="Close form" className="min-h-11 min-w-11 rounded-lg border dark:border-slate-700">×</button></header>
         <form ref={formRef} onSubmit={(event) => void save(event)} className="mt-4 space-y-4">
-            {collection.fields.map((field) => <FieldControl key={field.key} field={field} value={draft[field.key]} imageAlt={draft[field.key.replace(/_url$/, "_alt")]} onChange={(value) => { update(field.key, value); if (field.key === "title" && collectionKey === "services") update("slug", slugValue(stringValue(value))); }} locations={locations} />)}
+            {collection.fields.map((field) => <FieldControl key={field.key} field={field} value={draft[field.key]} imageAlt={draft[field.key.replace(/_url$/, "_alt")]} onChange={(value) => update(field.key, value)} locations={locations} />)}
             {collectionKey === "banners" && draft.button_link === "custom" && <FieldControl field={{ key: "button_custom_link", label: "Custom page or website address", help: "For example, https://example.com/offer.", required: true }} value={draft.button_custom_link} onChange={(value) => update("button_custom_link", value)} locations={locations} />}
-          {collection.advanced && <details className="rounded-xl border p-4 dark:border-slate-700"><summary className="min-h-11 cursor-pointer content-center font-semibold">Advanced: search engine settings</summary><div className="mt-3 space-y-4">{collection.advanced.map((field) => <FieldControl key={field.key} field={field} value={draft[field.key]} onChange={(value) => update(field.key, value)} locations={locations} />)}</div></details>}
                   {collectionKey === "banners" && <section aria-label="Banner preview" className="overflow-hidden rounded-xl border dark:border-slate-700"><h3 className="p-3 font-semibold">Live banner preview</h3><div className="relative min-h-52 bg-emerald-950 p-6 text-white">{(typeof draft.image_url === "string" ? draft.image_url : stringValue(asRecord(draft.image_url).url)) && <Image src={typeof draft.image_url === "string" ? draft.image_url : stringValue(asRecord(draft.image_url).url)} alt="" fill unoptimized sizes="640px" className="object-cover opacity-70" />}<div className="relative z-10"><p className="font-bold">{stringValue(draft.badge_text)}</p><h4 className="mt-3 text-2xl font-bold">{stringValue(draft.title) || "Your banner heading"}</h4><p className="mt-2 text-lg">{stringValue(draft.subtitle)}</p><p className="mt-2">{stringValue(draft.description)}</p><span className="mt-4 inline-flex min-h-11 items-center rounded-full bg-white px-4 font-semibold text-emerald-950">{stringValue(draft.button_text) || "Button text"}</span></div></div></section>}
           <footer className="sticky bottom-0 flex gap-3 bg-white py-3 dark:bg-slate-900"><button type="submit" disabled={busy} className="min-h-12 flex-1 rounded-xl bg-emerald-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-white border-r-transparent align-[-3px]" />Saving…</> : "Save changes"}</button><button type="button" onClick={closeEdit} className="min-h-12 rounded-xl border px-4 font-semibold dark:border-slate-700">Cancel</button></footer>
         </form>
@@ -333,15 +277,10 @@ function collectionKeyForPath(path: string) { return Object.keys(collections).fi
 
 function FieldControl({ field, value, imageAlt, onChange, locations }: { field: Field; value: unknown; imageAlt?: unknown; onChange: (value: unknown) => void; locations: Row[] }) {
   const inputClass = "mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950";
-  if (field.key === "slug") return <p className="text-sm"><span className="font-semibold">{field.label}</span>{field.help && <span className="mt-1 block text-slate-600 dark:text-slate-300">{field.help}</span>}<span className="mt-1 block rounded-lg bg-slate-100 p-3 font-mono dark:bg-slate-800">{stringValue(value) || "Created when you save the service name."}</span></p>;
   if (field.kind === "single-image") {
     const imageValue = value && typeof value === "object" && "url" in value ? value as UploadedImage : null;
     const image: UploadedImage | null = imageValue ?? (stringValue(value) ? { url: stringValue(value), alt: stringValue(imageAlt) } : null);
     return <ImageUpload label={field.label} hint={field.help} value={image} onChange={(next) => onChange(next && !Array.isArray(next) ? next : null)} />;
-  }
-  if (field.kind === "multi-image") {
-    const images = Array.isArray(value) ? value.map((item) => asRecord(item)).filter((item) => typeof item.url === "string") as UploadedImage[] : [];
-    return <ImageUpload label={field.label} value={images} multiple onChange={(next) => onChange(Array.isArray(next) ? next : [])} />;
   }
   if (field.kind === "boolean") return <label className="flex min-h-12 items-center gap-3 rounded-lg border p-3 text-sm font-semibold dark:border-slate-700"><input type="checkbox" checked={booleanValue(value)} onChange={(event) => onChange(event.target.checked)} className="size-5 accent-emerald-800" />{field.label}</label>;
   if (field.key === "rating") return <fieldset><legend className="font-semibold">{field.label}</legend><div className="mt-1 flex gap-1" role="radiogroup" aria-label="Star rating">{[1, 2, 3, 4, 5].map((rating) => <button key={rating} type="button" role="radio" aria-checked={Number(value) === rating} aria-label={`${rating} star${rating === 1 ? "" : "s"}`} onClick={() => onChange(rating)} className="min-h-11 min-w-11 rounded-lg text-2xl text-amber-500 hover:bg-amber-50 dark:hover:bg-slate-800"> {Number(value) >= rating ? "★" : "☆"} </button>)}</div></fieldset>;
@@ -501,54 +440,14 @@ function AboutEditor() {
         {reasons.map((reason, index) => <div key={index} className="space-y-3 rounded-xl border p-3 dark:border-slate-700"><label className="block font-semibold">Choose an icon<div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">{icons.map(({ name, Icon }) => <button key={name} type="button" aria-label={`Choose ${name} icon`} aria-pressed={reason.icon === name} onClick={() => updateArray("why_choose_us", index, { icon: name })} className={`min-h-16 rounded-lg border p-1 text-xs ${reason.icon === name ? "border-emerald-700 bg-emerald-100 dark:bg-emerald-950" : "dark:border-slate-700"}`}><Icon aria-hidden="true" className="mx-auto size-5" /><span className="mt-1 block">{name}</span></button>)}</div></label><TextField label="Title" value={stringValue(reason.title)} onChange={(value) => updateArray("why_choose_us", index, { title: value })} /><TextField label="Description" value={stringValue(reason.description)} onChange={(value) => updateArray("why_choose_us", index, { description: value })} /><div className="flex gap-2"><button type="button" aria-label="Move reason up" onClick={() => moveArray("why_choose_us", index, -1)} className="min-h-11 min-w-11 rounded border">↑</button><button type="button" aria-label="Move reason down" onClick={() => moveArray("why_choose_us", index, 1)} className="min-h-11 min-w-11 rounded border">↓</button><button type="button" onClick={() => update("why_choose_us", reasons.filter((_, i) => i !== index))} className="min-h-11 rounded border border-red-300 px-3 text-red-800">Remove</button></div></div>)}
         <button type="button" onClick={() => update("why_choose_us", [...reasons, { icon: "Star", title: "", description: "" }])} className="min-h-11 rounded-lg border px-4">Add a reason</button>
       </fieldset>
-      <fieldset className="grid gap-4 rounded-2xl bg-white p-4 dark:bg-slate-900 sm:grid-cols-2"><legend className="px-2 text-lg font-bold">4. Mission and vision (optional)</legend><TextField label="Our mission" value={stringValue(draft.mission)} onChange={(value) => update("mission", value)} multiline /><TextField label="Our vision" value={stringValue(draft.vision)} onChange={(value) => update("vision", value)} multiline /></fieldset>
       <button type="submit" disabled={busy} className="min-h-12 w-full rounded-xl bg-emerald-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-white border-r-transparent align-[-3px]" />Saving…</> : "Save About page"}</button>
     </form>}
   </div></main>;
 }
 
-function TextField({ label, value, onChange, required, multiline }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; multiline?: boolean }) {
+function TextField({ label, value, onChange, required }: { label: string; value: string; onChange: (value: string) => void; required?: boolean }) {
   const cls = "mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950";
-  return <label className="block text-sm font-semibold">{label}{required && <span className="text-red-700"> *</span>}{multiline ? <textarea required={required} value={value} onChange={(event) => onChange(event.target.value)} rows={4} className={`${cls} py-2`} /> : <input required={required} value={value} onChange={(event) => onChange(event.target.value)} className={cls} />}</label>;
-}
-
-function PageTextEditor() {
-  const [rows, setRows] = useState<PageCopy[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState<string | null>(null);
-  const [values, setValues] = useState<Record<string, string>>({});
-  const [toast, setToast] = useState("");
-  const [error, setError] = useState("");
-  const [dirty, setDirty] = useState(false);
-  const [savedValues, setSavedValues] = useState<Record<string, string>>({});
-  useUnsavedChanges(dirty);
-  const load = useCallback(async () => {
-    try {
-      const data = await apiRequest<PageCopy[]>("/admin/page-copy");
-      setRows(data.filter((row) => PAGE_TEXT[row.key]));
-      const loadedValues = Object.fromEntries(data.map((row) => [row.key, row.value]));
-      setValues(loadedValues); setSavedValues(loadedValues); setDirty(false);
-    } catch { setError("We could not load page text. Please try again."); }
-    finally { setLoading(false); }
-  }, []);
-  useEffect(() => { void Promise.resolve().then(load); }, [load]);
-  const grouped = Object.entries(PAGE_TEXT).reduce<Record<string, [string, typeof PAGE_TEXT[string]][]>>((result, [key, meta]) => {
-    (result[meta.page] ??= []).push([key, meta]);
-    return result;
-  }, {});
-  async function save(row: PageCopy) {
-    setSaving(row.key); setError(""); setToast("");
-    try {
-      await apiRequest(`/admin/page-copy/${row.id}`, { method: "PUT", body: JSON.stringify({ key: row.key, value: values[row.key] ?? row.value }) });
-      const saved = { ...savedValues, [row.key]: values[row.key] ?? row.value };
-      setSavedValues(saved); setDirty(Object.entries(values).some(([key, value]) => (saved[key] ?? "") !== value)); setToast("Page text saved.");
-    } catch (reason) { setError(apiErrorMessage(reason)); }
-    finally { setSaving(null); }
-  }
-  return <main className="min-h-screen bg-stone-50 px-4 py-8 pt-16 dark:bg-slate-950 sm:px-6 md:pt-8"><div className="mx-auto max-w-4xl"><Link href="/admin/dashboard" className="inline-flex min-h-11 items-center font-semibold">← Dashboard</Link><h1 className="my-5 text-3xl font-bold">Page text</h1>
-    <p className="mb-5 text-slate-600 dark:text-slate-300">Update public-page headings and short introductions. Labels explain where each item appears.</p>{toast && <p role="status" className="mb-3 rounded-xl bg-emerald-100 p-3">{toast}</p>}{error && <p role="alert" className="mb-3 rounded-xl bg-red-100 p-3">{error}</p>}
-    {loading ? <div className="h-40 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" /> : Object.entries(grouped).map(([page, fields]) => <section key={page} className="mb-4 rounded-2xl bg-white p-4 dark:bg-slate-900"><h2 className="mb-3 text-xl font-bold">{page}</h2><div className="space-y-4">{fields.map(([key, meta]) => { const row = rows.find((item) => item.key === key); return <div key={key}><label className="block text-sm font-semibold">{page} page: {meta.label}<span className="mt-1 block font-normal text-slate-600 dark:text-slate-300">{meta.hint}</span><textarea value={values[key] ?? ""} onChange={(event) => { setDirty(true); setValues((previous) => ({ ...previous, [key]: event.target.value })); }} rows={2} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-transparent p-3 dark:border-slate-700" /></label><button type="button" disabled={!row || saving === key} onClick={() => row && void save(row)} className="mt-2 min-h-11 rounded-lg border px-4 font-semibold disabled:opacity-50">{saving === key ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-current border-r-transparent align-[-3px]" />Saving…</> : "Save this text"}</button></div>; })}</div></section>)}
-  </div></main>;
+  return <label className="block text-sm font-semibold">{label}{required && <span className="text-red-700"> *</span>}<input required={required} value={value} onChange={(event) => onChange(event.target.value)} className={cls} /></label>;
 }
 
 function AvailabilityEditor() {

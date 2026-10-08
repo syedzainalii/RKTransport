@@ -91,7 +91,6 @@ export default function AdminDashboardPage() {
               <AdminCard href="/admin/dashboard/content/banners" title="Homepage banners" description="Edit and arrange the home page slideshow." />
               <AdminCard href="/admin/dashboard/content/services" title="Services" description="Manage service pages, pictures, and Google descriptions." />
               <AdminCard href="/admin/dashboard/content/about" title="About page" description="Update your story, numbers, and reasons customers choose you." />
-              <AdminCard href="/admin/dashboard/content/page-text" title="Page text" description="Edit headings and introductions shown on public pages." />
               <AdminCard href="/admin/dashboard/content/faqs" title="FAQs" description="Add answers to common customer questions." />
               <AdminCard href="/admin/dashboard/content/testimonials" title="Testimonials" description="Manage customer reviews and ratings." />
             </ManagementGroup>
