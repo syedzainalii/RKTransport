@@ -17,7 +17,7 @@ const pageDestinations: [string, string][] = [
   ["/quote", "Book now"], ["/services", "Services"], ["/contact", "Contact"], ["/about", "About"], ["/storage", "Storage"], ["/", "Home"],
 ];
 const cityOptions: [string, string][] = [["Dubai", "Dubai"], ["Abu Dhabi", "Abu Dhabi"]];
-const serviceTypes: [string, string][] = [["transport", "Car transport"], ["recovery", "Recovery"], ["storage", "Storage"]];
+const serviceTypes: [string, string][] = [["transport", "Car transport"]];
 
 const collections: Record<string, Collection> = {
   banners: { title: "Homepage banners", singular: "banner", path: "/hero-banners", defaults: { title: "", subtitle: "", description: "", badge_text: "", button_text: "Book now", button_link: "/quote", button_custom_link: "", image_url: "", image_alt: "", portrait_image_url: "", sort_order: 0, is_active: true }, fields: [
