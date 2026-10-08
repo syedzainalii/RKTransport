@@ -151,4 +151,4 @@ async def _cloudinary(public_id: str, contents: bytes, content_type: str, ext: s
         res = await client.post(url, data=data, files=files)
     if res.status_code >= 400:
         raise RuntimeError(f"Cloudinary upload returned HTTP {res.status_code}: {res.text[:300]}")
-    return res.json()["secure_url"]
+    return res.json()["secure_url"] 
