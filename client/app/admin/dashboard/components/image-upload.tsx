@@ -13,6 +13,9 @@ type Props = {
   multiple?: boolean;
   folder?: string;
   hint?: string;
+  uploadEndpoint?: string;
+  showDescription?: boolean;
+  maxImages?: number;
 };
 
 const MAX_UPLOAD_BYTES = 4_000_000;
@@ -45,7 +48,17 @@ async function compressImage(file: File): Promise<File> {
   return new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" });
 }
 
-export default function ImageUpload({ label, value, onChange, multiple = false, folder = "general", hint }: Props) {
+export default function ImageUpload({
+  label,
+  value,
+  onChange,
+  multiple = false,
+  folder = "general",
+  hint,
+  uploadEndpoint = "/admin/media",
+  showDescription = true,
+  maxImages,
+}: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
@@ -57,6 +70,10 @@ export default function ImageUpload({ label, value, onChange, multiple = false, 
   async function uploadFiles(files: FileList | File[]) {
     const accepted = [...files].filter((file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type));
     if (!accepted.length) { setError("Choose a JPG, PNG, or WebP image."); return; }
+    if (maxImages !== undefined && accepted.length + images.length > maxImages && replaceIndex === null) {
+      setError(`You can add up to ${maxImages} photos.`);
+      return;
+    }
     setBusy(true);
     setError("");
     try {
@@ -67,8 +84,8 @@ export default function ImageUpload({ label, value, onChange, multiple = false, 
         setProgress(`Uploading image ${index + 1} of ${accepted.length}…`);
         const form = new FormData();
         form.set("file", file);
-        form.set("folder", folder);
-        const result = await apiRequest<{ url: string }>("/admin/media", { method: "POST", body: form });
+        if (uploadEndpoint === "/admin/media") form.set("folder", folder);
+        const result = await apiRequest<{ url: string }>(uploadEndpoint, { method: "POST", body: form });
         additions.push({ url: result.url, alt: "" });
       }
       if (replaceIndex !== null && additions[0]) {
@@ -120,7 +137,7 @@ export default function ImageUpload({ label, value, onChange, multiple = false, 
     {images.length > 0 && <div className={multiple ? "grid grid-cols-2 gap-3 sm:grid-cols-3" : "max-w-sm"}>
       {images.map((image, index) => <article key={`${image.url}-${index}`} draggable={multiple} onDragStart={() => setDragIndex(index)} onDragOver={(event) => event.preventDefault()} onDrop={() => { if (dragIndex !== null) reorderImages(dragIndex, index); setDragIndex(null); }} className="rounded-xl border border-slate-200 p-3 dark:border-slate-700">
         <div className="relative aspect-video overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800"><Image src={image.url} alt={image.alt || ""} fill unoptimized sizes="(max-width: 640px) 50vw, 240px" className="object-cover" /></div>
-        <label className="mt-2 block text-xs font-medium">Describe this image (helps Google and screen readers)<input value={image.alt || ""} onChange={(event) => updateImage(index, { alt: event.target.value })} maxLength={255} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-transparent px-2 text-sm dark:border-slate-700" /></label>
+        {showDescription && <label className="mt-2 block text-xs font-medium">Describe this image (helps Google and screen readers)<input value={image.alt || ""} onChange={(event) => updateImage(index, { alt: event.target.value })} maxLength={255} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-transparent px-2 text-sm dark:border-slate-700" /></label>}
         {multiple && <p className="mt-1 text-xs text-slate-500">Drag to change order</p>}
         <div className="mt-2 flex gap-2"><button type="button" disabled={busy} onClick={() => { setReplaceIndex(index); if (input.current) input.current.multiple = false; input.current?.click(); }} className="min-h-11 flex-1 rounded-lg border px-2 text-sm font-semibold disabled:opacity-60 dark:border-slate-700">Replace</button><button type="button" disabled={busy} onClick={() => removeImage(index)} className="min-h-11 flex-1 rounded-lg border border-red-300 px-2 text-sm font-semibold text-red-800 disabled:opacity-60">Remove</button></div>
       </article>)}

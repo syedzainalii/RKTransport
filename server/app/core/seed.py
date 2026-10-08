@@ -4,6 +4,8 @@ from app.core.config import settings
 from app.core.security import get_password_hash
 from app.models import (
     About,
+    CarMake,
+    CarModel,
     Faq,
     HeroBanner,
     Location,
@@ -242,6 +244,72 @@ def seed_defaults(db: Session) -> None:
                 VehicleType(name="Motorcycle", slug="motorcycle", surcharge_aed=0, sort_order=5),
             ]
         )
+
+    vehicle_type_rows = {
+        row.name.casefold(): row
+        for row in db.query(VehicleType).all()
+    }
+    for name, slug in (("Pickup", "pickup"), ("Sports", "sports")):
+        if name.casefold() not in vehicle_type_rows:
+            row = VehicleType(name=name, slug=slug, surcharge_aed=0, sort_order=len(vehicle_type_rows) + 1)
+            db.add(row)
+            vehicle_type_rows[name.casefold()] = row
+    db.flush()
+
+    car_starter_data = {
+        "Toyota": ["Camry", "Corolla", "Land Cruiser", "Hilux", "Prado", "RAV4", "Yaris"],
+        "Nissan": ["Patrol", "Altima", "Sunny", "X-Trail", "Navara", "Pathfinder"],
+        "Honda": ["Accord", "Civic", "CR-V", "Pilot", "City"],
+        "Mercedes-Benz": ["C-Class", "E-Class", "S-Class", "GLE", "G-Class"],
+        "BMW": ["3 Series", "5 Series", "7 Series", "X3", "X5"],
+        "Lexus": ["ES", "LS", "RX", "GX", "LX"],
+        "Land Rover": ["Defender", "Discovery", "Range Rover Sport"],
+        "Range Rover": ["Evoque", "Velar", "Sport", "Autobiography"],
+        "Ford": ["Mustang", "Explorer", "Ranger", "F-150", "Everest"],
+        "Chevrolet": ["Tahoe", "Captiva", "Camaro", "Silverado"],
+        "Hyundai": ["Elantra", "Sonata", "Tucson", "Santa Fe", "Accent"],
+        "Kia": ["Sportage", "Sorento", "K5", "Telluride", "Cerato"],
+        "Porsche": ["911", "Cayenne", "Macan", "Panamera"],
+        "Tesla": ["Model 3", "Model S", "Model X", "Model Y"],
+        "Mitsubishi": ["Pajero", "Outlander", "Lancer", "Montero Sport"],
+        "Mazda": ["Mazda 3", "Mazda 6", "CX-5", "CX-9"],
+        "GMC": ["Yukon", "Terrain", "Acadia", "Sierra"],
+        "Isuzu": ["D-Max", "MU-X"],
+        "Suzuki": ["Jimny", "Swift", "Vitara"],
+        "Volkswagen": ["Golf", "Tiguan", "Touareg", "Passat"],
+    }
+    vehicle_types_by_name = {
+        row.name.casefold(): row.id
+        for row in db.query(VehicleType).all()
+    }
+    for sort_order, (make_name, model_names) in enumerate(car_starter_data.items(), start=1):
+        make = db.query(CarMake).filter(CarMake.name.ilike(make_name)).first()
+        if not make:
+            make = CarMake(name=make_name, sort_order=sort_order, is_active=True)
+            db.add(make)
+            db.flush()
+        existing_models = {
+            row.name.casefold()
+            for row in db.query(CarModel).filter(CarModel.make_id == make.id).all()
+        }
+        for model_name in model_names:
+            if model_name.casefold() in existing_models:
+                continue
+            model_folded = model_name.casefold()
+            vehicle_type_name = (
+                "sports" if any(term in model_folded for term in ("911", "mustang", "camaro"))
+                else "pickup" if any(term in model_folded for term in ("hilux", "navara", "ranger", "f-150", "silverado", "sierra", "d-max"))
+                else "suv" if any(term in model_folded for term in ("land cruiser", "patrol", "prado", "rav4", "x-trail", "cr-v", "pilot", "gle", "g-class", "x3", "x5", "rx", "gx", "lx", "defender", "discovery", "range rover", "explorer", "everest", "tahoe", "tucson", "santa fe", "sportage", "sorento", "telluride", "cayenne", "macan", "model x", "model y", "pajero", "outlander", "montero", "cx-", "yukon", "terrain", "acadia", "mu-x", "jimny", "vitara", "tiguan", "touareg"))
+                else "sedan"
+            )
+            db.add(
+                CarModel(
+                    make_id=make.id,
+                    name=model_name,
+                    default_vehicle_type_id=vehicle_types_by_name.get(vehicle_type_name),
+                    is_active=True,
+                )
+            )
 
     if not db.query(StoragePlan).first():
         db.add_all(

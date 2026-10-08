@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
-import { apiRequest, type Booking } from "../../../../lib/transport-api";
+import Image from "next/image";
+import { apiRequest, type Booking, type BookingVehicle } from "../../../../lib/transport-api";
 
 const statuses = ["new", "quoted", "confirmed", "in_progress", "completed", "cancelled"];
 
@@ -45,7 +46,7 @@ export default function AdminBookingsPage() {
   }
 
   function exportCsv() {
-    const columns = ["Reference", "Name", "Phone", "Email", "Service", "Status", "Pickup", "Drop-off", "Vehicle", "Created"];
+      const columns = ["Reference", "Name", "Phone", "Email", "Service", "Status", "Pickup", "Drop-off", "Vehicles", "Created"];
     const escapeCell = (value: string | number | null) => {
       const cell = String(value ?? "").replace(/^[=+\-@]/, "'$&");
       return `"${cell.replace(/"/g, '""')}"`;
@@ -59,7 +60,7 @@ export default function AdminBookingsPage() {
       booking.status,
       booking.pickup_address || booking.pickup_location_id,
       booking.dropoff_address || booking.dropoff_location_id,
-      [booking.vehicle_make, booking.vehicle_model].filter(Boolean).join(" "),
+      booking.vehicles?.length ? booking.vehicles.map(vehicleLabel).join("; ") : [booking.vehicle_make, booking.vehicle_model].filter(Boolean).join(" "),
       booking.created_at,
     ])].map((row) => row.map(escapeCell).join(","));
     const url = URL.createObjectURL(new Blob([lines.join("\r\n")], { type: "text/csv;charset=utf-8" }));
@@ -83,7 +84,11 @@ export default function AdminBookingsPage() {
     {authorized && rows.length > 0 && filteredRows.length === 0 && <p>No bookings match these filters.</p>}
     <div className="space-y-5">{filteredRows.map((booking) => <article key={booking.id} className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex flex-wrap justify-between gap-3"><div><h2 className="font-bold">{booking.customer_name} <span className="font-mono text-sm text-emerald-800">#{booking.ref}</span>{booking.status === "new" && <span className="ml-2 rounded-full bg-red-100 px-2 py-1 text-xs font-bold text-red-900">New</span>}</h2><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{booking.customer_phone} · {booking.type} · {new Intl.DateTimeFormat("en-AE", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Dubai" }).format(new Date(booking.created_at))} (Asia/Dubai)</p></div><div className="flex flex-wrap gap-2"><a className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-3 text-sm font-semibold dark:border-slate-700" href={`tel:${booking.customer_phone}`}>Call</a><a className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-3 text-sm font-semibold dark:border-slate-700" href={`https://wa.me/${booking.customer_phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">WhatsApp</a>{booking.customer_email && <a className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-3 text-sm font-semibold dark:border-slate-700" href={`mailto:${booking.customer_email}`}>Email</a>}</div></div>
-      <p className="mt-3 text-sm">{booking.pickup_address || (booking.pickup_location_id ? `Location #${booking.pickup_location_id}` : "")} → {booking.dropoff_address || (booking.dropoff_location_id ? `Location #${booking.dropoff_location_id}` : "Location not provided")}{booking.vehicle_make || booking.vehicle_model ? ` · ${[booking.vehicle_make, booking.vehicle_model].filter(Boolean).join(" ")}` : ""}</p>
+      <p className="mt-3 text-sm">{booking.pickup_address || (booking.pickup_location_id ? `Location #${booking.pickup_location_id}` : "")} → {booking.dropoff_address || (booking.dropoff_location_id ? `Location #${booking.dropoff_location_id}` : "Location not provided")}</p>
+      {booking.vehicles?.length ? <section aria-label="Booked cars" className="mt-3 space-y-3">{booking.vehicles.map((vehicle, index) => <div key={`${booking.id}-car-${index}`} className="flex flex-wrap items-center gap-3 rounded-xl bg-slate-50 p-3 dark:bg-slate-950">
+        {vehicle.photo_urls?.[0] || vehicle.photo_url ? <Image src={vehicle.photo_urls?.[0] || vehicle.photo_url || ""} alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`} width={120} height={80} unoptimized className="h-20 w-28 rounded-lg object-cover" /> : null}
+        <div><p className="font-semibold">{vehicleLabel(vehicle)}</p>{vehicle.photo_urls && vehicle.photo_urls.length > 1 && <p className="text-xs text-slate-600 dark:text-slate-300">{vehicle.photo_urls.length} photos uploaded</p>}</div>
+      </div>)}</section> : (booking.vehicle_make || booking.vehicle_model) && <p className="mt-2 text-sm font-semibold">{[booking.vehicle_year, booking.vehicle_make, booking.vehicle_model].filter(Boolean).join(" ")}</p>}
       {booking.notes && <p className="mt-2 whitespace-pre-line text-sm text-slate-600 dark:text-slate-300">{booking.notes}</p>}
       <form onSubmit={(event) => update(event, booking)} className="mt-4 grid gap-3 sm:grid-cols-3">
         <label className="text-sm font-semibold">Status<select name="status" defaultValue={booking.status} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-2 dark:border-slate-700 dark:bg-slate-950">{statuses.map((status) => <option key={status} value={status}>{status.replace("_", " ")}</option>)}</select></label>
@@ -93,6 +98,15 @@ export default function AdminBookingsPage() {
       </form>
     </article>)}</div>
   </AdminPage>;
+}
+
+function vehicleLabel(vehicle: BookingVehicle): string {
+  return [
+    [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" "),
+    vehicle.colour,
+    vehicle.plate ? `plate ${vehicle.plate}` : null,
+    vehicle.runs === false ? "does not start" : null,
+  ].filter(Boolean).join(", ");
 }
 
 function AdminPage({ title, children }: { title: string; children: React.ReactNode }) {

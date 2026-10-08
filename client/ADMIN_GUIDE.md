@@ -14,7 +14,7 @@ The admin UI uses backend JWT authentication in an httpOnly cookie. It does not 
 - **Enquiries**: review contact messages and set follow-up status.
 - **Business settings**: edit business/contact details, logos, social links, opening hours, admin notification recipients, and footer copy. Upload logos directly; no URL entry is needed.
 - **Website pages**: use the separate Homepage banners, Services, About page, FAQs, and Testimonials pages. Each has a plain-language editor; picture descriptions are stored with their images.
-- **Booking options**: edit Locations, Routes and prices, Vehicle types, Storage plans, and Booking availability using the separate pages. Route names are selected from locations rather than entered as IDs.
+- **Booking options**: edit Cars, Locations, Routes and prices, Vehicle types, Storage plans, and Booking availability using the separate pages. In Cars, add makes and models individually or paste one model per line; a model's default vehicle type preselects the surcharge category in the customer booking form. Route names are selected from locations rather than entered as IDs.
 - List ordering is controlled by the up/down buttons, and visibility is controlled by the **Show on website** toggle. Saves revalidate the public site.
 
 ## SEO and analytics

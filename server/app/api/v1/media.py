@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_admin_user
+from app.core.config import settings
 from app.core.database import get_db
+from app.core.rate_limit import check_rate_limit
 from app.models.media import Media
 from app.models.user import User
 from app.schemas.content import MediaResponse
@@ -40,6 +42,13 @@ async def upload_media(
     db.commit()
     db.refresh(row)
     return {"url": row.url}
+
+
+@router.post("/media/booking-photos", response_model=dict[str, str])
+async def upload_booking_photo(request: Request, file: UploadFile = File(...)):
+    check_rate_limit(request, settings.RATE_LIMIT_PUBLIC_POST)
+    url, _, _ = await upload_image(file, "booking-photos")
+    return {"url": url}
 
 
 @router.delete("/admin/media/{item_id}")

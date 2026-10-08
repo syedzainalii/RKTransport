@@ -1,9 +1,44 @@
 from datetime import date, datetime
 from decimal import Decimal
+import re
 
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 from app.schemas.common import ORMModel, require_uae_phone
+
+
+class BookingVehicle(BaseModel):
+    make: str = Field(min_length=1, max_length=80)
+    model: str = Field(min_length=1, max_length=80)
+    year: int = Field(ge=1990, le=datetime.now().year)
+    colour: str | None = Field(default=None, max_length=50)
+    plate: str | None = Field(default=None, max_length=32)
+    vehicle_type_id: int = Field(gt=0)
+    runs: bool | None = None
+    photo_url: str | None = Field(default=None, max_length=2048)
+    photo_urls: list[str] = Field(default_factory=list, max_length=2)
+
+    @field_validator("make", "model", "colour", "plate", mode="before")
+    @classmethod
+    def clean_text(cls, value):
+        if value is None:
+            return None
+        cleaned = re.sub(r"[\x00-\x1f\x7f]", "", str(value)).strip()
+        return cleaned or None
+
+    @field_validator("photo_url")
+    @classmethod
+    def valid_photo_url(cls, value: str | None) -> str | None:
+        if value is not None and not value.startswith("https://"):
+            raise ValueError("Photo must be uploaded before submitting")
+        return value
+
+    @field_validator("photo_urls")
+    @classmethod
+    def valid_photo_urls(cls, values: list[str]) -> list[str]:
+        if any(not value.startswith("https://") for value in values):
+            raise ValueError("Photos must be uploaded before submitting")
+        return values
 
 
 class BookingCreate(BaseModel):
@@ -20,6 +55,7 @@ class BookingCreate(BaseModel):
     vehicle_model: str | None = Field(default=None, max_length=80)
     vehicle_year: int | None = Field(default=None, ge=1900, le=2100)
     plate_number: str | None = Field(default=None, max_length=32)
+    vehicles: list["BookingVehicle"] = Field(default_factory=list, max_length=5)
     scheduled_at: datetime | None = None
     storage_plan_id: int | None = Field(default=None, gt=0)
     storage_start_date: date | None = None
@@ -34,6 +70,8 @@ class BookingCreate(BaseModel):
 
     @model_validator(mode="after")
     def validate_service_details(self):
+        if self.type == "recovery" and self.vehicles and any(vehicle.runs is None for vehicle in self.vehicles):
+            raise ValueError("Tell us whether each car starts and drives for recovery bookings")
         if self.type == "transport" and (
             self.pickup_location_id is None or self.dropoff_location_id is None
         ):
@@ -72,6 +110,7 @@ class BookingResponse(ORMModel):
     vehicle_model: str | None
     vehicle_year: int | None
     plate_number: str | None
+    vehicles: list[BookingVehicle] | None
     scheduled_at: datetime | None
     storage_plan_id: int | None
     storage_start_date: date | None
@@ -90,6 +129,11 @@ class PublicBookingResponse(ORMModel):
     status: str
     scheduled_at: datetime | None
     created_at: datetime
+    vehicles: list[BookingVehicle] | None
+    vehicle_make: str | None
+    vehicle_model: str | None
+    vehicle_year: int | None
+    plate_number: str | None
 
 
 class InquiryCreate(BaseModel):

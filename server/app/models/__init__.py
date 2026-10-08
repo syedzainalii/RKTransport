@@ -14,6 +14,8 @@ from app.models.testimonial import Testimonial
 from app.models.media import Media
 from app.models.page_copy import PageCopy
 from app.models.notification_log import NotificationLog
+from app.models.car_make import CarMake
+from app.models.car_model import CarModel
 
 __all__ = [
     "User",
@@ -32,4 +34,6 @@ __all__ = [
     "Media",
     "PageCopy",
     "NotificationLog",
+    "CarMake",
+    "CarModel",
 ]

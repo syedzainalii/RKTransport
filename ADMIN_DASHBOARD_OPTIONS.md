@@ -77,6 +77,10 @@ Add a customer's name, their comment and a rating from one to five stars. Use **
 
 These pages configure choices used by customers when they request a service. Keep these options accurate so the booking form presents valid locations, routes, prices and availability.
 
+### Cars
+
+Manage the car makes and models customers can select on the booking form. Add a make, then add models one at a time or paste a list with one model per line. Set each model's default vehicle type so the booking form can select a sensible starting choice; customers can still change that type. Use **Show on website** to hide makes or models without deleting them. Deleting a make also deletes its models.
+
 ### Locations
 
 Add a customer-facing location name and select whether it belongs to Dubai or Abu Dhabi. Choose whether customers may use it for pickup, drop-off or both. Hidden locations are not offered as public choices.

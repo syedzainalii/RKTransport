@@ -7,7 +7,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base
 from app.core.seed import seed_defaults
-from app.models import Faq, HeroBanner, Location, PageCopy, Route, Service, SiteSettings, User
+from app.models import CarMake, CarModel, Faq, HeroBanner, Location, PageCopy, Route, Service, SiteSettings, User
 
 
 class SeedDefaultsTests(unittest.TestCase):
@@ -23,7 +23,7 @@ class SeedDefaultsTests(unittest.TestCase):
                 seed_defaults(db)
                 first_counts = {
                     model: db.query(model).count()
-                    for model in (User, SiteSettings, Location, Route, Service, PageCopy, Faq, HeroBanner)
+                    for model in (User, SiteSettings, Location, Route, Service, PageCopy, Faq, HeroBanner, CarMake, CarModel)
                 }
 
                 seed_defaults(db)
@@ -41,6 +41,8 @@ class SeedDefaultsTests(unittest.TestCase):
                 self.assertGreater(first_counts[PageCopy], 0)
                 self.assertGreater(first_counts[Faq], 0)
                 self.assertEqual(first_counts[HeroBanner], 1)
+                self.assertGreater(first_counts[CarMake], 10)
+                self.assertGreater(first_counts[CarModel], 50)
         finally:
             Base.metadata.drop_all(engine)
             engine.dispose()

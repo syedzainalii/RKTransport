@@ -95,6 +95,7 @@ export default function AdminDashboardPage() {
               <AdminCard href="/admin/dashboard/content/testimonials" title="Testimonials" description="Manage customer reviews and ratings." />
             </ManagementGroup>
             <ManagementGroup title="Booking options">
+              <AdminCard href="/admin/dashboard/content/cars" title="Cars" description="Manage the makes and models customers can choose when booking." />
               <AdminCard href="/admin/dashboard/content/locations" title="Locations" description="Choose places customers can use for pickup and drop-off." />
               <AdminCard href="/admin/dashboard/content/routes" title="Routes and prices" description="Set the available routes, prices, and travel estimates." />
               <AdminCard href="/admin/dashboard/content/vehicles" title="Vehicle types" description="Manage vehicle choices and extra charges." />

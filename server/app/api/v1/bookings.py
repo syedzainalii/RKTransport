@@ -74,7 +74,17 @@ async def create_booking(
             raise HTTPException(422, "Choose a storage start date that is not in the past")
         if availability and payload.storage_start_date.isoformat() in (availability.blocked_dates or []):
             raise HTTPException(422, "The selected storage start date is unavailable")
-    row = Booking(ref=booking_ref(), status="new", admin_notes=None, **payload.model_dump())
+    booking_data = payload.model_dump()
+    if payload.vehicles:
+        first_vehicle = payload.vehicles[0]
+        booking_data.update(
+            vehicle_make=first_vehicle.make,
+            vehicle_model=first_vehicle.model,
+            vehicle_year=first_vehicle.year,
+            vehicle_type_id=first_vehicle.vehicle_type_id,
+            plate_number=first_vehicle.plate,
+        )
+    row = Booking(ref=booking_ref(), status="new", admin_notes=None, **booking_data)
     db.add(row)
     db.commit()
     db.refresh(row)

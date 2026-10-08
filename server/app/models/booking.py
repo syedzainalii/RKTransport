@@ -4,6 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 from app.models.mixins import TimestampMixin
+from app.models.settings import JSONType
 
 
 class Booking(Base, TimestampMixin):
@@ -28,6 +29,7 @@ class Booking(Base, TimestampMixin):
     vehicle_model: Mapped[str | None] = mapped_column(String(80), nullable=True)
     vehicle_year: Mapped[int | None] = mapped_column(Integer, nullable=True)
     plate_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    vehicles: Mapped[list[dict] | None] = mapped_column(JSONType, nullable=True)
 
     scheduled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     storage_plan_id: Mapped[int | None] = mapped_column(ForeignKey("storage_plans.id"), nullable=True)

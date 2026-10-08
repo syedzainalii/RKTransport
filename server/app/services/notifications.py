@@ -17,6 +17,23 @@ logger = logging.getLogger(__name__)
 
 def _booking_message(booking: Booking) -> tuple[str, str]:
     subject = f"New RK Transport booking {booking.ref}"
+    vehicle_rows = booking.vehicles or []
+    vehicle_details = [
+        ", ".join(
+            part
+            for part in (
+                " ".join(filter(None, (str(vehicle.get("year") or ""), vehicle.get("make"), vehicle.get("model")))),
+                vehicle.get("colour"),
+                f"plate {vehicle['plate']}" if vehicle.get("plate") else None,
+                "does not start" if vehicle.get("runs") is False else None,
+            )
+            if part
+        )
+        for vehicle in vehicle_rows
+    ]
+    vehicle_summary = "; ".join(vehicle_details) or " ".join(
+        filter(None, (booking.vehicle_make, booking.vehicle_model))
+    ) or "Not provided"
     message = "\n".join(
         (
             f"New {booking.type} booking: {booking.ref}",
@@ -25,7 +42,7 @@ def _booking_message(booking: Booking) -> tuple[str, str]:
             f"Email: {booking.customer_email or 'Not provided'}",
             f"Pickup: {booking.pickup_address or booking.pickup_location_id or 'Not provided'}",
             f"Drop-off: {booking.dropoff_address or booking.dropoff_location_id or 'Not provided'}",
-            f"Vehicle: {' '.join(filter(None, (booking.vehicle_make, booking.vehicle_model))) or 'Not provided'}",
+            f"Vehicle{'' if len(vehicle_details) == 1 else 's'}: {vehicle_summary}",
         )
     )
     return subject, message
@@ -181,7 +198,12 @@ async def notify_event(event_type: str, entity_type: str, entity_id: int) -> Non
                 deliveries.append(_queue(db, event_type, entity_type, entity_id, "email", "(admin recipient not configured)", subject, body))
             customer_email = item.customer_email if entity_type == "booking" else None
             if customer_email:
-                deliveries.append(_queue(db, event_type, entity_type, entity_id, "email", customer_email, f"RK Transport received your request ({item.ref})", f"Thank you, {item.customer_name}. We have received your request and our admin will be in contact with you as soon as possible.\n\nReference: {item.ref}"))
+                customer_message = (
+                    f"Thank you, {item.customer_name}. We have received your request and our admin "
+                    "will be in contact with you as soon as possible.\n\n"
+                    f"Reference: {item.ref}\n{body.splitlines()[-1]}"
+                )
+                deliveries.append(_queue(db, event_type, entity_type, entity_id, "email", customer_email, f"RK Transport received your request ({item.ref})", customer_message))
         if site_settings.notifications_whatsapp_enabled:
             recipient = site_settings.notification_admin_phone or "(admin recipient not configured)"
             deliveries.append(_queue(db, event_type, entity_type, entity_id, "whatsapp", recipient, subject, body))
