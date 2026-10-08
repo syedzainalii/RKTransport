@@ -249,11 +249,21 @@ def seed_defaults(db: Session) -> None:
         row.name.casefold(): row
         for row in db.query(VehicleType).all()
     }
-    for name, slug in (("Pickup", "pickup"), ("Sports", "sports")):
+    for name, slug in (
+        ("Sedan", "sedan"),
+        ("SUV", "suv"),
+        ("Pickup", "pickup"),
+        ("Van", "van"),
+        ("Luxury", "luxury"),
+        ("Sports", "sports"),
+    ):
         if name.casefold() not in vehicle_type_rows:
             row = VehicleType(name=name, slug=slug, surcharge_aed=0, sort_order=len(vehicle_type_rows) + 1)
             db.add(row)
             vehicle_type_rows[name.casefold()] = row
+    motorcycle_type = vehicle_type_rows.get("motorcycle")
+    if motorcycle_type:
+        motorcycle_type.is_active = False
     db.flush()
 
     car_starter_data = {
@@ -300,6 +310,7 @@ def seed_defaults(db: Session) -> None:
                 "sports" if any(term in model_folded for term in ("911", "mustang", "camaro"))
                 else "pickup" if any(term in model_folded for term in ("hilux", "navara", "ranger", "f-150", "silverado", "sierra", "d-max"))
                 else "suv" if any(term in model_folded for term in ("land cruiser", "patrol", "prado", "rav4", "x-trail", "cr-v", "pilot", "gle", "g-class", "x3", "x5", "rx", "gx", "lx", "defender", "discovery", "range rover", "explorer", "everest", "tahoe", "tucson", "santa fe", "sportage", "sorento", "telluride", "cayenne", "macan", "model x", "model y", "pajero", "outlander", "montero", "cx-", "yukon", "terrain", "acadia", "mu-x", "jimny", "vitara", "tiguan", "touareg"))
+                else "luxury" if make_name in {"Mercedes-Benz", "BMW", "Lexus", "Land Rover", "Range Rover", "Porsche", "Tesla"}
                 else "sedan"
             )
             db.add(

@@ -124,7 +124,10 @@ async def create_model(
         raise HTTPException(404, "Make not found")
     if db.query(CarModel).filter(CarModel.make_id == make_id, CarModel.name.ilike(payload.name)).first():
         raise HTTPException(409, "This model already exists for the selected make")
-    if payload.default_vehicle_type_id and not db.query(VehicleType).filter(VehicleType.id == payload.default_vehicle_type_id).first():
+    if payload.default_vehicle_type_id and not db.query(VehicleType).filter(
+        VehicleType.id == payload.default_vehicle_type_id,
+        VehicleType.is_active.is_(True),
+    ).first():
         raise HTTPException(422, "Choose a valid vehicle type")
     row = CarModel(make_id=make_id, **payload.model_dump())
     db.add(row)
@@ -180,7 +183,10 @@ async def update_model(
     )
     if duplicate:
         raise HTTPException(409, "This model already exists for the selected make")
-    if payload.default_vehicle_type_id and not db.query(VehicleType).filter(VehicleType.id == payload.default_vehicle_type_id).first():
+    if payload.default_vehicle_type_id and not db.query(VehicleType).filter(
+        VehicleType.id == payload.default_vehicle_type_id,
+        VehicleType.is_active.is_(True),
+    ).first():
         raise HTTPException(422, "Choose a valid vehicle type")
     for key, value in payload.model_dump().items():
         setattr(row, key, value)
