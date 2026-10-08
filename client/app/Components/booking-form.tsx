@@ -199,8 +199,6 @@ export default function BookingForm({ initialType = "transport", compact = false
           <select id="booking-type" {...register("type")} className={inputClass}>
             {(availableTypes.length ? availableTypes : [
               { category: "transport", title: "Car transport" },
-              { category: "recovery", title: "Lift & recovery" },
-              { category: "storage", title: "Car storage" },
             ]).map((service) => <option key={service.category} value={service.category}>{service.title}</option>)}
           </select>
         </div>
