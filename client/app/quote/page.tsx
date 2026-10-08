@@ -1,7 +1,7 @@
 import BookingForm from "../Components/booking-form";
-import { BreadcrumbStructuredData } from "../Components/structured-data";
-import { publicApi } from "../../lib/transport-api";
-import { generatePageMetadata } from "../../lib/seo";
+import { BreadcrumbStructuredData, StructuredData } from "../Components/structured-data";
+import { publicApi, type Faq } from "../../lib/transport-api";
+import { faqJsonLd, generatePageMetadata } from "../../lib/seo";
 
 export const revalidate = 60;
 
@@ -13,15 +13,17 @@ export function generateMetadata() {
 }
 
 export default async function QuotePage() {
-  const [settingsResult, copyResult] = await Promise.allSettled([publicApi.settings(), publicApi.pageCopy()]);
+  const [settingsResult, copyResult, faqResult] = await Promise.allSettled([publicApi.settings(), publicApi.pageCopy(), publicApi.faqs()]);
   const settings = settingsResult.status === "fulfilled" ? settingsResult.value : null;
   const copy = copyResult.status === "fulfilled" ? copyResult.value : [];
+  const faqs: Faq[] = faqResult.status === "fulfilled" ? faqResult.value.filter((faq) => !faq.page_key || faq.page_key === "booking") : [];
   const text = (key: string, fallback: string) => copy.find((item: { key: string }) => item.key === key)?.value || fallback;
   const configuredSteps = copy.find((item: { key: string }) => item.key === "booking.steps")?.value;
   const steps = parseSteps(configuredSteps);
   return (
     <>
       <BreadcrumbStructuredData items={[{ name: "Home", path: "/" }, { name: "Request a quote", path: "/quote" }]} />
+      {faqs.length > 0 && <StructuredData data={faqJsonLd(faqs.map(({ question, answer }) => ({ question, answer })))} />}
     <main className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:py-20">
       <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">{settings?.available_24_7 ? settings.hours_label : ""}</p>
       <h1 className="mt-3 text-4xl font-bold">{text("quote.heading", "Request a quote")}</h1>
@@ -36,6 +38,7 @@ export default async function QuotePage() {
           <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">{step.description}</p>
         </article>)}</div>
       </section>
+      {faqs.length > 0 && <section className="mt-14"><h2 className="text-2xl font-bold">Booking questions</h2><div className="mt-4 divide-y divide-slate-200 dark:divide-slate-800">{faqs.map((faq) => <details key={faq.id} className="py-4"><summary className="min-h-11 cursor-pointer content-center font-semibold">{faq.question}</summary><p className="pb-2 leading-7 text-slate-700 dark:text-slate-200">{faq.answer}</p></details>)}</div></section>}
     </main>
     </>
   );

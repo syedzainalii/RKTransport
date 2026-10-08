@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ApiError, apiRequest, type Booking, type BookingRouteAggregate, type Inquiry } from "../../../lib/transport-api";
 
@@ -81,15 +81,32 @@ export default function AdminDashboardPage() {
             <Chart title="Bookings by service" data={["transport", "recovery", "storage"].map((service) => ({ label: service, total: bookings.filter((item) => item.type === service).length }))} />
             <Chart title="Bookings by status" data={["new", "quoted", "confirmed", "in_progress", "completed", "cancelled"].map((status) => ({ label: status.replace("_", " "), total: bookings.filter((item) => item.status === status).length }))} />
           </section>
-          <nav aria-label="Admin management" className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <AdminCard href="/admin/dashboard/bookings" title="Bookings" description="Review requests, update status, and add quotes." />
-            <AdminCard href="/admin/dashboard/notifications" title="Notifications" description="View email and WhatsApp delivery attempts; retry failures." />
-            <AdminCard href="/admin/dashboard/inquiries" title="Inquiries" description="Read messages and mark follow-up status." />
-            <AdminCard href="/admin/dashboard/settings" title="Site settings" description="Edit contact details, route, availability and SEO." />
-            <AdminCard href="/admin/dashboard/account" title="Admin account" description="Change the password for your administrator account." />
-            <AdminCard href="/admin/dashboard/content" title="Website content" description="Manage service copy, banners, FAQs and options." />
-            <AdminCard href="/admin/dashboard/media" title="Media library" description="Upload site photos to the configured image provider and manage alt text." />
-          </nav>
+          <div className="mt-8 space-y-8">
+            <ManagementGroup title="Dashboard">
+              <AdminCard href="/admin/dashboard/bookings" title="Bookings" description="Review requests, update status, and add quotes." />
+              <AdminCard href="/admin/dashboard/inquiries" title="Enquiries" description="Read customer messages and mark follow-up status." />
+              <AdminCard href="/admin/dashboard/notifications" title="Notifications" description="View and retry email or WhatsApp delivery attempts." />
+            </ManagementGroup>
+            <ManagementGroup title="Website pages">
+              <AdminCard href="/admin/dashboard/content/banners" title="Homepage banners" description="Edit and arrange the home page slideshow." />
+              <AdminCard href="/admin/dashboard/content/services" title="Services" description="Manage service pages, pictures, and Google descriptions." />
+              <AdminCard href="/admin/dashboard/content/about" title="About page" description="Update your story, numbers, and reasons customers choose you." />
+              <AdminCard href="/admin/dashboard/content/page-text" title="Page text" description="Edit headings and introductions shown on public pages." />
+              <AdminCard href="/admin/dashboard/content/faqs" title="FAQs" description="Add answers to common customer questions." />
+              <AdminCard href="/admin/dashboard/content/testimonials" title="Testimonials" description="Manage customer reviews and ratings." />
+            </ManagementGroup>
+            <ManagementGroup title="Booking options">
+              <AdminCard href="/admin/dashboard/content/locations" title="Locations" description="Choose places customers can use for pickup and drop-off." />
+              <AdminCard href="/admin/dashboard/content/routes" title="Routes and prices" description="Set the available routes, prices, and travel estimates." />
+              <AdminCard href="/admin/dashboard/content/vehicles" title="Vehicle types" description="Manage vehicle choices and extra charges." />
+              <AdminCard href="/admin/dashboard/content/storage" title="Storage plans" description="Set storage options and billing periods." />
+              <AdminCard href="/admin/dashboard/content/availability" title="Booking availability" description="Set available times and dates you are closed." />
+            </ManagementGroup>
+            <ManagementGroup title="Settings">
+              <AdminCard href="/admin/dashboard/settings" title="Business settings" description="Update contact information, hours, logos, and admin notifications." />
+              <AdminCard href="/admin/dashboard/account" title="My account" description="Change the administrator password." />
+            </ManagementGroup>
+          </div>
           <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
             <h2 className="text-xl font-bold">Recent bookings</h2>
             {bookings.length ? <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[600px] text-left text-sm">
@@ -108,6 +125,9 @@ function Stat({ label, value, badge = false }: { label: string; value: number; b
 }
 function AdminCard({ href, title, description }: { href: string; title: string; description: string }) {
   return <Link href={href} className="min-h-36 rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-emerald-700 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-700 dark:border-slate-800 dark:bg-slate-900"><h2 className="font-bold">{title}</h2><p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p></Link>;
+}
+function ManagementGroup({ title, children }: { title: string; children: ReactNode }) {
+  return <section><h2 className="mb-3 text-xl font-bold">{title}</h2><nav aria-label={title} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{children}</nav></section>;
 }
 
 function Chart({ title, data }: { title: string; data: { label: string; total: number }[] }) {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { BreadcrumbStructuredData, StructuredData } from "../Components/structured-data";
-import { apiImageUrl, isImageOptimizable, publicApi, type StoragePlan } from "../../lib/transport-api";
+import { apiImageUrl, isImageOptimizable, publicApi, type Faq, type StoragePlan } from "../../lib/transport-api";
 import { faqJsonLd, generatePageMetadata } from "../../lib/seo";
 
 export const revalidate = 60;
@@ -20,16 +20,18 @@ export function generateMetadata() {
 }
 
 export default async function StoragePage() {
-  const results = await Promise.allSettled([publicApi.storagePlans(), publicApi.pageCopy(), publicApi.settings()]);
+  const results = await Promise.allSettled([publicApi.storagePlans(), publicApi.pageCopy(), publicApi.settings(), publicApi.faqs()]);
   const plans: StoragePlan[] = results[0].status === "fulfilled" ? results[0].value : [];
   const copy = results[1].status === "fulfilled" ? results[1].value : [];
   const settings = results[2].status === "fulfilled" ? results[2].value : null;
+  const adminFaqs: Faq[] = results[3].status === "fulfilled" ? results[3].value.filter((faq) => !faq.page_key || faq.page_key === "storage") : [];
+  const visibleFaqs = adminFaqs.length ? adminFaqs.map(({ question, answer }) => ({ question, answer })) : storageFaqs;
   const text = (key: string, fallback: string) => copy.find((item: { key: string }) => item.key === key)?.value || fallback;
 
   return (
     <>
     <BreadcrumbStructuredData items={[{ name: "Home", path: "/" }, { name: "Car storage", path: "/storage" }]} />
-    <StructuredData data={faqJsonLd(storageFaqs)} />
+    <StructuredData data={faqJsonLd(visibleFaqs)} />
     <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
       <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">{settings?.available_24_7 ? settings.hours_label : ""}</p>
       <h1 className="mt-3 text-4xl font-bold">{text("storage.heading", "Car storage")}</h1>
@@ -42,7 +44,7 @@ export default async function StoragePage() {
       ))}</div> : <p className="mt-8 rounded-xl bg-stone-100 p-5 dark:bg-slate-900">{text("empty.storage", "Storage options are currently unavailable.")}</p>}
       <section className="mt-12 max-w-3xl">
         <h2 className="text-2xl font-bold">Car storage questions</h2>
-        <div className="mt-4 divide-y divide-slate-200 dark:divide-slate-800">{storageFaqs.map((faq) => <details key={faq.question} className="group py-4">
+        <div className="mt-4 divide-y divide-slate-200 dark:divide-slate-800">{visibleFaqs.map((faq) => <details key={faq.question} className="group py-4">
           <summary className="min-h-11 cursor-pointer content-center font-semibold">{faq.question}</summary>
           <p className="pb-2 leading-7 text-slate-700 dark:text-slate-200">{faq.answer}</p>
         </details>)}</div>

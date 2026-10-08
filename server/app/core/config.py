@@ -36,7 +36,7 @@ class Settings(BaseSettings):
 
     FRONTEND_URL: str = "http://localhost:3000"
     REVALIDATE_SECRET: str = "change-me-revalidate-secret"
-    MAX_FILE_SIZE: int = 5 * 1024 * 1024
+    MAX_FILE_SIZE: int = 4_000_000
 
     RATE_LIMIT_LOGIN: int = 10
     RATE_LIMIT_PUBLIC_POST: int = 20

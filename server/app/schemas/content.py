@@ -29,6 +29,7 @@ class ServiceIn(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     short_description: str | None = Field(default=None, max_length=5000)
     detailed_description: str | None = Field(default=None, max_length=20000)
+    starting_price_note: str | None = Field(default=None, max_length=120)
     features: list[str] | None = Field(default=None, max_length=50)
     gallery: list[dict[str, str | None]] = Field(default_factory=list, max_length=30)
     image_url: str | None = Field(default=None, max_length=2048)
@@ -55,6 +56,8 @@ class LocationIn(BaseModel):
     lat: float | None = Field(default=None, ge=-90, le=90)
     lng: float | None = Field(default=None, ge=-180, le=180)
     is_hub: bool = False
+    pickup_enabled: bool = True
+    dropoff_enabled: bool = True
     notes: str | None = None
     sort_order: int = Field(default=0, ge=0)
     is_active: bool = True
@@ -161,6 +164,8 @@ class TestimonialIn(BaseModel):
     quote: str = Field(min_length=1, max_length=10000)
     rating: int = Field(default=5, ge=1, le=5)
     vehicle_note: str | None = Field(default=None, max_length=160)
+    image_url: str | None = Field(default=None, max_length=2048)
+    image_alt: str | None = Field(default=None, max_length=255)
     is_active: bool = True
     sort_order: int = Field(default=0, ge=0)
 

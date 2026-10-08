@@ -16,7 +16,9 @@ class SiteSettings(Base, TimestampMixin):
     brand_name: Mapped[str] = mapped_column(String(120), default="RK Transport")
     tagline: Mapped[str | None] = mapped_column(String(255), nullable=True)
     logo_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    logo_alt: Mapped[str | None] = mapped_column(String(255), nullable=True)
     logo_dark_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    logo_dark_alt: Mapped[str | None] = mapped_column(String(255), nullable=True)
     favicon_url: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     phone_primary: Mapped[str | None] = mapped_column(String(32), nullable=True)

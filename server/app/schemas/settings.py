@@ -10,7 +10,9 @@ class SiteSettingsUpdate(BaseModel):
     brand_name: str | None = Field(default=None, max_length=120)
     tagline: str | None = Field(default=None, max_length=255)
     logo_url: str | None = Field(default=None, max_length=2048)
+    logo_alt: str | None = Field(default=None, max_length=255)
     logo_dark_url: str | None = Field(default=None, max_length=2048)
+    logo_dark_alt: str | None = Field(default=None, max_length=255)
     favicon_url: str | None = Field(default=None, max_length=2048)
     phone_primary: str | None = Field(default=None, max_length=32)
     phone_recovery: str | None = Field(default=None, max_length=32)
@@ -73,7 +75,9 @@ class SiteSettingsResponse(ORMModel):
     brand_name: str
     tagline: str | None
     logo_url: str | None
+    logo_alt: str | None
     logo_dark_url: str | None
+    logo_dark_alt: str | None
     favicon_url: str | None
     phone_primary: str | None
     phone_recovery: str | None

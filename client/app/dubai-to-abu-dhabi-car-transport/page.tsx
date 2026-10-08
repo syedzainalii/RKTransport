@@ -5,7 +5,7 @@ export function generateMetadata() {
   return generatePageMetadata("/dubai-to-abu-dhabi-car-transport", {
     title: "Dubai to Abu Dhabi Car Transport | RK Transport",
     description: "Arrange car transport from Dubai to Abu Dhabi with RK Transport. Share your vehicle, pickup, and delivery details to request a tailored quote.",
-  });
+  }, "seo.dubai-to-abu-dhabi");
 }
 
 export default function DubaiToAbuDhabiPage() {

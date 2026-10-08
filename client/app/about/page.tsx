@@ -1,10 +1,16 @@
 import Image from "next/image";
 import CountUpStat from "../Components/count-up-stat";
 import { BreadcrumbStructuredData } from "../Components/structured-data";
+import SimpleRichText from "../Components/simple-rich-text";
+import { Award, CarFront, CircleCheck, Clock3, Gauge, Headset, Heart, MapPin, ShieldCheck, Star, Truck, Wrench, type LucideIcon } from "lucide-react";
 import { apiImageUrl, isImageOptimizable, publicApi } from "../../lib/transport-api";
 import { generatePageMetadata } from "../../lib/seo";
 
 export const revalidate = 60;
+const reasonIcons: Record<string, LucideIcon> = {
+  Truck, Shield: ShieldCheck, Clock: Clock3, Location: MapPin, Care: Heart, Award,
+  Trusted: CircleCheck, Support: Headset, Performance: Gauge, "Top rated": Star, Repair: Wrench, Car: CarFront,
+};
 
 export function generateMetadata() {
   return generatePageMetadata("/about", {
@@ -33,13 +39,13 @@ export default async function AboutPage() {
         <Image src={apiImageUrl(storyImage.url) || storyImage.url!} alt={storyImage.alt || ""} fill unoptimized={!isImageOptimizable(storyImage.url)} sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
       </div>}
       <div>
-        <p className="whitespace-pre-line text-lg leading-8 text-slate-800 dark:text-slate-100">{about.description}</p>
+        <SimpleRichText value={about.description} className="text-lg leading-8 text-slate-800 dark:text-slate-100" />
         {about.mission && <section className="mt-6 rounded-2xl bg-stone-100 p-5 dark:bg-slate-900"><h2 className="font-bold">Our mission</h2><p className="mt-2 leading-6">{about.mission}</p></section>}
         {about.vision && <section className="mt-4 rounded-2xl bg-stone-100 p-5 dark:bg-slate-900"><h2 className="font-bold">Our vision</h2><p className="mt-2 leading-6">{about.vision}</p></section>}
       </div>
     </section>}
     {about?.stats?.length ? <section className="mt-12"><h2 className="text-2xl font-bold">RK Transport at a glance</h2><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{about.stats.map((stat, index) => <CountUpStat key={`${stat.label}-${index}`} value={stat.value || "0"} label={stat.label || ""} />)}</div></section> : null}
-    {about?.why_choose_us?.length ? <section className="mt-12"><h2 className="text-2xl font-bold">Why choose RK Transport</h2><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{about.why_choose_us.map((item, index) => <article key={`${item.title}-${index}`} className="rounded-2xl border border-slate-200 p-5 dark:border-slate-800"><h3 className="font-bold">{item.title}</h3><p className="mt-2 leading-6 text-slate-700 dark:text-slate-200">{item.description}</p></article>)}</div></section> : null}
+    {about?.why_choose_us?.length ? <section className="mt-12"><h2 className="text-2xl font-bold">Why choose RK Transport</h2><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{about.why_choose_us.map((item, index) => { const Icon = reasonIcons[item.icon || ""] || CircleCheck; return <article key={`${item.title}-${index}`} className="rounded-2xl border border-slate-200 p-5 dark:border-slate-800"><Icon aria-hidden="true" className="size-7 text-emerald-800 dark:text-emerald-300" /><h3 className="mt-3 font-bold">{item.title}</h3><p className="mt-2 leading-6 text-slate-700 dark:text-slate-200">{item.description}</p></article>; })}</div></section> : null}
     {about?.values?.length ? <section className="mt-12"><h2 className="text-2xl font-bold">Our values</h2><ul className="mt-4 grid gap-4 sm:grid-cols-3">{about.values.map((value, index) => <li key={`${value.title}-${index}`} className="rounded-2xl border border-slate-200 p-5 dark:border-slate-800"><h3 className="font-bold">{value.title}</h3><p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">{value.description}</p></li>)}</ul></section> : null}
     {!about && <p className="mt-6 text-slate-700 dark:text-slate-200">Company information is currently unavailable.</p>}
     </main>

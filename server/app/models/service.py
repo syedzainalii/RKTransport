@@ -17,6 +17,7 @@ class Service(Base, TimestampMixin):
     slug: Mapped[str] = mapped_column(String(220), unique=True, index=True)
     short_description: Mapped[str | None] = mapped_column(Text, nullable=True)
     detailed_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    starting_price_note: Mapped[str | None] = mapped_column(String(120), nullable=True)
     features: Mapped[list | None] = mapped_column(JSONType, nullable=True)
     gallery: Mapped[list] = mapped_column(JSONType, default=list)
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)

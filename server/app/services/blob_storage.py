@@ -1,6 +1,7 @@
 """Upload images to Vercel Blob or Cloudinary. No local disk writes."""
 import hashlib
 import io
+import logging
 import re
 import time
 from typing import Tuple
@@ -11,7 +12,8 @@ from PIL import Image
 
 from app.core.config import settings
 
-ALLOWED = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+ALLOWED = {".jpg", ".jpeg", ".png", ".webp"}
+logger = logging.getLogger(__name__)
 
 
 def _validate(file: UploadFile) -> None:
@@ -48,23 +50,30 @@ async def upload_image(file: UploadFile, folder: str = "general") -> Tuple[str, 
     _validate(file)
     raw = await file.read()
     if len(raw) > settings.MAX_FILE_SIZE:
-        raise HTTPException(400, "File too large (max 5MB)")
+        raise HTTPException(400, "Image is too large. Please choose an image under 4 MB.")
     try:
         contents, content_type = _optimize(raw)
     except Exception as exc:
-        raise HTTPException(400, f"Error processing image: {exc}") from exc
+        logger.exception("Uploaded image could not be processed")
+        raise HTTPException(400, "Image could not be processed. Please choose a JPG, PNG, or WebP image.") from exc
 
     filename = f"{folder}/{int(time.time())}-{hashlib.sha1(contents[:64]).hexdigest()[:10]}.jpg"
 
-    if settings.BLOB_READ_WRITE_TOKEN:
-        url = await _vercel_blob(filename, contents, content_type)
-    elif all((settings.CLOUDINARY_CLOUD_NAME, settings.CLOUDINARY_API_KEY, settings.CLOUDINARY_API_SECRET)):
-        url = await _cloudinary(filename, contents)
-    else:
+    if not settings.BLOB_READ_WRITE_TOKEN and not all(
+        (settings.CLOUDINARY_CLOUD_NAME, settings.CLOUDINARY_API_KEY, settings.CLOUDINARY_API_SECRET)
+    ):
         raise HTTPException(
-            503,
-            "No upload provider configured. Set BLOB_READ_WRITE_TOKEN or Cloudinary credentials.",
+            500,
+            "Image storage is not configured",
         )
+    try:
+        if settings.BLOB_READ_WRITE_TOKEN:
+            url = await _vercel_blob(filename, contents, content_type)
+        else:
+            url = await _cloudinary(filename, contents)
+    except Exception as exc:
+        logger.exception("Image upload provider failed")
+        raise HTTPException(500, "Image storage is not configured") from exc
     return url, len(contents), content_type
 
 
@@ -80,9 +89,12 @@ async def _vercel_blob(pathname: str, contents: bytes, content_type: str) -> str
             },
         )
     if res.status_code >= 400:
-        raise HTTPException(502, f"Blob upload failed: {res.text}")
+        raise RuntimeError(f"Blob upload returned HTTP {res.status_code}: {res.text}")
     data = res.json()
-    return data.get("url") or data.get("downloadUrl")
+    url = data.get("url") or data.get("downloadUrl")
+    if not url:
+        raise RuntimeError("Blob upload response did not include an image URL")
+    return url
 
 
 async def _cloudinary(public_id: str, contents: bytes) -> str:
@@ -100,5 +112,5 @@ async def _cloudinary(public_id: str, contents: bytes) -> str:
     async with httpx.AsyncClient(timeout=30) as client:
         res = await client.post(url, data=data, files=files)
     if res.status_code >= 400:
-        raise HTTPException(502, f"Cloudinary upload failed: {res.text}")
+        raise RuntimeError(f"Cloudinary upload returned HTTP {res.status_code}: {res.text}")
     return res.json()["secure_url"]

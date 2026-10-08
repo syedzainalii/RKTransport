@@ -1,128 +1,134 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { apiRequest, type AdminSiteSettings } from "../../../../lib/transport-api";
+import ImageUpload, { type UploadedImage } from "../components/image-upload";
+import useUnsavedChanges from "../components/use-unsaved-changes";
 
-const editableFields: { key: keyof AdminSiteSettings; label: string; type?: string }[] = [
-  { key: "brand_name", label: "Business name" },
-  { key: "tagline", label: "Tagline" },
-  { key: "phone_primary", label: "Primary phone (+971)", type: "tel" },
-  { key: "phone_recovery", label: "Recovery phone (+971)", type: "tel" },
-  { key: "whatsapp", label: "WhatsApp (+971)", type: "tel" },
-  { key: "email", label: "Contact email", type: "email" },
-  { key: "address_line", label: "Address" },
-  { key: "city", label: "City" },
-  { key: "emirate", label: "Emirate" },
-  { key: "country", label: "Country" },
-  { key: "core_route_label", label: "Core route" },
-  { key: "hours_label", label: "Availability label" },
-  { key: "timezone", label: "Timezone" },
-  { key: "currency_code", label: "Currency code" },
-  { key: "currency_symbol", label: "Currency symbol" },
-  { key: "header_cta_label", label: "Header button text" },
-  { key: "header_cta_href", label: "Header button link" },
-  { key: "footer_blurb", label: "Footer description" },
-  { key: "logo_url", label: "Logo URL" },
-  { key: "logo_dark_url", label: "Dark logo URL" },
-  { key: "favicon_url", label: "Favicon URL" },
-  { key: "seo_title", label: "SEO title" },
-  { key: "seo_description", label: "SEO description" },
-  { key: "og_image_url", label: "Social sharing image URL" },
-  { key: "facebook_url", label: "Facebook URL", type: "url" },
-  { key: "instagram_url", label: "Instagram URL", type: "url" },
-  { key: "tiktok_url", label: "TikTok URL", type: "url" },
-  { key: "maps_embed_url", label: "Map embed URL", type: "url" },
-  { key: "notification_admin_email", label: "Notification recipient email", type: "email" },
-  { key: "notification_admin_phone", label: "Notification recipient WhatsApp (+971)", type: "tel" },
-];
+type Settings = AdminSiteSettings;
+type TextKey = "brand_name" | "tagline" | "phone_primary" | "phone_recovery" | "whatsapp" | "email" | "address_line" | "city" | "emirate" | "country" | "facebook_url" | "instagram_url" | "tiktok_url" | "maps_embed_url" | "hours_label" | "footer_blurb" | "notification_admin_email" | "notification_admin_phone";
+
+const inputClass = "mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950";
+const PHONE_PATTERN = "^\\+971[0-9]{8,9}$";
+
+function friendlyError(reason: unknown) {
+  if (reason instanceof Error && "status" in reason && reason.status === 422) return "Please check the highlighted details and try again.";
+  return "We could not save your settings. Please check your connection and try again.";
+}
 
 export default function SiteSettingsPage() {
-  const [settings, setSettings] = useState<AdminSiteSettings | null>(null);
-  const [available, setAvailable] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(false);
-  const [whatsappNotifications, setWhatsappNotifications] = useState(false);
-  const [timeSlots, setTimeSlots] = useState("");
-  const [blockedDates, setBlockedDates] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [draft, setDraft] = useState<Settings | null>(null);
+  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [dirty, setDirty] = useState(false);
+  useUnsavedChanges(dirty);
 
-  useEffect(() => {
-    apiRequest("/auth/me")
-      .then(() => apiRequest<AdminSiteSettings>("/admin/settings"))
-      .then((value) => {
-        setSettings(value);
-        setAvailable(value.available_24_7);
-        setEmailNotifications(value.notifications_email_enabled);
-        setWhatsappNotifications(value.notifications_whatsapp_enabled);
-        setTimeSlots(value.booking_time_slots.join("\n"));
-        setBlockedDates(value.blocked_dates.join("\n"));
-      })
-      .catch((reason: Error) => setError(reason.message));
+  const load = useCallback(async () => {
+    try {
+      const value = await apiRequest<Settings>("/admin/settings");
+      setDraft(value); setDirty(false);
+    } catch { setError("We could not load business settings. Please refresh and try again."); }
+    finally { setLoading(false); }
   }, []);
+
+  useEffect(() => { void Promise.resolve().then(load); }, [load]);
+  useEffect(() => {
+    const warn = (event: BeforeUnloadEvent) => { if (dirty) { event.preventDefault(); event.returnValue = ""; } };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+
+  function change<K extends keyof Settings>(key: K, value: Settings[K]) {
+    setDirty(true);
+    setDraft((current) => current ? { ...current, [key]: value } : current);
+  }
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!settings) return;
+    if (!draft) return;
+    setError(""); setNotice("");
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const invalidPhone = (["phone_primary", "phone_recovery", "whatsapp", "notification_admin_phone"] as const)
+      .some((key) => { const value = String(formData.get(key) || "").trim(); return value !== "" && !/^\+971[0-9]{8,9}$/.test(value.replace(/\s+/g, "")); });
+    const invalidUrl = (["facebook_url", "instagram_url", "tiktok_url", "maps_embed_url"] as const)
+      .some((key) => { const value = String(formData.get(key) || "").trim(); if (!value) return false; try { return !["http:", "https:"].includes(new URL(value).protocol); } catch { return true; } });
+    if (invalidPhone || invalidUrl) {
+      setError(invalidPhone ? "Enter UAE phone numbers in +971 format, for example +971501234567." : "Enter a complete website link beginning with https://.");
+      return;
+    }
     setBusy(true);
-    setError("");
-    setSuccess("");
-    const data = new FormData(event.currentTarget);
-    const payload: Record<string, string | boolean | string[] | null> = {
-      available_24_7: available,
-      notifications_email_enabled: emailNotifications,
-      notifications_whatsapp_enabled: whatsappNotifications,
-      booking_time_slots: timeSlots.split(/\r?\n/).map((value) => value.trim()).filter(Boolean),
-      blocked_dates: blockedDates.split(/\r?\n/).map((value) => value.trim()).filter(Boolean),
-    };
-    for (const field of editableFields) {
-      const value = String(data.get(field.key) || "");
-      payload[field.key] = value || (field.key === "notification_admin_email" || field.key === "notification_admin_phone" ? null : "");
-    }
     try {
-      const updated = await apiRequest<AdminSiteSettings>("/admin/settings", {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      });
-      setSettings(updated);
-      setAvailable(updated.available_24_7);
-      setEmailNotifications(updated.notifications_email_enabled);
-      setWhatsappNotifications(updated.notifications_whatsapp_enabled);
-      setTimeSlots(updated.booking_time_slots.join("\n"));
-      setBlockedDates(updated.blocked_dates.join("\n"));
-      setSuccess("Site settings saved.");
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Unable to save settings.");
-    } finally {
-      setBusy(false);
-    }
+      const updated = await apiRequest<Settings>("/admin/settings", { method: "PUT", body: JSON.stringify(draft) });
+      setDraft(updated); setDirty(false); setNotice("Business settings saved.");
+    } catch (reason) { setError(friendlyError(reason)); }
+    finally { setBusy(false); }
   }
 
-  return <main className="min-h-screen bg-stone-50 px-4 py-8 dark:bg-slate-950 sm:px-6"><div className="mx-auto max-w-4xl">
-    <Link href="/admin/dashboard" className="text-sm font-semibold text-emerald-800 hover:underline dark:text-emerald-300">← Dashboard</Link>
-    <h1 className="my-5 text-3xl font-bold">Site settings</h1>
-    {error && <p role="alert" className="mb-5 rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
-    {!settings ? <p>Loading settings…</p> : <form onSubmit={save} className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-2">
-      {editableFields.map((field) => <label key={field.key} className="text-sm font-semibold">{field.label}<input name={field.key} type={field.type || "text"} defaultValue={String(settings[field.key] ?? "")} className="mt-1.5 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950" /></label>)}
-      <label className="flex min-h-12 items-center gap-3 text-sm font-semibold sm:col-span-2"><input type="checkbox" checked={available} onChange={(event) => setAvailable(event.target.checked)} className="size-5 accent-emerald-800" />Business is available 24/7</label>
-      <fieldset className="grid gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-700 sm:col-span-2">
-        <legend className="px-2 font-bold">Admin notifications</legend>
-        <label className="flex min-h-11 items-center gap-3 text-sm font-semibold"><input type="checkbox" checked={emailNotifications} onChange={(event) => setEmailNotifications(event.target.checked)} className="size-5 accent-emerald-800" />Email admins about requests and send customer confirmations</label>
-        <label className="flex min-h-11 items-center gap-3 text-sm font-semibold"><input type="checkbox" checked={whatsappNotifications} onChange={(event) => setWhatsappNotifications(event.target.checked)} className="size-5 accent-emerald-800" />Send admin WhatsApp notifications</label>
-        <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">Admin delivery addresses are configured below. Email also sends booking confirmations to customers when an email address is provided. Provider credentials are configured using server environment variables; delivery failures are recorded in the Notifications dashboard.</p>
-      </fieldset>
-      <fieldset className="grid gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-700 sm:col-span-2">
-        <legend className="px-2 font-bold">Booking availability</legend>
-        <label className="text-sm font-semibold">Available time slots (24-hour HH:MM, one per line)
-          <textarea value={timeSlots} onChange={(event) => setTimeSlots(event.target.value)} rows={4} placeholder={"09:00\n12:00\n15:00"} className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal dark:border-slate-700 dark:bg-slate-950" />
-        </label>
-        <label className="text-sm font-semibold">Blocked dates (YYYY-MM-DD, one per line)
-          <textarea value={blockedDates} onChange={(event) => setBlockedDates(event.target.value)} rows={4} placeholder="2026-12-25" className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal dark:border-slate-700 dark:bg-slate-950" />
-        </label>
-      </fieldset>
-      {success && <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900 sm:col-span-2">{success}</p>}
-      <button disabled={busy} className="min-h-12 rounded-xl bg-emerald-900 px-5 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60 sm:col-span-2">{busy ? "Saving…" : "Save settings"}</button>
+  const field = (key: TextKey, label: string, options?: { type?: string; hint?: string; multiline?: boolean; required?: boolean }) => {
+    if (!draft) return null;
+    const value = String(draft[key] ?? "");
+    return <label key={key} className="block text-sm font-semibold">{label}{options?.required && <span className="text-red-700"> *</span>}
+      {options?.hint && <span className="mt-1 block font-normal text-slate-600 dark:text-slate-300">{options.hint}</span>}
+      {options?.multiline
+        ? <textarea name={key} required={options.required} value={value} onChange={(event) => change(key, event.target.value as Settings[typeof key])} rows={4} className={`${inputClass} py-2`} />
+        : <input name={key} type={options?.type || "text"} required={options?.required} pattern={options?.type === "tel" ? PHONE_PATTERN : undefined} value={value} onChange={(event) => change(key, event.target.value as Settings[typeof key])} className={inputClass} />}
+    </label>;
+  };
+
+  const normalLogo: UploadedImage | null = draft?.logo_url ? { url: draft.logo_url, alt: draft.logo_alt } : null;
+  const darkLogo: UploadedImage | null = draft?.logo_dark_url ? { url: draft.logo_dark_url, alt: draft.logo_dark_alt } : null;
+
+  return <main className="min-h-screen bg-stone-50 px-4 py-8 pt-16 dark:bg-slate-950 sm:px-6 md:pt-8"><div className="mx-auto max-w-4xl">
+    <Link href="/admin/dashboard" className="inline-flex min-h-11 items-center font-semibold text-emerald-800 hover:underline dark:text-emerald-300">← Dashboard</Link>
+    <h1 className="my-5 text-3xl font-bold">Business settings</h1>
+    <Link href="/" target="_blank" className="mb-5 inline-flex min-h-11 items-center font-semibold text-emerald-800 underline dark:text-emerald-300">View website ↗</Link>
+    <p className="mb-5 text-slate-600 dark:text-slate-300">These details appear across your public website and help customers contact you.</p>
+    {notice && <p role="status" className="mb-4 rounded-xl bg-emerald-100 p-3 text-emerald-950 dark:bg-emerald-950 dark:text-emerald-100">{notice}</p>}
+    {error && <p role="alert" className="mb-4 rounded-xl bg-red-100 p-3 text-red-900 dark:bg-red-950 dark:text-red-100">{error}</p>}
+    {loading || !draft ? <div aria-label="Loading settings" className="h-60 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" /> : <form onSubmit={(event) => void save(event)} className="space-y-4">
+      <details open className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Business details</summary><div className="mt-4 grid gap-4 sm:grid-cols-2">
+        {field("brand_name", "Business name", { required: true })}{field("tagline", "Short description")}
+        <ImageUpload label="Logo upload" value={normalLogo} onChange={(value) => { const image = value && !Array.isArray(value) ? value : null; change("logo_url", image?.url ?? null); change("logo_alt", image?.alt ?? null); }} folder="brand" hint="If no dark-mode logo is added, this logo is used in both themes." />
+        <ImageUpload label="Dark-mode logo (optional)" value={darkLogo} onChange={(value) => { const image = value && !Array.isArray(value) ? value : null; change("logo_dark_url", image?.url ?? null); change("logo_dark_alt", image?.alt ?? null); }} folder="brand" />
+      </div></details>
+
+      <details open className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Contact details</summary><div className="mt-4 grid gap-4 sm:grid-cols-2">
+        {field("phone_primary", "Main phone", { type: "tel", hint: "UAE format, for example +971501234567." })}
+        {field("phone_recovery", "Recovery phone", { type: "tel", hint: "UAE format, for example +971501234567." })}
+        {field("whatsapp", "WhatsApp number", { type: "tel", hint: "UAE format, for example +971501234567." })}
+        {field("email", "Contact email", { type: "email" })}
+        {field("address_line", "Street address")}
+        {field("city", "City")}
+        {field("emirate", "Emirate")}
+        {field("country", "Country")}
+        <div className="sm:col-span-2">{field("maps_embed_url", "Map link", { type: "url", hint: "Paste a Google Maps share link, for example https://maps.google.com/…" })}</div>
+      </div></details>
+
+      <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Social media links</summary><div className="mt-4 grid gap-4 sm:grid-cols-2">
+        {field("facebook_url", "Facebook page", { type: "url", hint: "Example: https://facebook.com/yourbusiness" })}
+        {field("instagram_url", "Instagram page", { type: "url", hint: "Example: https://instagram.com/yourbusiness" })}
+        {field("tiktok_url", "TikTok page", { type: "url", hint: "Example: https://tiktok.com/@yourbusiness" })}
+      </div></details>
+
+      <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Opening hours</summary><div className="mt-4 space-y-4">
+        <label className="flex min-h-12 items-center gap-3 font-semibold"><input type="checkbox" checked={draft.available_24_7} onChange={(event) => change("available_24_7", event.target.checked)} className="size-5 accent-emerald-800" />Available 24/7</label>
+        {!draft.available_24_7 && field("hours_label", "Opening hours shown to customers", { hint: 'For example, "Mon–Sat, 8am–8pm".' })}
+      </div></details>
+
+      <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Admin notifications</summary><div className="mt-4 space-y-4">
+        <p className="text-sm text-slate-600 dark:text-slate-300">Choose which alerts the team receives. Provider credentials are managed by your website administrator.</p>
+        <label className="flex min-h-12 items-center gap-3 font-semibold"><input type="checkbox" checked={draft.notifications_email_enabled} onChange={(event) => change("notifications_email_enabled", event.target.checked)} className="size-5 accent-emerald-800" />Email notifications are on</label>
+        <label className="flex min-h-12 items-center gap-3 font-semibold"><input type="checkbox" checked={draft.notifications_whatsapp_enabled} onChange={(event) => change("notifications_whatsapp_enabled", event.target.checked)} className="size-5 accent-emerald-800" />WhatsApp notifications are on</label>
+        <div className="grid gap-4 sm:grid-cols-2">{field("notification_admin_email", "Team notification email", { type: "email" })}{field("notification_admin_phone", "Team WhatsApp number", { type: "tel", hint: "UAE format, for example +971501234567." })}</div>
+      </div></details>
+
+      <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Footer text</summary><div className="mt-4">{field("footer_blurb", "Short business description", { multiline: true, hint: "Shown near the bottom of each page." })}</div></details>
+
+      <button disabled={busy} className="min-h-12 w-full rounded-xl bg-emerald-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-white border-r-transparent align-[-3px]" />Saving…</> : "Save business settings"}</button>
     </form>}
   </div></main>;
 }

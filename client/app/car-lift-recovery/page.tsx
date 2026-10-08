@@ -5,7 +5,7 @@ export function generateMetadata() {
   return generatePageMetadata("/car-lift-recovery", {
     title: "Car Lift & Recovery in Dubai and Abu Dhabi | RK Transport",
     description: "Request car lift and vehicle recovery from RK Transport in Dubai, Abu Dhabi, and across the UAE. Share your location and vehicle condition.",
-  });
+  }, "seo.car-lift-recovery");
 }
 
 export default function CarLiftRecoveryPage() {

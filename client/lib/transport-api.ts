@@ -2,7 +2,9 @@ export type SiteSettings = {
   brand_name: string;
   tagline: string | null;
   logo_url: string | null;
+  logo_alt: string | null;
   logo_dark_url: string | null;
+  logo_dark_alt: string | null;
   favicon_url: string | null;
   phone_primary: string | null;
   phone_recovery: string | null;
@@ -44,6 +46,7 @@ export type Service = {
   title: string;
   short_description: string | null;
   detailed_description: string | null;
+  starting_price_note: string | null;
   features: string[] | null;
   gallery: { url: string; alt?: string | null }[];
   image_url: string | null;
@@ -122,8 +125,8 @@ export type MediaItem = {
   folder: string | null;
   created_at: string;
 };
-export type Faq = { id: number; question: string; answer: string };
-export type Testimonial = { id: number; customer_name: string; quote: string; rating: number; vehicle_note: string | null };
+export type Faq = { id: number; question: string; answer: string; page_key: string | null };
+export type Testimonial = { id: number; customer_name: string; quote: string; rating: number; vehicle_note: string | null; image_url: string | null; image_alt: string | null };
 export type About = {
   id: number;
   title: string;
@@ -135,7 +138,7 @@ export type About = {
   images: { url?: string; alt?: string; side?: "left" | "right" }[] | null;
   stats: { value?: string; label?: string }[];
   story_image_side: "left" | "right";
-  why_choose_us: { title?: string; description?: string }[];
+  why_choose_us: { icon?: string; title?: string; description?: string }[];
 };
 export type PageCopy = { id: number; key: string; value: string };
 export type HeroBanner = {

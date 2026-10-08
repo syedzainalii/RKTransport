@@ -4,6 +4,7 @@ import BookingForm from "./Components/booking-form";
 import ContactForm from "./Components/contact-form";
 import HeroSlideshow from "./Components/hero-slideshow";
 import Reveal from "./Components/reveal";
+import SimpleRichText from "./Components/simple-rich-text";
 import { BreadcrumbStructuredData, StructuredData } from "./Components/structured-data";
 import { apiImageUrl, isImageOptimizable, publicApi, type Faq, type HeroBanner, type PageCopy, type Service, type Testimonial } from "../lib/transport-api";
 import { faqJsonLd } from "../lib/seo";
@@ -74,7 +75,8 @@ export default async function HomePage() {
   const steps = bookingSteps(copy.find((item: PageCopy) => item.key === "booking.steps")?.value);
   const aboutImage = about?.images?.find((image) => image.url);
 
-  const homeFaqs = faqs.map((faq: Faq) => ({ question: faq.question, answer: faq.answer }));
+  const visibleHomeFaqs = faqs.filter((faq: Faq) => !faq.page_key || faq.page_key === "home");
+  const homeFaqs = visibleHomeFaqs.map((faq: Faq) => ({ question: faq.question, answer: faq.answer }));
   return <>
     <BreadcrumbStructuredData items={[{ name: "Home", path: "/" }]} />
     {homeFaqs.length > 0 && <StructuredData data={faqJsonLd(homeFaqs)} />}
@@ -107,6 +109,7 @@ export default async function HomePage() {
           <div className="p-6">
             <h3 className="text-xl font-bold">{service.title}</h3>
             <p className="mt-3 min-h-12 leading-6 text-slate-700 dark:text-slate-200">{service.short_description}</p>
+            {service.starting_price_note && <p className="mt-2 font-semibold text-emerald-800 dark:text-emerald-300">{service.starting_price_note}</p>}
             {service.features?.length ? <ul className="mt-4 space-y-2 text-sm text-slate-700 dark:text-slate-200">{service.features.slice(0, 3).map((feature) => <li key={feature}>✓ {feature}</li>)}</ul> : null}
             <Link href={`/services/${service.slug}`} className="mt-5 inline-flex min-h-11 items-center font-semibold text-emerald-800 hover:underline dark:text-emerald-300">{text("home.services.details", "Service details")} →</Link>
           </div>
@@ -135,7 +138,7 @@ export default async function HomePage() {
           <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">{text("home.about.eyebrow", "About us")}</p>
           <h2 className="mt-2 text-3xl font-bold">{about.title}</h2>
           {about.subtitle && <p className="mt-3 text-lg text-slate-700 dark:text-slate-200">{about.subtitle}</p>}
-          <p className="mt-4 whitespace-pre-line leading-7 text-slate-700 dark:text-slate-200">{about.description}</p>
+          <SimpleRichText value={about.description} className="mt-4 leading-7 text-slate-700 dark:text-slate-200" />
           {about.stats.length > 0 && <div className="mt-6 grid grid-cols-2 gap-3">{about.stats.map((stat, index) => <div key={`${stat.label}-${index}`} className="rounded-xl bg-stone-100 p-4 dark:bg-slate-900"><p className="text-2xl font-bold text-emerald-800 dark:text-emerald-300">{stat.value}</p><p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{stat.label}</p></div>)}</div>}
           <Link href="/about" className="mt-5 inline-flex min-h-11 items-center font-semibold text-emerald-800 hover:underline dark:text-emerald-300">{text("home.about.link", "More about RK Transport")} →</Link>
         </div>
@@ -147,16 +150,18 @@ export default async function HomePage() {
         <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-200">{text("home.testimonials.eyebrow", "Customer feedback")}</p>
         <h2 className="mt-2 text-3xl font-bold">{text("home.testimonials.heading", "Trusted to move what matters")}</h2>
         <div className="mt-7 grid gap-4 md:grid-cols-3">{testimonials.map((testimonial: Testimonial) => <figure key={testimonial.id} className="rounded-2xl border border-white/15 bg-white/10 p-6">
+          {testimonial.image_url && <div className="relative mb-4 size-14 overflow-hidden rounded-full"><Image src={apiImageUrl(testimonial.image_url) || testimonial.image_url} alt={testimonial.image_alt || ""} fill unoptimized={!isImageOptimizable(testimonial.image_url)} sizes="56px" className="object-cover" /></div>}
           <blockquote className="leading-7 text-white">“{testimonial.quote}”</blockquote>
+          <p className="mt-2 text-amber-300" aria-label={`${testimonial.rating} out of 5 stars`}>{"★".repeat(testimonial.rating)}</p>
           <figcaption className="mt-4 font-bold">{testimonial.customer_name}{testimonial.vehicle_note ? <span className="block text-sm font-normal text-emerald-100">{testimonial.vehicle_note}</span> : null}</figcaption>
         </figure>)}</div>
       </div>
     </section>}
 
-    {faqs.length > 0 && <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+    {visibleHomeFaqs.length > 0 && <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
       <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">{text("home.faqs.eyebrow", "Answers")}</p>
       <h2 className="mt-2 text-3xl font-bold">{text("home.faqs.heading", "Frequently asked questions")}</h2>
-      <div className="mt-6 divide-y divide-slate-200 dark:divide-slate-800">{faqs.map((faq: Faq) => <details key={faq.id} className="group py-4"><summary className="min-h-11 cursor-pointer content-center font-semibold marker:text-emerald-800">{faq.question}</summary><p className="pb-2 leading-7 text-slate-700 dark:text-slate-200">{faq.answer}</p></details>)}</div>
+      <div className="mt-6 divide-y divide-slate-200 dark:divide-slate-800">{visibleHomeFaqs.map((faq: Faq) => <details key={faq.id} className="group py-4"><summary className="min-h-11 cursor-pointer content-center font-semibold marker:text-emerald-800">{faq.question}</summary><p className="pb-2 leading-7 text-slate-700 dark:text-slate-200">{faq.answer}</p></details>)}</div>
     </section>}
 
     <section className="bg-stone-100 px-4 py-16 dark:bg-slate-900/70 sm:px-6">

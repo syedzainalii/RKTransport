@@ -1,5 +1,5 @@
-import ThemeToggle from "../Components/theme-toggle";
 import type { Metadata } from "next";
+import AdminShell from "./admin-shell";
 
 export const metadata: Metadata = {
   title: "Admin | RK Transport",
@@ -7,12 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <>
-      <div className="fixed right-4 top-4 z-[60]">
-        <ThemeToggle />
-      </div>
-      {children}
-    </>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }

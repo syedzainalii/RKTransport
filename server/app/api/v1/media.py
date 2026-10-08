@@ -19,7 +19,7 @@ async def list_media(
     return db.query(Media).order_by(Media.created_at.desc()).all()
 
 
-@router.post("/admin/media", response_model=MediaResponse)
+@router.post("/admin/media", response_model=dict[str, str])
 async def upload_media(
     file: UploadFile = File(...),
     alt: str | None = Form(None),
@@ -39,7 +39,7 @@ async def upload_media(
     db.add(row)
     db.commit()
     db.refresh(row)
-    return row
+    return {"url": row.url}
 
 
 @router.delete("/admin/media/{item_id}")

@@ -17,6 +17,8 @@ class Location(Base, TimestampMixin):
     lng: Mapped[float | None] = mapped_column(Float, nullable=True)
     is_hub: Mapped[bool] = mapped_column(Boolean, default=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    pickup_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    dropoff_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
