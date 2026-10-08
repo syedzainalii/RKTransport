@@ -11,6 +11,8 @@ export default function AdminBookingsPage() {
   const [rows, setRows] = useState<Booking[]>([]);
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [notice, setNotice] = useState("");
   const [authorized, setAuthorized] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -63,6 +65,22 @@ export default function AdminBookingsPage() {
     }
   }
 
+  async function deleteBooking(booking: Booking) {
+    if (!window.confirm(`Delete booking #${booking.ref} for ${booking.customer_name}? This cannot be undone.`)) return;
+    setDeletingId(booking.id);
+    setError("");
+    setNotice("");
+    try {
+      await apiRequest(`/admin/bookings/${booking.id}`, { method: "DELETE" });
+      setRows((current) => current.filter((row) => row.id !== booking.id));
+      setNotice(`Booking #${booking.ref} was deleted.`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to delete booking.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   function exportCsv() {
     const columns = ["Reference", "Name", "Phone", "Email", "Status", "Pickup", "Drop-off", "Vehicles", "Created"];
     const escapeCell = (value: string | number | null) => {
@@ -90,6 +108,7 @@ export default function AdminBookingsPage() {
 
   return <AdminPage title="Bookings">
     {error && <p role="alert" className="mb-5 rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
+    {notice && <p role="status" className="mb-5 rounded-xl bg-emerald-100 p-3 text-sm text-emerald-950">{notice}</p>}
     {lookupWarning && <p role="status" className="mb-5 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{lookupWarning}</p>}
     {!authorized && <p>Checking admin session…</p>}
     {authorized && <section aria-label="Booking search and filters" className="mb-5 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-2 lg:grid-cols-3">
@@ -122,7 +141,8 @@ export default function AdminBookingsPage() {
         <label className="text-sm font-semibold">Status<select name="status" defaultValue={booking.status} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-2 dark:border-slate-700 dark:bg-slate-950">{statuses.map((status) => <option key={status} value={status}>{status.replace("_", " ")}</option>)}</select></label>
         <label className="text-sm font-semibold">Quote (AED)<input name="quoted_amount_aed" type="number" min="0" step="0.01" defaultValue={booking.quoted_amount_aed ?? ""} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-2 dark:border-slate-700 dark:bg-slate-950" /></label>
         <label className="text-sm font-semibold">Admin notes<input name="admin_notes" defaultValue={booking.admin_notes ?? ""} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-2 dark:border-slate-700 dark:bg-slate-950" /></label>
-        <button disabled={busyId === booking.id} className="min-h-11 rounded-lg bg-emerald-900 px-4 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60 sm:col-span-3">{busyId === booking.id ? "Saving…" : "Save booking"}</button>
+        <button disabled={busyId === booking.id || deletingId === booking.id} className="min-h-11 rounded-lg bg-emerald-900 px-4 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60 sm:col-span-2">{busyId === booking.id ? "Saving…" : "Save booking"}</button>
+        <button type="button" onClick={() => void deleteBooking(booking)} disabled={busyId === booking.id || deletingId === booking.id} className="min-h-11 rounded-lg border border-red-300 px-4 font-semibold text-red-800 hover:bg-red-50 disabled:opacity-60 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950">{deletingId === booking.id ? "Deleting…" : "Delete booking"}</button>
       </form>
     </article>)}</div>
   </AdminPage>;
