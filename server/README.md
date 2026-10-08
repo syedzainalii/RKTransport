@@ -11,11 +11,13 @@ FastAPI backend for the RK Transport website, bookings, content management, and 
    ```powershell
    pip install -r requirements.txt
    alembic upgrade head
-   python scripts/seed_database.py
+   python scripts\seed_database.py
    uvicorn main:app --reload
    ```
 
 The API is available at `http://localhost:8000`; OpenAPI docs are at `/docs`. The public API prefix is `/api/v1`. Schema changes are applied with Alembic, and `scripts/seed_database.py` seeds defaults explicitly. The application does not run schema creation or seeding during startup, avoiding database DDL and seed work on Vercel cold starts.
+
+Run the seed command from the `server/` directory after migrations. It creates the configured admin user and default site settings, locations and routes, services, vehicle types, storage plans, hero slide, FAQs, and page copy (including booking steps). It is safe to run again; existing default records are not duplicated.
 
 ## Deploy
 

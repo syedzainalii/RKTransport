@@ -13,7 +13,7 @@ python -m alembic upgrade head
 python scripts\seed_database.py
 ```
 
-Migrations are ordered `001` through `004`; `head` applies the current complete schema. Run migrations as a deliberate deployment step, not from a Vercel build or function startup. The seed is safe to rerun for existing default records. Verify the database backup/restore procedure before production migration.
+Run these commands from `server/` with the backend environment configured to use the production pooled `DATABASE_URL`. Migrations are ordered `001` through `004`; `head` applies the current complete schema. Run migrations as a deliberate deployment step, not from a Vercel build or function startup. The standalone seed command creates the configured admin user, site settings, services, locations and routes, booking-step page copy, FAQs, and hero slide. It is safe to rerun without duplicating default records. Verify the database backup/restore procedure before production migration.
 
 ## 2. Deploy the backend on Vercel
 
