@@ -133,7 +133,7 @@ export default function HeroSlideshow({ slides }: { slides: HeroBanner[] }) {
                 href="https://wa.me/971561379697"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 font-semibold text-white backdrop-blur-md transition hover:bg-white/20"
+                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 font-semibold text-white backdrop-blur-md transition hover:bg-green-600"
               >
                 <MessageCircle aria-hidden="true" className="size-5" />
                 WhatsApp us
