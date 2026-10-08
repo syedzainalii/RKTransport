@@ -8,7 +8,7 @@ export const revalidate = 60;
 export function generateMetadata() {
   return generatePageMetadata("/contact", {
     title: "Contact RK Transport | UAE Car Transport & Recovery",
-    description: "Contact RK Transport about car transport, recovery, storage, or a quote in Dubai, Abu Dhabi, and the UAE.",
+    description: "Contact RK Transport about car transport, recovery, or storage in Dubai, Abu Dhabi, and the UAE.",
   });
 }
 

@@ -4,23 +4,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { Award, CarFront, CircleCheck, Clock3, Gauge, Headset, Heart, MapPin, ShieldCheck, Star, Truck, Wrench } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { useParams } from "next/navigation";
-import { apiRequest, type About, type AdminSiteSettings } from "../../../../../lib/transport-api";
+import { notFound, useParams } from "next/navigation";
+import { apiRequest, type About } from "../../../../../lib/transport-api";
 import ImageUpload, { type UploadedImage } from "../../components/image-upload";
 import useUnsavedChanges from "../../components/use-unsaved-changes";
 
 type Row = Record<string, unknown> & { id?: number };
 type Field = { key: string; label: string; help?: string; kind?: "text" | "textarea" | "rich" | "number" | "select" | "boolean" | "single-image" | "string-list"; options?: [string, string][]; required?: boolean; min?: number; max?: number; showDescription?: boolean };
-type Collection = { title: string; path: string; singular: string; fields: Field[]; defaults: Row; view?: (row: Row, rows: Row[]) => string };
+type Collection = { title: string; path: string; singular: string; fields: Field[]; defaults: Row };
 
 const pageDestinations: [string, string][] = [
-  ["/quote", "Book now"], ["/services", "Services"], ["/contact", "Contact"], ["/about", "About"], ["/storage", "Storage"], ["/", "Home"],
+  ["/services", "Services"], ["/contact", "Contact"], ["/about", "About"], ["/storage", "Storage"], ["/", "Home"],
 ];
-const cityOptions: [string, string][] = [["Dubai", "Dubai"], ["Abu Dhabi", "Abu Dhabi"]];
 const serviceTypes: [string, string][] = [["transport", "Car transport"]];
 
 const collections: Record<string, Collection> = {
-  banners: { title: "Homepage banners", singular: "banner", path: "/hero-banners", defaults: { title: "", subtitle: "", description: "", badge_text: "", button_text: "Book now", button_link: "/quote", button_custom_link: "", image_url: "", image_alt: "", portrait_image_url: "", sort_order: 0, is_active: true }, fields: [
+  banners: { title: "Homepage banners", singular: "banner", path: "/hero-banners", defaults: { title: "", subtitle: "", description: "", badge_text: "", button_text: "Contact us", button_link: "/contact", button_custom_link: "", image_url: "", image_alt: "", portrait_image_url: "", sort_order: 0, is_active: true }, fields: [
     { key: "title", label: "Heading", help: "The big text on the banner.", required: true },
     { key: "subtitle", label: "Sub-heading" },
     { key: "description", label: "Short description", kind: "textarea", help: "Optional supporting text." },
@@ -41,36 +40,10 @@ const collections: Record<string, Collection> = {
     { key: "image_url", label: "Main picture", kind: "single-image" },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
-  locations: { title: "Locations", singular: "location", path: "/locations", defaults: { name: "", emirate: "Dubai", pickup_enabled: true, dropoff_enabled: true, is_hub: true, sort_order: 0, is_active: true }, fields: [
-    { key: "name", label: "Location name", required: true },
-    { key: "emirate", label: "City", kind: "select", options: cityOptions },
-    { key: "pickup_enabled", label: "Can be used for pickup", kind: "boolean" },
-    { key: "dropoff_enabled", label: "Can be used for drop-off", kind: "boolean" },
-    { key: "is_active", label: "Show on website", kind: "boolean" },
-  ] },
-  routes: { title: "Routes and prices", singular: "route", path: "/routes", defaults: { origin_location_id: "", destination_location_id: "", title: "", is_core: true, base_price_aed: "", eta_minutes: "", is_active: true, sort_order: 0 }, fields: [
-    { key: "origin_location_id", label: "From", kind: "select", required: true },
-    { key: "destination_location_id", label: "To", kind: "select", required: true },
-    { key: "base_price_aed", label: "Base price (AED)", kind: "number", min: 0, required: true },
-    { key: "eta_minutes", label: "Estimated travel time (minutes)", kind: "number", min: 1, help: "Optional estimate." },
-    { key: "is_active", label: "Show on website", kind: "boolean" },
-  ], view: (row) => `AED ${String(row.base_price_aed || 0)}` },
-  vehicles: { title: "Vehicle types", singular: "vehicle type", path: "/vehicle-types", defaults: { name: "", description: "", surcharge_aed: 0, sort_order: 0, is_active: true }, fields: [
-    { key: "name", label: "Name", required: true, help: "For example, SUV." },
-    { key: "surcharge_aed", label: "Extra charge (AED)", kind: "number", min: 0, help: "0 means no extra charge." },
-    { key: "is_active", label: "Show on website", kind: "boolean" },
-  ] },
-  storage: { title: "Storage plans", singular: "storage plan", path: "/storage-plans", defaults: { title: "", description: "", billing_period: "month", price_aed: 0, features: [], sort_order: 0, is_active: true }, fields: [
-    { key: "title", label: "Plan name", required: true },
-    { key: "description", label: "Description", kind: "textarea" },
-    { key: "price_aed", label: "Price (AED)", kind: "number", min: 0 },
-    { key: "billing_period", label: "Billing period", kind: "select", options: [["day", "Per day"], ["week", "Per week"], ["month", "Per month"]] },
-    { key: "is_active", label: "Show on website", kind: "boolean" },
-  ] },
   faqs: { title: "FAQs", singular: "question", path: "/faqs", defaults: { question: "", answer: "", page_key: "home", sort_order: 0, is_active: true }, fields: [
     { key: "question", label: "Question", required: true },
     { key: "answer", label: "Answer", kind: "textarea", required: true },
-    { key: "page_key", label: "Which page?", kind: "select", options: [["home", "Home"], ["services", "Services"], ["booking", "Booking"], ["storage", "Storage"], ["", "All pages"]] },
+    { key: "page_key", label: "Which page?", kind: "select", options: [["home", "Home"], ["services", "Services"], ["storage", "Storage"], ["", "All pages"]] },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
   testimonials: { title: "Testimonials", singular: "testimonial", path: "/testimonials", defaults: { customer_name: "", quote: "", rating: 5, vehicle_note: "", is_active: true, sort_order: 0 }, fields: [
@@ -81,15 +54,10 @@ const collections: Record<string, Collection> = {
   ] },
 };
 
-function locationName(rows: Row[], id: unknown) {
-  const found = rows.find((row) => String(row.id) === String(id));
-  return found ? stringValue(found.name) : "Choose a location";
-}
 function stringValue(value: unknown): string { return typeof value === "string" ? value : value == null ? "" : String(value); }
 function booleanValue(value: unknown): boolean { return value === true; }
 function asRecord(value: unknown): Row { return typeof value === "object" && value !== null ? value as Row : {}; }
-function titleOf(collection: Collection, row: Row, locations: Row[]) {
-  if (collection.path === "/routes") return `${locationName(locations, row.origin_location_id)} → ${locationName(locations, row.destination_location_id)}`;
+function titleOf(collection: Collection, row: Row) {
   return stringValue(row.title || row.name || row.question || row.customer_name || row.key) || collection.singular;
 }
 function apiErrorMessage(reason: unknown) {
@@ -100,16 +68,14 @@ function apiErrorMessage(reason: unknown) {
 export default function AdminCollectionPage() {
   const params = useParams<{ collection: string }>();
   const collectionKey = params.collection;
-  if (collectionKey === "availability") return <AvailabilityEditor />;
   if (collectionKey === "about") return <AboutEditor />;
   const collection = collections[collectionKey];
-  if (!collection) return <main className="p-6">This editor is not available.</main>;
+  if (!collection) notFound();
   return <CollectionEditor key={collectionKey} collectionKey={collectionKey} collection={collection} />;
 }
 
 function CollectionEditor({ collection, collectionKey }: { collection: Collection; collectionKey: string }) {
   const [rows, setRows] = useState<Row[]>([]);
-  const [locations, setLocations] = useState<Row[]>([]);
   const [editing, setEditing] = useState<Row | null>(null);
   const [draft, setDraft] = useState<Row>(collection.defaults);
   const [busy, setBusy] = useState(false);
@@ -124,10 +90,6 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
     try {
       const data = await apiRequest<unknown[]>(`/admin${collection.path}`);
       setRows(data.map(asRecord));
-      if (collection.path === "/routes" || collection.path === "/locations") {
-        const allLocations = await apiRequest<unknown[]>("/admin/locations");
-        setLocations(allLocations.map(asRecord));
-      }
       setError("");
     } catch {
       setError("We could not load this list. Please refresh and try again.");
@@ -189,20 +151,6 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
       payload.seo_title = payload.seo_title || `${stringValue(payload.title)} | RK Transport`;
       payload.seo_description = payload.seo_description || stringValue(payload.short_description);
     }
-    if (collection.path === "/locations") {
-      payload.is_hub = true;
-      payload.sort_order = Number(payload.sort_order ?? rows.length);
-    }
-    if (collection.path === "/routes") {
-      const from = locationName(locations, payload.origin_location_id);
-      const to = locationName(locations, payload.destination_location_id);
-      payload.title = `${from} → ${to}`;
-      payload.is_core = true;
-      payload.origin_location_id = Number(payload.origin_location_id);
-      payload.destination_location_id = Number(payload.destination_location_id);
-      payload.base_price_aed = payload.base_price_aed === "" ? null : Number(payload.base_price_aed);
-      payload.eta_minutes = payload.eta_minutes === "" ? null : Number(payload.eta_minutes);
-    }
     if (collectionKeyForPath(collection.path) === "testimonials") payload.rating = Number(payload.rating);
     const itemId = typeof draft.id === "number" ? draft.id : null;
     try {
@@ -263,7 +211,7 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
       : rows.length === 0 ? <p className="mt-5 rounded-2xl bg-white p-6 dark:bg-slate-900">No {collection.title.toLowerCase()} yet. Add your first {collection.singular}.</p>
       : <div className="mt-5 space-y-3">{rows.map((row, index) => <article key={String(row.id ?? index)} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center">
         {typeof row.image_url === "string" && row.image_url && <div className="relative h-20 w-full shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:w-28"><Image src={row.image_url} alt="" fill unoptimized sizes="112px" className="object-cover" /></div>}
-        <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="truncate font-semibold">{titleOf(collection, row, locations)}</h2>{"is_active" in row && <span className={`rounded-full px-2 py-1 text-xs font-bold ${booleanValue(row.is_active) ? "bg-emerald-100 text-emerald-900" : "bg-slate-200 text-slate-700"}`}>{booleanValue(row.is_active) ? "Visible" : "Hidden"}</span>}</div><p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{collection.view ? collection.view(row, locations) : stringValue(row.short_description || row.quote || row.description || row.subtitle)}</p></div>
+        <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="truncate font-semibold">{titleOf(collection, row)}</h2>{"is_active" in row && <span className={`rounded-full px-2 py-1 text-xs font-bold ${booleanValue(row.is_active) ? "bg-emerald-100 text-emerald-900" : "bg-slate-200 text-slate-700"}`}>{booleanValue(row.is_active) ? "Visible" : "Hidden"}</span>}</div><p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{stringValue(row.short_description || row.quote || row.description || row.subtitle)}</p></div>
         <div className="flex flex-wrap gap-1">
           <button type="button" aria-label="Move up" disabled={index === 0} onClick={() => void move(index, -1)} className="min-h-11 min-w-11 rounded-lg border text-lg disabled:opacity-40 dark:border-slate-700">↑</button><button type="button" aria-label="Move down" disabled={index === rows.length - 1} onClick={() => void move(index, 1)} className="min-h-11 min-w-11 rounded-lg border text-lg disabled:opacity-40 dark:border-slate-700">↓</button>
         </div>
@@ -274,8 +222,8 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
       <section role="dialog" aria-modal="true" aria-labelledby="editor-title" className="mx-auto my-4 max-w-2xl rounded-2xl bg-white p-4 shadow-2xl dark:bg-slate-900 sm:p-6">
         <header className="flex items-center justify-between gap-3"><h2 id="editor-title" className="text-xl font-bold">{typeof draft.id === "number" ? "Edit" : "Add"} {collection.singular}</h2><button type="button" onClick={closeEdit} aria-label="Close form" className="min-h-11 min-w-11 rounded-lg border dark:border-slate-700">×</button></header>
         <form ref={formRef} onSubmit={(event) => void save(event)} className="mt-4 space-y-4">
-            {collection.fields.map((field) => <FieldControl key={field.key} field={field} value={draft[field.key]} imageAlt={draft[field.key.replace(/_url$/, "_alt")]} onChange={(value) => update(field.key, value)} locations={locations} />)}
-            {collectionKey === "banners" && draft.button_link === "custom" && <FieldControl field={{ key: "button_custom_link", label: "Custom page or website address", help: "For example, https://example.com/offer.", required: true }} value={draft.button_custom_link} onChange={(value) => update("button_custom_link", value)} locations={locations} />}
+            {collection.fields.map((field) => <FieldControl key={field.key} field={field} value={draft[field.key]} imageAlt={draft[field.key.replace(/_url$/, "_alt")]} onChange={(value) => update(field.key, value)} />)}
+            {collectionKey === "banners" && draft.button_link === "custom" && <FieldControl field={{ key: "button_custom_link", label: "Custom page or website address", help: "For example, https://example.com/offer.", required: true }} value={draft.button_custom_link} onChange={(value) => update("button_custom_link", value)} />}
                   {collectionKey === "banners" && <section aria-label="Banner preview" className="overflow-hidden rounded-xl border dark:border-slate-700"><h3 className="p-3 font-semibold">Live banner preview</h3><div className="relative min-h-52 bg-emerald-950 p-6 text-white">{landscapePreview && <picture className="absolute inset-0"><source media="(max-width: 1023px)" srcSet={portraitPreview || landscapePreview} /><Image src={landscapePreview} alt="" fill unoptimized sizes="640px" className="object-cover opacity-70" /></picture>}<div className="relative z-10"><p className="font-bold">{stringValue(draft.badge_text)}</p><h4 className="mt-3 text-2xl font-bold">{stringValue(draft.title) || "Your banner heading"}</h4><p className="mt-2 text-lg">{stringValue(draft.subtitle)}</p><p className="mt-2">{stringValue(draft.description)}</p><span className="mt-4 inline-flex min-h-11 items-center rounded-full bg-white px-4 font-semibold text-emerald-950">{stringValue(draft.button_text) || "Button text"}</span></div></div></section>}
           <footer className="sticky bottom-0 flex gap-3 bg-white py-3 dark:bg-slate-900"><button type="submit" disabled={busy} className="min-h-12 flex-1 rounded-xl bg-emerald-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-white border-r-transparent align-[-3px]" />Saving…</> : "Save changes"}</button><button type="button" onClick={closeEdit} className="min-h-12 rounded-xl border px-4 font-semibold dark:border-slate-700">Cancel</button></footer>
         </form>
@@ -291,7 +239,7 @@ function imageUrlValue(value: unknown) {
   return typeof url === "string" ? url : "";
 }
 
-function FieldControl({ field, value, imageAlt, onChange, locations }: { field: Field; value: unknown; imageAlt?: unknown; onChange: (value: unknown) => void; locations: Row[] }) {
+function FieldControl({ field, value, imageAlt, onChange }: { field: Field; value: unknown; imageAlt?: unknown; onChange: (value: unknown) => void }) {
   const inputClass = "mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950";
   if (field.kind === "single-image") {
     const imageValue = value && typeof value === "object" && "url" in value ? value as UploadedImage : null;
@@ -301,11 +249,7 @@ function FieldControl({ field, value, imageAlt, onChange, locations }: { field: 
   if (field.kind === "boolean") return <label className="flex min-h-12 items-center gap-3 rounded-lg border p-3 text-sm font-semibold dark:border-slate-700"><input type="checkbox" checked={booleanValue(value)} onChange={(event) => onChange(event.target.checked)} className="size-5 accent-emerald-800" />{field.label}</label>;
   if (field.key === "rating") return <fieldset><legend className="font-semibold">{field.label}</legend><div className="mt-1 flex gap-1" role="radiogroup" aria-label="Star rating">{[1, 2, 3, 4, 5].map((rating) => <button key={rating} type="button" role="radio" aria-checked={Number(value) === rating} aria-label={`${rating} star${rating === 1 ? "" : "s"}`} onClick={() => onChange(rating)} className="min-h-11 min-w-11 rounded-lg text-2xl text-amber-500 hover:bg-amber-50 dark:hover:bg-slate-800"> {Number(value) >= rating ? "★" : "☆"} </button>)}</div></fieldset>;
   if (field.kind === "select") {
-    const options = field.key === "origin_location_id"
-      ? locations.filter((row) => booleanValue(row.pickup_enabled) && booleanValue(row.is_active)).map((row) => [stringValue(row.id), stringValue(row.name)] as [string, string])
-      : field.key === "destination_location_id"
-        ? locations.filter((row) => booleanValue(row.dropoff_enabled) && booleanValue(row.is_active)).map((row) => [stringValue(row.id), stringValue(row.name)] as [string, string])
-        : field.options ?? [];
+    const options = field.options ?? [];
     return <label className="block text-sm font-semibold">{field.label}{field.required && <span className="text-red-700"> *</span>}{field.help && <span className="mt-1 block font-normal text-slate-600">{field.help}</span>}<select required={field.required} value={stringValue(value)} onChange={(event) => onChange(event.target.value)} className={inputClass}><option value="">Choose…</option>{options.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>;
   }
   if (field.kind === "rich") return <RichTextField label={field.label} value={stringValue(value)} onChange={onChange} help={field.help} required={field.required} />;
@@ -465,45 +409,4 @@ function AboutEditor() {
 function TextField({ label, value, onChange, required }: { label: string; value: string; onChange: (value: string) => void; required?: boolean }) {
   const cls = "mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950";
   return <label className="block text-sm font-semibold">{label}{required && <span className="text-red-700"> *</span>}<input required={required} value={value} onChange={(event) => onChange(event.target.value)} className={cls} /></label>;
-}
-
-function AvailabilityEditor() {
-  const [settings, setSettings] = useState<AdminSiteSettings | null>(null);
-  const [available, setAvailable] = useState(true);
-  const [slots, setSlots] = useState<string[]>([]);
-  const [blocked, setBlocked] = useState<string[]>([]);
-  const [newSlot, setNewSlot] = useState("09:00");
-  const [newDate, setNewDate] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [notice, setNotice] = useState("");
-  const [error, setError] = useState("");
-  const dirty = settings !== null && (available !== settings.available_24_7 || JSON.stringify(slots) !== JSON.stringify(settings.booking_time_slots) || JSON.stringify(blocked) !== JSON.stringify(settings.blocked_dates));
-  useUnsavedChanges(dirty);
-  const load = useCallback(async () => {
-    try {
-      const data = await apiRequest<AdminSiteSettings>("/admin/settings");
-      setSettings(data); setAvailable(data.available_24_7); setSlots(data.booking_time_slots); setBlocked(data.blocked_dates);
-    } catch { setError("We could not load booking availability. Please try again."); }
-    finally { setLoading(false); }
-  }, []);
-  useEffect(() => { void Promise.resolve().then(load); }, [load]);
-  async function save(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); if (!settings) return;
-    setBusy(true); setError(""); setNotice("");
-    try {
-      await apiRequest("/admin/settings", { method: "PUT", body: JSON.stringify({ available_24_7: available, booking_time_slots: slots, blocked_dates: blocked }) });
-      setSettings({ ...settings, available_24_7: available, booking_time_slots: slots, blocked_dates: blocked });
-      setNotice("Booking availability saved.");
-    } catch (reason) { setError(apiErrorMessage(reason)); }
-    finally { setBusy(false); }
-  }
-  return <main className="min-h-screen bg-stone-50 px-4 py-8 pt-16 dark:bg-slate-950 sm:px-6 md:pt-8"><div className="mx-auto max-w-3xl"><Link href="/admin/dashboard" className="inline-flex min-h-11 items-center font-semibold">← Dashboard</Link><h1 className="my-5 text-3xl font-bold">Booking availability</h1>{notice && <p role="status" className="mb-3 rounded-xl bg-emerald-100 p-3">{notice}</p>}{error && <p role="alert" className="mb-3 rounded-xl bg-red-100 p-3">{error}</p>}
-    {loading ? <div className="h-40 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" /> : <form onSubmit={(event) => void save(event)} className="space-y-5 rounded-2xl bg-white p-5 dark:bg-slate-900">
-      <label className="flex min-h-12 items-center gap-3 font-semibold"><input type="checkbox" checked={available} onChange={(event) => setAvailable(event.target.checked)} className="size-5 accent-emerald-800" />Available 24/7</label>
-      <section className={available ? "space-y-3 opacity-50" : "space-y-3"}><h2 className="font-bold">Available time slots</h2><p className="text-sm text-slate-600">Choose the times customers can request. Disabled while 24/7 availability is on.</p><div className="flex flex-wrap gap-2">{slots.map((slot) => <span key={slot} className="flex min-h-11 items-center gap-2 rounded-full bg-slate-100 px-3 dark:bg-slate-800">{slot}<button type="button" disabled={available} aria-label={`Remove ${slot}`} onClick={() => setSlots(slots.filter((item) => item !== slot))} className="min-h-8 min-w-8 rounded-full text-red-700">×</button></span>)}</div><div className="flex gap-2"><input type="time" value={newSlot} disabled={available} onChange={(event) => setNewSlot(event.target.value)} className="min-h-11 rounded-lg border px-3 dark:border-slate-700 dark:bg-slate-950" /><button type="button" disabled={available || !newSlot || slots.includes(newSlot)} onClick={() => setSlots([...slots, newSlot].sort())} className="min-h-11 rounded-lg border px-4 disabled:opacity-50">Add time</button></div></section>
-      <section className="space-y-3"><h2 className="font-bold">Days we are closed or fully booked</h2><div className="flex flex-wrap gap-2">{blocked.map((date) => <span key={date} className="flex min-h-11 items-center gap-2 rounded-full bg-slate-100 px-3 dark:bg-slate-800">{new Date(`${date}T00:00:00`).toLocaleDateString()}<button type="button" aria-label={`Remove blocked date ${date}`} onClick={() => setBlocked(blocked.filter((item) => item !== date))} className="min-h-8 min-w-8 rounded-full text-red-700">×</button></span>)}</div><div className="flex gap-2"><input type="date" value={newDate} onChange={(event) => setNewDate(event.target.value)} className="min-h-11 rounded-lg border px-3 dark:border-slate-700 dark:bg-slate-950" /><button type="button" disabled={!newDate || blocked.includes(newDate)} onClick={() => { setBlocked([...blocked, newDate].sort()); setNewDate(""); }} className="min-h-11 rounded-lg border px-4 disabled:opacity-50">Block date</button></div></section>
-      <button disabled={busy} className="min-h-12 w-full rounded-xl bg-emerald-900 font-semibold text-white disabled:opacity-60">{busy ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-white border-r-transparent align-[-3px]" />Saving…</> : "Save availability"}</button>
-    </form>}
-  </div></main>;
 }

@@ -26,7 +26,6 @@ from app.schemas.content import (
     LocationResponse,
     PageCopyIn,
     PageCopyResponse,
-    RouteIn,
     RouteResponse,
     ServiceIn,
     ServiceResponse,
@@ -66,6 +65,7 @@ locations_router = crud_router(
     tag="Locations",
     slug_from="name",
     order_by=Location.sort_order,
+    admin_enabled=False,
 )
 
 vehicle_router = crud_router(
@@ -76,6 +76,7 @@ vehicle_router = crud_router(
     tag="Vehicle Types",
     slug_from="name",
     order_by=VehicleType.sort_order,
+    admin_enabled=False,
 )
 
 storage_router = crud_router(
@@ -86,6 +87,7 @@ storage_router = crud_router(
     tag="Storage Plans",
     slug_from="title",
     order_by=StoragePlan.sort_order,
+    admin_enabled=False,
 )
 
 faq_router = crud_router(
@@ -129,71 +131,6 @@ async def list_routes(db: Session = Depends(get_db)):
         .order_by(Route.sort_order)
     )
     return q.all()
-
-
-@routes_router.get("/admin/routes", response_model=list[RouteResponse])
-async def list_routes_admin(
-    db: Session = Depends(get_db), _: User = Depends(get_current_admin_user)
-):
-    return (
-        db.query(Route)
-        .options(joinedload(Route.origin), joinedload(Route.destination))
-        .order_by(Route.sort_order)
-        .all()
-    )
-
-
-@routes_router.post("/admin/routes", response_model=RouteResponse)
-async def create_route(
-    payload: RouteIn, background_tasks: BackgroundTasks, db: Session = Depends(get_db), _: User = Depends(get_current_admin_user)
-):
-    row = Route(**payload.model_dump())
-    db.add(row)
-    db.commit()
-    db.refresh(row)
-    schedule_public_revalidation(background_tasks)
-    return (
-        db.query(Route)
-        .options(joinedload(Route.origin), joinedload(Route.destination))
-        .filter(Route.id == row.id)
-        .first()
-    )
-
-
-@routes_router.put("/admin/routes/{item_id}", response_model=RouteResponse)
-async def update_route(
-    item_id: int,
-    payload: RouteIn,
-    background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
-    _: User = Depends(get_current_admin_user),
-):
-    row = db.query(Route).filter(Route.id == item_id).first()
-    if not row:
-        raise HTTPException(404, "Not found")
-    for k, v in payload.model_dump().items():
-        setattr(row, k, v)
-    db.commit()
-    schedule_public_revalidation(background_tasks)
-    return (
-        db.query(Route)
-        .options(joinedload(Route.origin), joinedload(Route.destination))
-        .filter(Route.id == item_id)
-        .first()
-    )
-
-
-@routes_router.delete("/admin/routes/{item_id}")
-async def delete_route(
-    item_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db), _: User = Depends(get_current_admin_user)
-):
-    row = db.query(Route).filter(Route.id == item_id).first()
-    if not row:
-        raise HTTPException(404, "Not found")
-    db.delete(row)
-    db.commit()
-    schedule_public_revalidation(background_tasks)
-    return {"detail": "Deleted"}
 
 
 # About is a singleton-style list

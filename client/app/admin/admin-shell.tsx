@@ -6,9 +6,8 @@ import { useState, type ReactNode } from "react";
 import ThemeToggle from "../Components/theme-toggle";
 
 const groups = [
-  { title: "Dashboard", links: [["Bookings", "/admin/dashboard/bookings"], ["Enquiries", "/admin/dashboard/inquiries"], ["Notifications", "/admin/dashboard/notifications"]] },
+  { title: "Dashboard", links: [["Enquiries", "/admin/dashboard/inquiries"], ["Notifications", "/admin/dashboard/notifications"]] },
   { title: "Website pages", links: [["Homepage banners", "/admin/dashboard/content/banners"], ["Services", "/admin/dashboard/content/services"], ["About page", "/admin/dashboard/content/about"], ["FAQs", "/admin/dashboard/content/faqs"], ["Testimonials", "/admin/dashboard/content/testimonials"]] },
-  { title: "Booking options", links: [["Cars", "/admin/dashboard/content/cars"], ["Locations", "/admin/dashboard/content/locations"], ["Routes and prices", "/admin/dashboard/content/routes"], ["Vehicle types", "/admin/dashboard/content/vehicles"], ["Booking availability", "/admin/dashboard/content/availability"]] },
   { title: "Settings", links: [["Business settings", "/admin/dashboard/settings"], ["My account", "/admin/dashboard/account"]] },
 ];
 

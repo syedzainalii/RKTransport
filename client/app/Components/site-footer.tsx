@@ -24,7 +24,6 @@ export default function SiteFooter() {
           <Link className="min-h-11 content-center hover:text-white" href="/storage">Car storage</Link>
           <Link className="min-h-11 content-center hover:text-white" href="/about">About</Link>
           <Link className="min-h-11 content-center hover:text-white" href="/contact">Contact</Link>
-          <Link className="min-h-11 content-center hover:text-white" href="/track">Track booking</Link>
         </nav>
         <div className="space-y-3 text-sm text-emerald-100">
           {settings?.core_route_label && <p>{settings.core_route_label}</p>}

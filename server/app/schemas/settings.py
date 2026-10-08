@@ -1,7 +1,6 @@
 from datetime import datetime
-import re
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field
 
 from app.schemas.common import ORMModel, require_uae_phone
 
@@ -42,33 +41,12 @@ class SiteSettingsUpdate(BaseModel):
     notifications_whatsapp_enabled: bool | None = None
     notification_admin_email: EmailStr | None = None
     notification_admin_phone: str | None = Field(default=None, max_length=32)
-    booking_time_slots: list[str] | None = Field(default=None, max_length=48)
-    blocked_dates: list[str] | None = Field(default=None, max_length=500)
 
     def model_post_init(self, __context):
         for field in ("phone_primary", "phone_recovery", "whatsapp", "notification_admin_phone"):
             val = getattr(self, field)
             if val:
                 setattr(self, field, require_uae_phone(val))
-
-    @field_validator("booking_time_slots")
-    @classmethod
-    def valid_time_slots(cls, value: list[str] | None) -> list[str] | None:
-        if value is not None and any(not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", slot) for slot in value):
-            raise ValueError("Time slots must use 24-hour HH:MM format")
-        return value
-
-    @field_validator("blocked_dates")
-    @classmethod
-    def valid_blocked_dates(cls, value: list[str] | None) -> list[str] | None:
-        if value is not None:
-            for blocked_date in value:
-                try:
-                    datetime.strptime(blocked_date, "%Y-%m-%d")
-                except ValueError as error:
-                    raise ValueError("Blocked dates must use YYYY-MM-DD format") from error
-        return value
-
 
 class SiteSettingsResponse(ORMModel):
     id: int

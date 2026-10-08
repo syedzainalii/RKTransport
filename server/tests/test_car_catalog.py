@@ -1,18 +1,16 @@
 import asyncio
 import unittest
 
-from fastapi import BackgroundTasks
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
 import app.models
-from app.api.v1.car_catalog import bulk_create_models, list_public_makes
+from app.api.v1.car_catalog import list_public_makes
 from app.core.database import Base, get_db
 from app.core.seed import seed_defaults
 from app.models import CarMake, CarModel
-from app.schemas.car_catalog import BulkCarModelsInput
 from main import app
 
 
@@ -45,16 +43,7 @@ class CarCatalogTests(unittest.TestCase):
         self.assertIn("Corolla", model_names)
         self.assertNotIn("Camry", model_names)
 
-    def test_bulk_add_skips_existing_models_and_is_safe_to_repeat(self):
-        make = self.db.query(CarMake).filter(CarMake.name == "Toyota").first()
-        payload = BulkCarModelsInput(models=["Corolla", "Avalon"])
-        first = asyncio.run(bulk_create_models(make.id, payload, BackgroundTasks(), self.db, None))
-        second = asyncio.run(bulk_create_models(make.id, payload, BackgroundTasks(), self.db, None))
-        self.assertEqual([row.name for row in first], ["Avalon"])
-        self.assertEqual(second, [])
-        self.assertEqual(self.db.query(CarModel).filter(CarModel.make_id == make.id, CarModel.name == "Avalon").count(), 1)
-
-    def test_public_api_lists_seeded_catalog_and_admin_list_requires_login(self):
+    def test_public_api_lists_seeded_catalog_and_admin_management_is_removed(self):
         def override_db():
             yield self.db
 
@@ -62,10 +51,22 @@ class CarCatalogTests(unittest.TestCase):
         with TestClient(app) as client:
             public_response = client.get("/api/v1/car-makes")
             admin_response = client.get("/api/v1/admin/car-makes")
+            admin_write_response = client.post("/api/v1/admin/car-makes", json={"name": "New Make"})
+            booking_option_admin_paths = [
+                "/api/v1/admin/locations",
+                "/api/v1/admin/routes",
+                "/api/v1/admin/vehicle-types",
+                "/api/v1/admin/storage-plans",
+            ]
+            booking_option_admin_responses = [
+                client.get(path) for path in booking_option_admin_paths
+            ]
         self.assertEqual(public_response.status_code, 200)
         toyota = next(row for row in public_response.json() if row["name"] == "Toyota")
         self.assertIn("Corolla", [model["name"] for model in toyota["models"]])
-        self.assertEqual(admin_response.status_code, 401)
+        self.assertEqual(admin_response.status_code, 404)
+        self.assertEqual(admin_write_response.status_code, 404)
+        self.assertTrue(all(response.status_code == 404 for response in booking_option_admin_responses))
 
 
 if __name__ == "__main__":

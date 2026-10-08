@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
       <section className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-7 shadow-xl dark:border-slate-800 dark:bg-slate-900">
         <Link href="/" className="text-sm font-semibold text-emerald-800 hover:underline dark:text-emerald-300">← RK Transport</Link>
         <h1 className="mt-7 text-3xl font-bold">Admin sign in</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Sign in to manage bookings and website content.</p>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Sign in to manage enquiries and website content.</p>
         <form onSubmit={login} className="mt-6 space-y-4">
           <div><label htmlFor="username" className="mb-1.5 block text-sm font-semibold">Username</label><input autoComplete="username" id="username" name="username" required className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950" /></div>
           <div><label htmlFor="password" className="mb-1.5 block text-sm font-semibold">Password</label><input autoComplete="current-password" id="password" name="password" type="password" required className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950" /></div>

@@ -25,7 +25,6 @@ export default function SiteHeader() {
   const links = [
     ["Home", "/"],
     ["Services", "/services"],
-    ["Booking", "/quote"],
     ["About", "/about"],
     ["Contact", "/contact"],
   ];
@@ -49,9 +48,9 @@ export default function SiteHeader() {
   const hours = settings
     ? settings.available_24_7 ? settings.hours_label : null
     : "Available 24/7";
-  const cta = settings?.header_cta_label || "Request a quote";
-  const href = settings?.header_cta_href || "/quote";
-  const safeCtaHref = href.startsWith("/") && !href.startsWith("//") ? href : "/quote";
+  const cta = settings?.header_cta_label || "Contact us";
+  const href = settings?.header_cta_href || "/contact";
+  const safeCtaHref = href.startsWith("/") && !href.startsWith("//") && href !== "/quote" && href !== "/track" ? href : "/contact";
   const logo = transparent || resolvedTheme === "dark"
     ? settings?.logo_dark_url || settings?.logo_url
     : settings?.logo_url;

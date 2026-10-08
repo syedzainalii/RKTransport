@@ -62,7 +62,10 @@ export default function SiteSettingsPage() {
     }
     setBusy(true);
     try {
-      const updated = await apiRequest<Settings>("/admin/settings", { method: "PUT", body: JSON.stringify(draft) });
+      const businessSettings = Object.fromEntries(
+        Object.entries(draft).filter(([key]) => key !== "booking_time_slots" && key !== "blocked_dates"),
+      );
+      const updated = await apiRequest<Settings>("/admin/settings", { method: "PUT", body: JSON.stringify(businessSettings) });
       setDraft(updated); setDirty(false); setNotice("Business settings saved.");
     } catch (reason) { setError(friendlyError(reason)); }
     finally { setBusy(false); }

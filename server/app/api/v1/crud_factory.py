@@ -21,6 +21,7 @@ def crud_router(
     slug_from: str | None = None,
     public_active_only: bool = True,
     order_by: Any = None,
+    admin_enabled: bool = True,
 ) -> APIRouter:
     router = APIRouter(tags=[tag])
     order = order_by if order_by is not None else getattr(model, "id")
@@ -53,6 +54,9 @@ def crud_router(
             if not row:
                 raise HTTPException(404, "Not found")
             return row
+
+    if not admin_enabled:
+        return router
 
     @router.get(f"/admin{prefix}", response_model=list[schema_out])
     async def list_admin(db: Session = Depends(get_db), _: User = Depends(get_current_admin_user)):

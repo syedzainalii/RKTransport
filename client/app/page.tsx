@@ -1,9 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import BookingForm from "./Components/booking-form";
 import ContactForm from "./Components/contact-form";
 import HeroSlideshow from "./Components/hero-slideshow";
-import Reveal from "./Components/reveal";
 import SimpleRichText from "./Components/simple-rich-text";
 import {
   BreadcrumbStructuredData,
@@ -22,24 +20,6 @@ import {
 import { faqJsonLd } from "../lib/seo";
 
 export const revalidate = 60;
-
-const defaultSteps = [
-  {
-    title: "Tell us about your car",
-    description:
-      "Share your car details and your pickup and drop-off locations.",
-  },
-  {
-    title: "Confirm your route and time",
-    description:
-      "Select locations and a suitable time; we will confirm the details with you.",
-  },
-  {
-    title: "We get you moving",
-    description:
-      "Our team contacts you with next steps and your service arrangement.",
-  },
-];
 
 async function getContent() {
   const results = await Promise.allSettled([
@@ -78,45 +58,7 @@ async function getContent() {
         ? results[6].value
         : [],
 
-    failed: results.some(
-      (result) => result.status === "rejected"
-    ),
   };
-}
-
-function bookingSteps(value: string | undefined) {
-  if (!value) return defaultSteps;
-
-  try {
-    const parsed: unknown = JSON.parse(value);
-
-    if (
-      Array.isArray(parsed) &&
-      parsed.every(isBookingStep)
-    ) {
-      return parsed;
-    }
-  } catch {
-    return defaultSteps;
-  }
-
-  function isBookingStep(
-    item: unknown
-  ): item is {
-    title: string;
-    description: string;
-  } {
-    return (
-      typeof item === "object" &&
-      item !== null &&
-      "title" in item &&
-      typeof item.title === "string" &&
-      "description" in item &&
-      typeof item.description === "string"
-    );
-  }
-
-  return defaultSteps;
 }
 
 export default async function HomePage() {
@@ -128,7 +70,6 @@ export default async function HomePage() {
     faqs,
     about,
     testimonials,
-    failed,
   } = await getContent();
 
   const text = (
@@ -161,21 +102,14 @@ export default async function HomePage() {
             : "Available 24/7",
           button_text: text(
             "home.hero.button",
-            "Get a quote"
+            "Contact us"
           ),
-          button_link: "/quote",
+          button_link: "/contact",
           image_url: null,
           image_alt: "",
           portrait_image_url: null,
         },
       ];
-
-  const steps = bookingSteps(
-    copy.find(
-      (item: PageCopy) =>
-        item.key === "booking.steps"
-    )?.value
-  );
 
   const aboutImage = about?.images?.find(
     (image) => image.url
@@ -193,22 +127,6 @@ export default async function HomePage() {
       answer: faq.answer,
     })
   );
-
-  /*
-   * We duplicate the testimonials.
-   *
-   * This is what makes the CSS marquee loop seamless:
-   *
-   * [card][card][card][card][card] [card][card][card][card][card]
-   *
-   * When the first group has moved completely out,
-   * the second identical group is already in exactly
-   * the right position.
-   */
-  const testimonialLoop = [
-    ...testimonials,
-    ...testimonials,
-  ];
 
   return (
     <>
@@ -229,50 +147,6 @@ export default async function HomePage() {
 
       <main>
         <HeroSlideshow slides={slides} />
-
-        {/* =========================================================
-            BOOKING
-        ========================================================= */}
-        <section
-          id="booking"
-          className="scroll-mt-20 bg-stone-100 px-4 py-14 dark:bg-slate-900/70 sm:px-6 lg:py-20"
-        >
-          <div className="mx-auto max-w-5xl">
-            <Reveal className="mb-7 text-center">
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">
-                {settings?.available_24_7
-                  ? settings.hours_label
-                  : ""}
-              </p>
-
-              <h2 className="mt-2 text-3xl font-bold tracking-tight">
-                {text(
-                  "home.booking.heading",
-                  "Book your car transport"
-                )}
-              </h2>
-
-              <p className="mx-auto mt-3 max-w-2xl leading-7 text-slate-700 dark:text-slate-200">
-                {text(
-                  "home.booking.description",
-                  "Share your details and our team will contact you to confirm the next steps."
-                )}
-              </p>
-            </Reveal>
-
-            <BookingForm compact />
-
-            {failed && (
-              <p
-                role="status"
-                className="mt-4 text-center text-sm text-amber-900 dark:text-amber-200"
-              >
-                Some live site content could not be loaded.
-                Please try again shortly.
-              </p>
-            )}
-          </div>
-        </section>
 
         {/* =========================================================
             SERVICES
@@ -388,50 +262,6 @@ export default async function HomePage() {
               )}
             </p>
           )}
-        </section>
-
-        {/* =========================================================
-            BOOKING STEPS
-        ========================================================= */}
-        <section className="bg-stone-100 px-4 py-16 dark:bg-slate-900/70 sm:px-6">
-          <div className="mx-auto max-w-7xl">
-            <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">
-              {text(
-                "home.steps.eyebrow",
-                "Simple and straightforward"
-              )}
-            </p>
-
-            <h2 className="mt-2 text-3xl font-bold">
-              {text(
-                "home.steps.heading",
-                "How booking works"
-              )}
-            </h2>
-
-            <div className="mt-7 grid gap-4 md:grid-cols-3">
-              {steps.map(
-                (step, index) => (
-                  <article
-                    key={`${step.title}-${index}`}
-                    className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-950"
-                  >
-                    <span className="grid size-10 place-items-center rounded-full bg-emerald-900 font-bold text-white">
-                      {index + 1}
-                    </span>
-
-                    <h3 className="mt-4 text-lg font-bold">
-                      {step.title}
-                    </h3>
-
-                    <p className="mt-2 leading-6 text-slate-700 dark:text-slate-200">
-                      {step.description}
-                    </p>
-                  </article>
-                )
-              )}
-            </div>
-          </div>
         </section>
 
         {/* =========================================================

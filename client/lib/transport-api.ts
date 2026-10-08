@@ -62,17 +62,6 @@ export type Route = { id: number; title: string; origin_location_id: number; des
 export type VehicleType = { id: number; name: string; description: string | null; surcharge_aed?: string | number; is_active?: boolean };
 export type CarModelOption = { id: number; make_id: number; name: string; default_vehicle_type_id: number | null; is_active: boolean };
 export type CarMakeOption = { id: number; name: string; is_active: boolean; sort_order: number; models: CarModelOption[] };
-export type BookingVehicle = {
-  make: string;
-  model: string;
-  year: number;
-  colour: string | null;
-  plate: string | null;
-  vehicle_type_id: number;
-  runs: boolean | null;
-  photo_url: string | null;
-  photo_urls: string[];
-};
 export type StoragePlan = {
   id: number;
   title: string;
@@ -84,34 +73,6 @@ export type StoragePlan = {
   image_url: string | null;
   image_alt: string | null;
 };
-export type Booking = {
-  id: number;
-  ref: string;
-  type: string;
-  status: string;
-  customer_name: string;
-  customer_phone: string;
-  customer_email: string | null;
-  pickup_address: string | null;
-  dropoff_address: string | null;
-  pickup_location_id: number | null;
-  dropoff_location_id: number | null;
-  vehicle_type_id: number | null;
-  vehicle_make: string | null;
-  vehicle_model: string | null;
-  vehicle_year: number | null;
-  plate_number: string | null;
-  vehicles: BookingVehicle[] | null;
-  scheduled_at: string | null;
-  storage_plan_id: number | null;
-  storage_start_date: string | null;
-  storage_end_date: string | null;
-  quoted_amount_aed: string | number | null;
-  admin_notes: string | null;
-  notes: string | null;
-  created_at: string;
-};
-export type BookingRouteAggregate = { label: string; total: number };
 export type NotificationLog = {
   id: number;
   event_type: string;
@@ -225,8 +186,6 @@ export const publicApi = {
   faqs: () => apiRequest<Faq[]>("/faqs", { next: { revalidate: 60 } }),
   testimonials: () => apiRequest<Testimonial[]>("/testimonials", { next: { revalidate: 60 } }),
   about: () => apiRequest<About[]>("/about", { next: { revalidate: 60 } }),
-  createBooking: (input: Record<string, unknown>) =>
-    apiRequest<{ ref: string }>("/bookings", { method: "POST", body: JSON.stringify(input) }),
   createInquiry: (input: Record<string, unknown>) =>
     apiRequest<Inquiry>("/inquiries", { method: "POST", body: JSON.stringify(input) }),
 };

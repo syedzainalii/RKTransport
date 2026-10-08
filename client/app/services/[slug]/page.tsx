@@ -79,7 +79,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
       {service.detailed_description && <SimpleRichText value={service.detailed_description} className="mt-8 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300" />}
       {service.gallery.length > 0 && <section className="mt-8"><h2 className="text-2xl font-bold">Service gallery</h2><div className="mt-4 grid gap-4 sm:grid-cols-2">{service.gallery.map((image, index) => <div key={`${image.url}-${index}`} className="relative h-64 overflow-hidden rounded-2xl"><Image src={apiImageUrl(image.url) || image.url} alt={image.alt || ""} fill unoptimized={!isImageOptimizable(image.url)} sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" /></div>)}</div></section>}
       {service.features?.length ? <ul className="mt-6 grid gap-3 sm:grid-cols-2">{service.features.map((feature) => <li key={feature} className="rounded-xl bg-stone-100 p-4 dark:bg-slate-900">{feature}</li>)}</ul> : null}
-      <Link href="/quote" className="mt-8 inline-flex min-h-12 items-center rounded-full bg-emerald-900 px-6 font-semibold text-white hover:bg-emerald-800">{cta}</Link>
+      <Link href="/contact" className="mt-8 inline-flex min-h-12 items-center rounded-full bg-emerald-900 px-6 font-semibold text-white hover:bg-emerald-800">{cta}</Link>
     </main>
     </>
   );

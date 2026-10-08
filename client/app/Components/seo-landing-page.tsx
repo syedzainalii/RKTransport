@@ -39,7 +39,7 @@ export default async function SeoLandingPage({
       <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">RK Transport · UAE</p>
       <h1 className="mt-3 text-4xl font-bold tracking-tight">{text("h1", title)}</h1>
       <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-700 dark:text-slate-200">{text("intro", intro)}</p>
-      <Link href="/quote" className="mt-7 inline-flex min-h-12 items-center rounded-full bg-emerald-900 px-6 font-semibold text-white hover:bg-emerald-800">Request a transport quote</Link>
+      <Link href="/contact" className="mt-7 inline-flex min-h-12 items-center rounded-full bg-emerald-900 px-6 font-semibold text-white hover:bg-emerald-800">Contact us about transport</Link>
       <div className="mt-12 space-y-8">
         {visibleSections.map((section) => <section key={section.heading}>
           <h2 className="text-2xl font-bold">{section.heading}</h2>
