@@ -1,0 +1,3 @@
+@echo off
+echo Starting FastAPI Server...
+python run.py
