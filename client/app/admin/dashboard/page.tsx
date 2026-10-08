@@ -78,7 +78,7 @@ export default function AdminDashboardPage() {
               return { label: new Intl.DateTimeFormat("en-AE", { day: "numeric", month: "short", timeZone: "Asia/Dubai" }).format(date), total: bookings.filter((item) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(new Date(item.created_at)) === key).length };
             })} />
             <Chart title="Bookings by route" data={bookingsByRoute} />
-            <Chart title="Bookings by service" data={["transport", "recovery", "storage"].map((service) => ({ label: service, total: bookings.filter((item) => item.type === service).length }))} />
+            <Chart title="Bookings by service" data={["transport"].map((service) => ({ label: service, total: bookings.filter((item) => item.type === service).length }))} />
             <Chart title="Bookings by status" data={["new", "quoted", "confirmed", "in_progress", "completed", "cancelled"].map((status) => ({ label: status.replace("_", " "), total: bookings.filter((item) => item.status === status).length }))} />
           </section>
           <div className="mt-8 space-y-8">
@@ -99,7 +99,6 @@ export default function AdminDashboardPage() {
               <AdminCard href="/admin/dashboard/content/locations" title="Locations" description="Choose places customers can use for pickup and drop-off." />
               <AdminCard href="/admin/dashboard/content/routes" title="Routes and prices" description="Set the available routes, prices, and travel estimates." />
               <AdminCard href="/admin/dashboard/content/vehicles" title="Vehicle types" description="Manage vehicle choices and extra charges." />
-              <AdminCard href="/admin/dashboard/content/storage" title="Storage plans" description="Set storage options and billing periods." />
               <AdminCard href="/admin/dashboard/content/availability" title="Booking availability" description="Set available times and dates you are closed." />
             </ManagementGroup>
             <ManagementGroup title="Settings">

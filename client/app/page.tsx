@@ -12,7 +12,7 @@ import { faqJsonLd } from "../lib/seo";
 export const revalidate = 60;
 
 const defaultSteps = [
-  { title: "Tell us what you need", description: "Choose transport, recovery, or storage and share your vehicle details." },
+  { title: "Tell us about your car", description: "Share your car details and your pickup and drop-off locations." },
   { title: "Confirm your route and time", description: "Select locations and a suitable time; we will confirm the details with you." },
   { title: "We get you moving", description: "Our team contacts you with next steps and your service arrangement." },
 ];
@@ -65,7 +65,7 @@ export default async function HomePage() {
     id: 0,
     title: text("home.hero.title", "Car transport Dubai ⇄ Abu Dhabi"),
     subtitle: settings?.brand_name || "RK Transport",
-    description: text("home.hero.description", "Car lift, recovery, and storage. Available 24/7."),
+    description: text("home.hero.description", "Reliable car transport between Dubai and Abu Dhabi. Available 24/7."),
     badge_text: settings ? settings.available_24_7 ? settings.hours_label : "" : "Available 24/7",
     button_text: text("home.hero.button", "Get a quote"),
     button_link: "/quote",
@@ -87,7 +87,7 @@ export default async function HomePage() {
       <div className="mx-auto max-w-5xl">
         <Reveal className="mb-7 text-center">
           <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">{settings?.available_24_7 ? settings.hours_label : ""}</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight">{text("home.booking.heading", "Request transport, recovery or storage")}</h2>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight">{text("home.booking.heading", "Book your car transport")}</h2>
           <p className="mx-auto mt-3 max-w-2xl leading-7 text-slate-700 dark:text-slate-200">{text("home.booking.description", "Share your details and our team will contact you to confirm the next steps.")}</p>
         </Reveal>
         <BookingForm compact />
@@ -99,7 +99,7 @@ export default async function HomePage() {
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">{text("home.services.eyebrow", "How we help")}</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight">{text("home.services.heading", "Transport support, when you need it")}</h2>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight">{text("home.services.heading", "Car transport, when you need it")}</h2>
         </div>
         <Link href="/services" className="inline-flex min-h-11 items-center font-semibold text-emerald-800 underline-offset-4 hover:underline dark:text-emerald-300">{text("home.services.link", "Explore services")}</Link>
       </div>
@@ -130,7 +130,7 @@ export default async function HomePage() {
     </section>
 
     {about && <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
-      <div className={`grid items-center gap-10 lg:grid-cols-2 ${about.story_image_side === "right" ? "" : ""}`}>
+      <div className="grid items-center gap-10 lg:grid-cols-2">
         {aboutImage && <div className={`relative min-h-72 overflow-hidden rounded-3xl ${about.story_image_side === "right" ? "lg:order-2" : ""}`}>
           <Image src={apiImageUrl(aboutImage.url) || aboutImage.url!} alt={aboutImage.alt || ""} fill unoptimized={!isImageOptimizable(aboutImage.url)} sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
         </div>}
@@ -169,7 +169,7 @@ export default async function HomePage() {
         <div>
           <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">{settings?.available_24_7 ? settings.hours_label : ""}</p>
           <h2 className="mt-2 text-3xl font-bold">{text("contact.heading", "Contact RK Transport")}</h2>
-          <p className="mt-3 leading-7 text-slate-700 dark:text-slate-200">{text("contact.subheading", "Get in touch about vehicle transport, recovery, or storage.")}</p>
+          <p className="mt-3 leading-7 text-slate-700 dark:text-slate-200">{text("contact.subheading", "Get in touch about car transport between Dubai and Abu Dhabi.")}</p>
           <div className="mt-5 space-y-2 text-sm text-slate-800 dark:text-slate-100">
             {settings?.phone_primary && <p><a className="font-semibold underline" href={`tel:${settings.phone_primary}`}>{settings.phone_primary}</a></p>}
             {settings?.whatsapp && <p><a className="font-semibold underline" href={`https://wa.me/${settings.whatsapp.replace(/\D/g, "")}`}>WhatsApp RK Transport</a></p>}
