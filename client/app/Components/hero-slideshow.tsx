@@ -96,9 +96,9 @@ export default function HeroSlideshow({ slides }: { slides: HeroBanner[] }) {
       <div className="absolute inset-0 -z-20 bg-gradient-to-t from-black/85 via-black/35 to-black/20 lg:bg-gradient-to-r lg:from-black/80 lg:via-black/40 lg:to-black/10" />
       <div className="absolute inset-x-0 top-0 -z-20 h-32 bg-gradient-to-b from-black/70 to-transparent" />
 
-      {/* Main Content Area */}
+      {/* Content */}
       {slide ? (
-        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 pb-20 pt-20 sm:px-6 sm:pb-24">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 pb-16 pt-24 sm:px-6 lg:pt-28">
           <div key={`${active}-${slide.id}`} className="hero-rise max-w-3xl">
             {slide.badge_text ? (
               <p className="mb-3 inline-flex min-h-9 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 text-xs font-semibold text-white backdrop-blur-md sm:mb-4 sm:text-sm">
@@ -148,7 +148,7 @@ export default function HeroSlideshow({ slides }: { slides: HeroBanner[] }) {
         </div>
       ) : <div className="flex-1" />}
 
-      {/* Bottom controls */}
+      {/* Controls */}
       {count > 1 && (
         <div className="absolute inset-x-0 bottom-0 z-10 mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 pb-6 sm:px-6 sm:pb-8">
           <div className="flex flex-1 items-center gap-3 sm:max-w-md" role="group" aria-label="Choose a slide">

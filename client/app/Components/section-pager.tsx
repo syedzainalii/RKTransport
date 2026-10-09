@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 type Item = { label: string };
@@ -12,8 +12,6 @@ function getSections(): HTMLElement[] {
 export default function SectionPager() {
   const [items, setItems] = useState<Item[]>([]);
   const [active, setActive] = useState(0);
-  const touchStartY = useRef<number | null>(null);
-  const touchStartX = useRef<number | null>(null);
 
   const refresh = useCallback(() => {
     const sections = getSections();
@@ -55,7 +53,7 @@ export default function SectionPager() {
     };
   }, [refresh]);
 
-  // Keyboard navigation
+  // Keyboard navigation for desktop
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -84,74 +82,6 @@ export default function SectionPager() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [active, goTo]);
-
-  // Mobile Touch Swipe Navigation
-  useEffect(() => {
-    const onTouchStart = (e: TouchEvent) => {
-      const touch = e.touches[0];
-      if (!touch) return;
-      touchStartY.current = touch.clientY;
-      touchStartX.current = touch.clientX;
-    };
-
-    const onTouchEnd = (e: TouchEvent) => {
-      if (touchStartY.current === null || touchStartX.current === null) return;
-      const touch = e.changedTouches[0];
-      if (!touch) return;
-
-      const deltaY = touchStartY.current - touch.clientY;
-      const deltaX = touchStartX.current - touch.clientX;
-
-      touchStartY.current = null;
-      touchStartX.current = null;
-
-      // Ignore horizontal swipes (e.g., carousels, image sliders)
-      if (Math.abs(deltaX) > Math.abs(deltaY)) return;
-
-      // Minimum swipe distance threshold
-      if (Math.abs(deltaY) < 50) return;
-
-      const target = e.target as HTMLElement | null;
-      if (
-        target &&
-        (target.isContentEditable ||
-          ["INPUT", "TEXTAREA", "SELECT", "BUTTON", "A", "SUMMARY"].includes(target.tagName) ||
-          target.closest("form") ||
-          target.closest(".tm-row"))
-      ) {
-        return;
-      }
-
-      const sections = getSections();
-      const current = sections[active];
-      if (!current) return;
-
-      const rect = current.getBoundingClientRect();
-
-      // Swipe UP -> Next Section
-      if (deltaY > 0) {
-        if (rect.bottom > window.innerHeight + 30) return;
-        if (active < sections.length - 1) {
-          goTo(active + 1);
-        }
-      }
-      // Swipe DOWN -> Previous Section
-      else if (deltaY < 0) {
-        if (rect.top < -30) return;
-        if (active > 0) {
-          goTo(active - 1);
-        }
-      }
-    };
-
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchend", onTouchEnd, { passive: true });
-
-    return () => {
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchend", onTouchEnd);
-    };
   }, [active, goTo]);
 
   if (items.length < 2) return null;

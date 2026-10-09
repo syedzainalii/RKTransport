@@ -34,132 +34,135 @@ export default function SiteFooter() {
   ].filter((item) => item.href);
 
   return (
-    <footer className="relative overflow-hidden bg-slate-950 text-slate-300">
+    <footer data-snap-section data-label="Footer" className="relative flex min-h-[100dvh] flex-col justify-between overflow-hidden bg-slate-950 text-slate-300">
       <div aria-hidden="true" className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[60rem] -translate-x-1/2 rounded-full bg-white/5 blur-3xl" />
 
-      {/* Call-to-action band */}
-      <div className="relative mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-12">
-        <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/[0.03] p-5 backdrop-blur sm:p-8 lg:flex-row lg:items-center">
-          <div className="max-w-xl">
-            <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
-              Need your car moved between Dubai and Abu Dhabi?
-            </h2>
-            <p className="mt-1 text-sm text-slate-300">Get a quick quote on WhatsApp. Available 24/7.</p>
-          </div>
-          <div className="flex flex-wrap gap-2.5">
-            <a
-              href={quoteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
-            >
-              <MessageCircle aria-hidden="true" className="size-4" />
-              Get a quote
-              <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
-            </a>
-            {phone && (
+      {/* Main Content Wrapper */}
+      <div className="flex flex-1 flex-col justify-center">
+        {/* Call-to-action band */}
+        <div className="relative mx-auto w-full max-w-7xl px-4 pt-16 sm:px-6 sm:pt-20">
+          <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/[0.03] p-6 backdrop-blur sm:p-8 lg:flex-row lg:items-center">
+            <div className="max-w-xl">
+              <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+                Need your car moved between Dubai and Abu Dhabi?
+              </h2>
+              <p className="mt-1 text-sm text-slate-300">Get a quick quote on WhatsApp. Available 24/7.</p>
+            </div>
+            <div className="flex flex-wrap gap-2.5">
               <a
-                href={`tel:${phone}`}
-                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
+                href={quoteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
               >
-                <Phone aria-hidden="true" className="size-4" />
-                Call
+                <MessageCircle aria-hidden="true" className="size-4" />
+                Get a quote
+                <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
               </a>
-            )}
+              {phone && (
+                <a
+                  href={`tel:${phone}`}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  <Phone aria-hidden="true" className="size-4" />
+                  Call
+                </a>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Main columns */}
-      <div className="relative mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:grid-cols-2 sm:px-6 sm:py-10 lg:grid-cols-[1.4fr_1fr_1.2fr_1fr]">
-        {/* Brand */}
-        <div>
-          <p className="text-lg font-bold tracking-tight text-white">{brand}</p>
-          {settings?.footer_blurb && <p className="mt-2 max-w-sm text-xs leading-5 text-slate-400 sm:text-sm">{settings.footer_blurb}</p>}
-          {hours && (
-            <p className="mt-4 inline-flex min-h-8 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 text-xs font-semibold text-white">
-              <span aria-hidden="true" className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
-              </span>
-              {hours}
-            </p>
-          )}
-          {socials.length > 0 && (
-            <ul className="mt-4 flex gap-2.5">
-              {socials.map((item) => (
-                <li key={item.label}>
-                  <a
-                    href={item.href as string}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={item.label}
-                    className="grid size-9 place-items-center rounded-full border border-white/15 bg-white/5 text-white transition hover:bg-white hover:text-slate-950"
-                  >
-                    {item.icon}
-                  </a>
+        {/* Main columns */}
+        <div className="relative mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 sm:grid-cols-2 sm:px-6 sm:py-12 lg:grid-cols-[1.4fr_1fr_1.2fr_1fr]">
+          {/* Brand */}
+          <div>
+            <p className="text-lg font-bold tracking-tight text-white">{brand}</p>
+            {settings?.footer_blurb && <p className="mt-2 max-w-sm text-xs leading-5 text-slate-400 sm:text-sm">{settings.footer_blurb}</p>}
+            {hours && (
+              <p className="mt-4 inline-flex min-h-8 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 text-xs font-semibold text-white">
+                <span aria-hidden="true" className="relative flex size-2">
+                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                  <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
+                </span>
+                {hours}
+              </p>
+            )}
+            {socials.length > 0 && (
+              <ul className="mt-4 flex gap-2.5">
+                {socials.map((item) => (
+                  <li key={item.label}>
+                    <a
+                      href={item.href as string}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={item.label}
+                      className="grid size-9 place-items-center rounded-full border border-white/15 bg-white/5 text-white transition hover:bg-white hover:text-slate-950"
+                    >
+                      {item.icon}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Quick links */}
+          <nav aria-label="Footer navigation">
+            <h3 className="text-xs font-semibold uppercase tracking-[.18em] text-white">Quick links</h3>
+            <ul className="mt-3 space-y-0.5">
+              {quickLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="inline-flex min-h-9 items-center text-xs text-slate-400 transition hover:translate-x-1 hover:text-white sm:text-sm">
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
-          )}
-        </div>
+          </nav>
 
-        {/* Quick links */}
-        <nav aria-label="Footer navigation">
-          <h3 className="text-xs font-semibold uppercase tracking-[18em] text-white">Quick links</h3>
-          <ul className="mt-3 space-y-0.5">
-            {quickLinks.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="inline-flex min-h-9 items-center text-xs text-slate-400 transition hover:translate-x-1 hover:text-white sm:text-sm">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+          {/* Contact */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[.18em] text-white">Contact</h3>
+            <ul className="mt-3 space-y-2 text-xs sm:text-sm">
+              {phone && (
+                <li>
+                  <a href={`tel:${phone}`} className="flex min-h-8 items-center gap-2.5 text-slate-400 transition hover:text-white">
+                    <Phone aria-hidden="true" className="size-4 shrink-0 text-white" />
+                    {phone}
+                  </a>
+                </li>
+              )}
+              {settings?.email && (
+                <li>
+                  <a href={`mailto:${settings.email}`} className="flex min-h-8 items-center gap-2.5 break-all text-slate-400 transition hover:text-white">
+                    <Mail aria-hidden="true" className="size-4 shrink-0 text-white" />
+                    {settings.email}
+                  </a>
+                </li>
+              )}
+              {settings?.address_line && (
+                <li className="flex items-start gap-2.5 text-slate-400">
+                  <MapPin aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-white" />
+                  <span>{settings.address_line}</span>
+                </li>
+              )}
+              {hours && (
+                <li className="flex items-center gap-2.5 text-slate-400">
+                  <Clock aria-hidden="true" className="size-4 shrink-0 text-white" />
+                  <span>{hours}</span>
+                </li>
+              )}
+            </ul>
+          </div>
 
-        {/* Contact */}
-        <div>
-          <h3 className="text-xs font-semibold uppercase tracking-[.18em] text-white">Contact</h3>
-          <ul className="mt-3 space-y-2 text-xs sm:text-sm">
-            {phone && (
-              <li>
-                <a href={`tel:${phone}`} className="flex min-h-8 items-center gap-2.5 text-slate-400 transition hover:text-white">
-                  <Phone aria-hidden="true" className="size-4 shrink-0 text-white" />
-                  {phone}
-                </a>
-              </li>
-            )}
-            {settings?.email && (
-              <li>
-                <a href={`mailto:${settings.email}`} className="flex min-h-8 items-center gap-2.5 break-all text-slate-400 transition hover:text-white">
-                  <Mail aria-hidden="true" className="size-4 shrink-0 text-white" />
-                  {settings.email}
-                </a>
-              </li>
-            )}
-            {settings?.address_line && (
-              <li className="flex items-start gap-2.5 text-slate-400">
-                <MapPin aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-white" />
-                <span>{settings.address_line}</span>
-              </li>
-            )}
-            {hours && (
-              <li className="flex items-center gap-2.5 text-slate-400">
-                <Clock aria-hidden="true" className="size-4 shrink-0 text-white" />
-                <span>{hours}</span>
-              </li>
-            )}
-          </ul>
-        </div>
-
-        {/* Route card */}
-        <div>
-          <h3 className="text-xs font-semibold uppercase tracking-[.18em] text-white">We cover</h3>
-          <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-            <Route aria-hidden="true" className="size-5 text-white" />
-            <p className="mt-2 text-xs font-semibold text-white sm:text-sm">{settings?.core_route_label || "Dubai ⇄ Abu Dhabi"}</p>
-            <p className="mt-1 text-xs text-slate-400">Safe, reliable car transport between the two cities.</p>
+          {/* Route card */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[.18em] text-white">We cover</h3>
+            <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+              <Route aria-hidden="true" className="size-5 text-white" />
+              <p className="mt-2 text-xs font-semibold text-white sm:text-sm">{settings?.core_route_label || "Dubai ⇄ Abu Dhabi"}</p>
+              <p className="mt-1 text-xs text-slate-400">Safe, reliable car transport between the two cities.</p>
+            </div>
           </div>
         </div>
       </div>
