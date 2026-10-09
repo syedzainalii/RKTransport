@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import ReviewForm from "./Components/review-form";
 import HeroSlideshow from "./Components/hero-slideshow";
 import SimpleRichText from "./Components/simple-rich-text";
@@ -148,121 +149,73 @@ export default async function HomePage() {
       <main>
         <HeroSlideshow slides={slides} />
 
-        {/* =========================================================
-            SERVICES
-        ========================================================= */}
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
-          <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">
-                {text(
-                  "home.services.eyebrow",
-                  "How we help"
-                )}
-              </p>
-
-              <h2 className="mt-2 text-3xl font-bold tracking-tight">
-                {text(
-                  "home.services.heading",
-                  "Car transport, when you need it"
-                )}
-              </h2>
-            </div>
-
-            <Link
-              href="/services"
-              className="inline-flex min-h-11 items-center font-semibold text-emerald-800 underline-offset-4 hover:underline dark:text-emerald-300"
-            >
-              {text(
-                "home.services.link",
-                "Explore services"
-              )}
-            </Link>
-          </div>
-
-          {services.length ? (
-            <div className="grid gap-5 md:grid-cols-3">
-              {services.map(
-                (service: Service) => (
-                  <article
-                    key={service.id}
-                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
-                  >
-                    {service.image_url && (
-                      <div className="relative h-48 bg-slate-100 dark:bg-slate-800">
-                        <Image
-                          src={
-                            apiImageUrl(
-                              service.image_url
-                            ) ||
-                            service.image_url
-                          }
-                          alt={
-                            service.image_alt || ""
-                          }
-                          fill
-                          unoptimized={
-                            !isImageOptimizable(
-                              service.image_url
-                            )
-                          }
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                          className="object-cover"
-                        />
-                      </div>
-                    )}
-
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold">
-                        {service.title}
-                      </h3>
-
-                      <p className="mt-3 min-h-12 leading-6 text-slate-700 dark:text-slate-200">
-                        {service.short_description}
-                      </p>
-
-                      {service.starting_price_note && (
-                        <p className="mt-2 font-semibold text-emerald-800 dark:text-emerald-300">
-                          {service.starting_price_note}
-                        </p>
-                      )}
-
-                      {service.features?.length ? (
-                        <ul className="mt-4 space-y-2 text-sm text-slate-700 dark:text-slate-200">
-                          {service.features
-                            .slice(0, 3)
-                            .map((feature) => (
-                              <li key={feature}>
-                                ✓ {feature}
-                              </li>
-                            ))}
-                        </ul>
-                      ) : null}
-
-                      <Link
-                        href={`/services/${service.slug}`}
-                        className="mt-5 inline-flex min-h-11 items-center font-semibold text-emerald-800 hover:underline dark:text-emerald-300"
-                      >
-                        {text(
-                          "home.services.details",
-                          "Service details"
-                        )}{" "}
-                        →
-                      </Link>
-                    </div>
-                  </article>
-                )
-              )}
-            </div>
-          ) : (
-            <p className="rounded-2xl bg-white p-6 text-slate-700 dark:bg-slate-900 dark:text-slate-200">
-              {text(
-                "empty.services",
-                "Service information is currently unavailable."
-              )}
+      {/* =========================================================
+          SERVICES
+      ========================================================= */}
+      <section id="services" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-24">
+        <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
+              {text("home.services.eyebrow", "How we help")}
             </p>
-          )}
-        </section>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+              {text("home.services.heading", "Car transport, when you need it")}
+            </h2>
+          </div>
+          <Link
+            href="/services"
+            className="inline-flex min-h-11 items-center gap-2 font-semibold underline-offset-4 hover:underline"
+          >
+            {text("home.services.link", "Explore services")}
+            <ArrowUpRight aria-hidden="true" className="size-4" />
+          </Link>
+        </div>
+
+        {services.length ? (
+          <ul className="divide-y divide-slate-200 border-y border-slate-200 dark:divide-slate-800 dark:border-slate-800">
+            {services.map((service: Service, index: number) => (
+              <li key={service.id}>
+                <Link
+                  href={`/services/${service.slug}`}
+                  className="group grid items-center gap-5 py-6 transition sm:grid-cols-[80px_1fr_220px_48px] sm:gap-8 sm:py-8"
+                >
+                  <span className="text-4xl font-bold tabular-nums text-slate-300 transition group-hover:text-slate-950 dark:text-slate-700 dark:group-hover:text-white sm:text-5xl">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <h3 className="text-2xl font-bold tracking-tight">{service.title}</h3>
+                    <p className="mt-2 max-w-xl leading-7 text-slate-600 dark:text-slate-300">
+                      {service.short_description}
+                    </p>
+                    {service.starting_price_note && (
+                      <p className="mt-2 font-semibold">{service.starting_price_note}</p>
+                    )}
+                  </div>
+                  <div className="relative hidden h-28 overflow-hidden rounded-2xl bg-slate-200 dark:bg-slate-800 sm:block">
+                    {service.image_url && (
+                      <Image
+                        src={apiImageUrl(service.image_url) || service.image_url}
+                        alt={service.image_alt || ""}
+                        fill
+                        unoptimized={!isImageOptimizable(service.image_url)}
+                        sizes="220px"
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    )}
+                  </div>
+                  <span className="grid size-12 place-items-center rounded-full border border-slate-300 transition group-hover:bg-slate-950 group-hover:text-white dark:border-slate-700 dark:group-hover:bg-white dark:group-hover:text-slate-950">
+                    <ArrowUpRight aria-hidden="true" className="size-5" />
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="rounded-2xl bg-stone-100 p-6 text-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            {text("empty.services", "Service information is currently unavailable.")}
+          </p>
+        )}
+      </section>
 
         {/* =========================================================
             ABOUT
