@@ -378,7 +378,7 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* =========================================================
+{/* =========================================================
             FAQ
         ========================================================= */}
         {visibleHomeFaqs.length > 0 && (
@@ -386,26 +386,43 @@ export default async function HomePage() {
             id="faq"
             data-snap-section
             data-label="FAQ"
-            className="snap-section mx-auto w-full max-w-4xl px-4 sm:px-6"
+            className="snap-section relative mx-auto w-full max-w-4xl px-4 sm:px-6"
           >
-            <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
-              {text("home.faqs.eyebrow", "Answers")}
-            </p>
+            {/* Background Accent Glow */}
+            <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/10 blur-3xl" />
 
-            <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-              {text("home.faqs.heading", "Frequently asked questions")}
-            </h2>
+            <div className="mb-8 text-center sm:mb-10">
+              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-800/20 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[.2em] text-emerald-800 dark:border-emerald-400/20 dark:text-emerald-300">
+                <span aria-hidden="true" className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                {text("home.faqs.eyebrow", "Answers")}
+              </span>
+              <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+                {text("home.faqs.heading", "Frequently asked questions")}
+              </h2>
+            </div>
 
-            <div className="mt-6 divide-y divide-slate-200 dark:divide-slate-800">
+            <div className="space-y-3.5">
               {visibleHomeFaqs.map((faq: Faq) => (
-                <details key={faq.id} className="group py-4">
-                  <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden">
-                    {faq.question}
-                    <span aria-hidden="true" className="text-2xl leading-none transition-transform group-open:rotate-45">+</span>
+                <details
+                  key={faq.id}
+                  className="group rounded-2xl border border-slate-200/80 bg-white/80 p-1 backdrop-blur-md transition-all duration-300 hover:border-slate-300 hover:shadow-md dark:border-slate-800/80 dark:bg-slate-900/80 dark:hover:border-slate-700 open:border-emerald-800/40 open:shadow-lg dark:open:border-emerald-500/40"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-xl p-4 font-semibold text-slate-900 transition-colors dark:text-white [&::-webkit-details-marker]:hidden">
+                    <span className="text-base sm:text-lg">{faq.question}</span>
+                    <span
+                      aria-hidden="true"
+                      className="grid size-8 shrink-0 place-items-center rounded-full bg-slate-100 text-slate-500 transition-all duration-300 group-open:rotate-180 group-open:bg-emerald-900 group-open:text-white dark:bg-slate-800 dark:text-slate-400 dark:group-open:bg-emerald-600 dark:group-open:text-white"
+                    >
+                      <svg className="size-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
                   </summary>
-                  <p className="pb-2 pt-2 leading-7 text-slate-700 dark:text-slate-200">
-                    {faq.answer}
-                  </p>
+                  <div className="px-4 pb-4 pt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300 sm:text-base">
+                    <p className="border-t border-slate-100 pt-3 dark:border-slate-800/60">
+                      {faq.answer}
+                    </p>
+                  </div>
                 </details>
               ))}
             </div>
