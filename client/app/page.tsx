@@ -34,64 +34,30 @@ async function getContent() {
   ]);
 
   return {
-    settings:
-      results[0].status === "fulfilled" ? results[0].value : null,
-
-    banners:
-      results[1].status === "fulfilled" ? results[1].value : [],
-
-    services:
-      results[2].status === "fulfilled" ? results[2].value : [],
-
-    copy:
-      results[3].status === "fulfilled" ? results[3].value : [],
-
-    faqs:
-      results[4].status === "fulfilled" ? results[4].value : [],
-
-    about:
-      results[5].status === "fulfilled"
-        ? results[5].value[0] ?? null
-        : null,
-
-    testimonials:
-      results[6].status === "fulfilled"
-        ? results[6].value
-        : [],
-
+    settings: results[0].status === "fulfilled" ? results[0].value : null,
+    banners: results[1].status === "fulfilled" ? results[1].value : [],
+    services: results[2].status === "fulfilled" ? results[2].value : [],
+    copy: results[3].status === "fulfilled" ? results[3].value : [],
+    faqs: results[4].status === "fulfilled" ? results[4].value : [],
+    about: results[5].status === "fulfilled" ? results[5].value[0] ?? null : null,
+    testimonials: results[6].status === "fulfilled" ? results[6].value : [],
   };
 }
 
 export default async function HomePage() {
-  const {
-    settings,
-    banners,
-    services,
-    copy,
-    faqs,
-    about,
-    testimonials,
-  } = await getContent();
+  const { settings, banners, services, copy, faqs, about, testimonials } =
+    await getContent();
 
-  const text = (
-    key: string,
-    fallback: string
-  ) =>
-    copy.find(
-      (item: PageCopy) => item.key === key
-    )?.value || fallback;
+  const text = (key: string, fallback: string) =>
+    copy.find((item: PageCopy) => item.key === key)?.value || fallback;
 
   const slides: HeroBanner[] = banners.length
     ? banners
     : [
         {
           id: 0,
-          title: text(
-            "home.hero.title",
-            "Car transport Dubai ⇄ Abu Dhabi"
-          ),
-          subtitle:
-            settings?.brand_name || "RK Transport",
+          title: text("home.hero.title", "Car transport Dubai ⇄ Abu Dhabi"),
+          subtitle: settings?.brand_name || "RK Transport",
           description: text(
             "home.hero.description",
             "Reliable car transport between Dubai and Abu Dhabi. Available 24/7."
@@ -101,211 +67,209 @@ export default async function HomePage() {
               ? settings.hours_label
               : ""
             : "Available 24/7",
-          button_text: text(
-            "home.hero.button",
-            "Give us Review"
-          ),
-          button_link: "/review",
+          button_text: text("home.hero.button", "Give us a review"),
+          button_link: "/contact",
           image_url: null,
           image_alt: "",
           portrait_image_url: null,
         },
       ];
 
-  const aboutImage = about?.images?.find(
-    (image) => image.url
-  );
+  const aboutImage = about?.images?.find((image) => image.url);
 
   const visibleHomeFaqs = faqs.filter(
-    (faq: Faq) =>
-      !faq.page_key ||
-      faq.page_key === "home"
+    (faq: Faq) => !faq.page_key || faq.page_key === "home"
   );
 
-  const homeFaqs = visibleHomeFaqs.map(
-    (faq: Faq) => ({
-      question: faq.question,
-      answer: faq.answer,
-    })
-  );
+  const homeFaqs = visibleHomeFaqs.map((faq: Faq) => ({
+    question: faq.question,
+    answer: faq.answer,
+  }));
+
+  const averageRating = testimonials.length
+    ? (
+        testimonials.reduce((sum: number, t: Testimonial) => sum + t.rating, 0) /
+        testimonials.length
+      ).toFixed(1)
+    : "0.0";
 
   return (
     <>
-      <BreadcrumbStructuredData
-        items={[
-          {
-            name: "Home",
-            path: "/",
-          },
-        ]}
-      />
+      <BreadcrumbStructuredData items={[{ name: "Home", path: "/" }]} />
 
-      {homeFaqs.length > 0 && (
-        <StructuredData
-          data={faqJsonLd(homeFaqs)}
-        />
-      )}
+      {homeFaqs.length > 0 && <StructuredData data={faqJsonLd(homeFaqs)} />}
 
       <main>
         <HeroSlideshow slides={slides} />
 
-      {/* =========================================================
-          SERVICES
-      ========================================================= */}
-      <section id="services" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-24">
-        <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
-              {text("home.services.eyebrow", "How we help")}
-            </p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-              {text("home.services.heading", "Car transport, when you need it")}
-            </h2>
+        {/* =========================================================
+            SERVICES
+        ========================================================= */}
+        <section id="services" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-24">
+          <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
+                {text("home.services.eyebrow", "How we help")}
+              </p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+                {text("home.services.heading", "Car transport, when you need it")}
+              </h2>
+            </div>
+            <Link
+              href="/services"
+              className="inline-flex min-h-11 items-center gap-2 font-semibold underline-offset-4 hover:underline"
+            >
+              {text("home.services.link", "Explore services")}
+              <ArrowUpRight aria-hidden="true" className="size-4" />
+            </Link>
           </div>
-          <Link
-            href="/services"
-            className="inline-flex min-h-11 items-center gap-2 font-semibold underline-offset-4 hover:underline"
-          >
-            {text("home.services.link", "Explore services")}
-            <ArrowUpRight aria-hidden="true" className="size-4" />
-          </Link>
-        </div>
 
-        {services.length ? (
-          <ul className="divide-y divide-slate-200 border-y border-slate-200 dark:divide-slate-800 dark:border-slate-800">
-            {services.map((service: Service, index: number) => (
-              <li key={service.id}>
+          {services.length ? (
+            <div
+              className={
+                services.length === 1
+                  ? "grid gap-6"
+                  : services.length === 2
+                    ? "grid gap-6 md:grid-cols-2"
+                    : "grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+              }
+            >
+              {services.map((service: Service, index: number) => (
                 <Link
+                  key={service.id}
                   href={`/services/${service.slug}`}
-                  className="group grid items-center gap-5 py-6 transition sm:grid-cols-[80px_1fr_220px_48px] sm:gap-8 sm:py-8"
+                  className={`group relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-900/15 dark:border-slate-800 dark:bg-slate-900 ${
+                    services.length === 1 ? "md:grid md:grid-cols-2" : ""
+                  }`}
                 >
-                  <span className="text-4xl font-bold tabular-nums text-slate-300 transition group-hover:text-slate-950 dark:text-slate-700 dark:group-hover:text-white sm:text-5xl">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <h3 className="text-2xl font-bold tracking-tight">{service.title}</h3>
-                    <p className="mt-2 max-w-xl leading-7 text-slate-600 dark:text-slate-300">
-                      {service.short_description}
-                    </p>
-                    {service.starting_price_note && (
-                      <p className="mt-2 font-semibold">{service.starting_price_note}</p>
-                    )}
-                  </div>
-                  <div className="relative hidden h-28 overflow-hidden rounded-2xl bg-slate-200 dark:bg-slate-800 sm:block">
-                    {service.image_url && (
+                  <div
+                    className={`relative overflow-hidden bg-slate-200 dark:bg-slate-800 ${
+                      services.length === 1 ? "h-72 md:h-full md:min-h-[24rem]" : "h-64 sm:h-72"
+                    }`}
+                  >
+                    {service.image_url ? (
                       <Image
                         src={apiImageUrl(service.image_url) || service.image_url}
                         alt={service.image_alt || ""}
                         fill
                         unoptimized={!isImageOptimizable(service.image_url)}
-                        sizes="220px"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
+                    ) : (
+                      <div
+                        aria-hidden="true"
+                        className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-950"
+                      />
                     )}
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10"
+                    />
+                    <span className="absolute left-4 top-4 grid size-11 place-items-center rounded-full bg-white/90 text-sm font-bold text-slate-900 backdrop-blur">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="absolute right-4 top-4 grid size-11 place-items-center rounded-full bg-white/90 text-slate-900 backdrop-blur transition group-hover:bg-slate-950 group-hover:text-white">
+                      <ArrowUpRight aria-hidden="true" className="size-5" />
+                    </span>
                   </div>
-                  <span className="grid size-12 place-items-center rounded-full border border-slate-300 transition group-hover:bg-slate-950 group-hover:text-white dark:border-slate-700 dark:group-hover:bg-white dark:group-hover:text-slate-950">
-                    <ArrowUpRight aria-hidden="true" className="size-5" />
-                  </span>
+
+                  <div className="flex flex-1 flex-col justify-center p-6 sm:p-7">
+                    <h3 className="text-2xl font-bold tracking-tight">{service.title}</h3>
+                    <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300">
+                      {service.short_description}
+                    </p>
+                    {service.starting_price_note && (
+                      <p className="mt-3 font-semibold">{service.starting_price_note}</p>
+                    )}
+                    <span className="mt-5 inline-flex min-h-11 items-center gap-2 font-semibold transition-all group-hover:gap-3">
+                      {text("home.services.details", "Service details")}
+                      <ArrowUpRight aria-hidden="true" className="size-4" />
+                    </span>
+                  </div>
                 </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="rounded-2xl bg-stone-100 p-6 text-slate-700 dark:bg-slate-900 dark:text-slate-200">
-            {text("empty.services", "Service information is currently unavailable.")}
-          </p>
-        )}
-      </section>
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-2xl bg-stone-100 p-6 text-slate-700 dark:bg-slate-900 dark:text-slate-200">
+              {text("empty.services", "Service information is currently unavailable.")}
+            </p>
+          )}
+        </section>
 
         {/* =========================================================
             ABOUT
         ========================================================= */}
         {about && (
-          <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
-            <div className="grid items-center gap-10 lg:grid-cols-2">
+          <section className="relative overflow-hidden bg-stone-100 px-4 py-16 dark:bg-slate-900/60 sm:px-6 lg:py-24">
+            <style>{`
+              @keyframes home-about-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+              .home-about-float { animation: home-about-float 5s ease-in-out infinite; }
+              @media (prefers-reduced-motion: reduce) { .home-about-float { animation: none !important; } }
+            `}</style>
+
+            <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-2 lg:gap-20">
               {aboutImage && (
-                <div
-                  className={`relative min-h-72 overflow-hidden rounded-3xl ${
-                    about.story_image_side === "right"
-                      ? "lg:order-2"
-                      : ""
-                  }`}
-                >
-                  <Image
-                    src={
-                      apiImageUrl(
-                        aboutImage.url
-                      ) ||
-                      aboutImage.url!
-                    }
-                    alt={
-                      aboutImage.alt || ""
-                    }
-                    fill
-                    unoptimized={
-                      !isImageOptimizable(
-                        aboutImage.url
-                      )
-                    }
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover"
+                <div className={`group relative ${about.story_image_side === "right" ? "lg:order-2" : ""}`}>
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 -rotate-3 rounded-[2rem] bg-slate-950 transition-transform duration-500 group-hover:rotate-0 dark:bg-slate-700"
                   />
+                  <div className="relative aspect-[4/5] rotate-2 overflow-hidden rounded-[2rem] bg-slate-200 shadow-2xl shadow-slate-900/25 transition-transform duration-500 group-hover:rotate-0 dark:bg-slate-800 sm:aspect-[5/4] lg:aspect-[4/5]">
+                    <Image
+                      src={apiImageUrl(aboutImage.url) || aboutImage.url!}
+                      alt={aboutImage.alt || ""}
+                      fill
+                      unoptimized={!isImageOptimizable(aboutImage.url)}
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                  {about.stats[0] && (
+                    <div className="home-about-float absolute -bottom-6 right-4 rounded-2xl border border-white/30 bg-slate-950/85 px-6 py-4 text-white shadow-xl backdrop-blur-md sm:right-8">
+                      <p className="text-3xl font-bold tabular-nums">{about.stats[0].value}</p>
+                      <p className="text-sm text-white/75">{about.stats[0].label}</p>
+                    </div>
+                  )}
                 </div>
               )}
 
               <div>
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">
-                  {text(
-                    "home.about.eyebrow",
-                    "About us"
-                  )}
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
+                  {text("home.about.eyebrow", "About us")}
                 </p>
-
-                <h2 className="mt-2 text-3xl font-bold">
-                  {about.title}
-                </h2>
-
+                <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl">{about.title}</h2>
                 {about.subtitle && (
-                  <p className="mt-3 text-lg text-slate-700 dark:text-slate-200">
-                    {about.subtitle}
-                  </p>
+                  <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">{about.subtitle}</p>
                 )}
-
                 <SimpleRichText
                   value={about.description}
-                  className="mt-4 leading-7 text-slate-700 dark:text-slate-200"
+                  className="mt-5 leading-8 text-slate-700 dark:text-slate-200"
                 />
 
-                {about.stats.length > 0 && (
-                  <div className="mt-6 grid grid-cols-2 gap-3">
-                    {about.stats.map(
-                      (stat, index) => (
-                        <div
-                          key={`${stat.label}-${index}`}
-                          className="rounded-xl bg-stone-100 p-4 dark:bg-slate-900"
-                        >
-                          <p className="text-2xl font-bold text-emerald-800 dark:text-emerald-300">
-                            {stat.value}
-                          </p>
-
-                          <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">
-                            {stat.label}
-                          </p>
-                        </div>
-                      )
-                    )}
-                  </div>
+                {about.stats.length > 1 && (
+                  <dl className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
+                    {about.stats.slice(1, 4).map((stat, index) => (
+                      <div
+                        key={`${stat.label}-${index}`}
+                        className="rounded-2xl border border-slate-200 bg-white p-4 transition duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
+                      >
+                        <dt className="order-2 mt-1 text-sm text-slate-600 dark:text-slate-300">{stat.label}</dt>
+                        <dd className="text-2xl font-bold tabular-nums sm:text-3xl">{stat.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
                 )}
 
                 <Link
                   href="/about"
-                  className="mt-5 inline-flex min-h-11 items-center font-semibold text-emerald-800 hover:underline dark:text-emerald-300"
+                  className="group mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-slate-950 px-6 font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
                 >
-                  {text(
-                    "home.about.link",
-                    "More about RK Transport"
-                  )}{" "}
-                  →
+                  {text("home.about.link", "More about RK Transport")}
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  />
                 </Link>
               </div>
             </div>
@@ -313,74 +277,81 @@ export default async function HomePage() {
         )}
 
         {/* =========================================================
-            CONTINUOUS TESTIMONIAL ESCALATOR
+            TESTIMONIALS
         ========================================================= */}
         {testimonials.length > 0 && (
-          <section className="relative overflow-hidden bg-emerald-950 py-16 text-white sm:py-20">
+          <section className="relative isolate overflow-hidden bg-slate-950 py-16 text-white sm:py-24">
+            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.22),transparent_60%)]" />
+            <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.06] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:56px_56px]" />
+
             <div className="mx-auto max-w-7xl px-4 sm:px-6">
-              <div className="relative z-10">
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-200">
-                  {text(
-                    "home.testimonials.eyebrow",
-                    "Customer feedback"
-                  )}
-                </p>
-
-                <h2 className="mt-2 text-3xl font-bold">
-                  {text(
-                    "home.testimonials.heading",
-                    "Trusted to move what matters"
-                  )}
-                </h2>
-              </div>
-            </div>
-
-            {/* =====================================================
-                MARQUEE WINDOW
-            ===================================================== */}
-            <div className="testimonial-marquee mt-10">
-              <div className="testimonial-marquee-track">
-                {/* FIRST GROUP */}
-                <div className="testimonial-marquee-group">
-                  {testimonials.map(
-                    (
-                      testimonial: Testimonial,
-                      index
-                    ) => (
-                      <TestimonialCard
-                        key={`first-${testimonial.id}-${index}`}
-                        testimonial={testimonial}
-                        index={index}
-                      />
-                    )
-                  )}
+              <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+                <div className="max-w-2xl">
+                  <p className="text-sm font-bold uppercase tracking-[.2em] text-white/60">
+                    {text("home.testimonials.eyebrow", "Customer feedback")}
+                  </p>
+                  <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl">
+                    {text("home.testimonials.heading", "Trusted to move what matters")}
+                  </h2>
                 </div>
 
-                {/* DUPLICATE GROUP FOR SEAMLESS LOOP */}
-                <div
-                  className="testimonial-marquee-group"
-                  aria-hidden="true"
-                >
-                  {testimonials.map(
-                    (
-                      testimonial: Testimonial,
-                      index
-                    ) => (
-                      <TestimonialCard
-                        key={`second-${testimonial.id}-${index}`}
-                        testimonial={testimonial}
-                        index={index}
-                      />
-                    )
-                  )}
+                <div className="inline-flex items-center gap-4 self-start rounded-2xl border border-white/15 bg-white/5 px-5 py-4 backdrop-blur lg:self-auto">
+                  <span className="text-4xl font-bold tabular-nums">{averageRating}</span>
+                  <div>
+                    <p className="text-lg leading-none text-amber-400" aria-hidden="true">★★★★★</p>
+                    <p className="mt-1 text-sm text-white/70">
+                      from {testimonials.length} customer {testimonials.length === 1 ? "review" : "reviews"}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Soft edge fades */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-16 bg-gradient-to-r from-emerald-950 to-transparent sm:w-28" />
+            {/* Row 1: moves left */}
+            <div className="tm-row mt-12">
+              <div className="tm-track tm-left">
+                <div className="tm-group">
+                  {fillCards(testimonials).map((testimonial: Testimonial, index: number) => (
+                    <TestimonialCard key={`a1-${testimonial.id}-${index}`} testimonial={testimonial} />
+                  ))}
+                </div>
+                <div className="tm-group" aria-hidden="true">
+                  {fillCards(testimonials).map((testimonial: Testimonial, index: number) => (
+                    <TestimonialCard key={`a2-${testimonial.id}-${index}`} testimonial={testimonial} />
+                  ))}
+                </div>
+              </div>
+            </div>
 
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-16 bg-gradient-to-l from-emerald-950 to-transparent sm:w-28" />
+            {/* Row 2: moves right */}
+            <div className="tm-row mt-5">
+              <div className="tm-track tm-right">
+                <div className="tm-group">
+                  {fillCards([...testimonials].reverse()).map((testimonial: Testimonial, index: number) => (
+                    <TestimonialCard key={`b1-${testimonial.id}-${index}`} testimonial={testimonial} />
+                  ))}
+                </div>
+                <div className="tm-group" aria-hidden="true">
+                  {fillCards([...testimonials].reverse()).map((testimonial: Testimonial, index: number) => (
+                    <TestimonialCard key={`b2-${testimonial.id}-${index}`} testimonial={testimonial} />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Edge fades */}
+            <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-20 w-16 bg-gradient-to-r from-slate-950 to-transparent sm:w-32" />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-20 w-16 bg-gradient-to-l from-slate-950 to-transparent sm:w-32" />
+
+            <div className="relative z-30 mt-12 text-center">
+              <Link
+                href="/contact"
+                className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-slate-950 transition hover:bg-slate-200"
+              >
+                Share your experience
+                <ArrowUpRight aria-hidden="true" className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
+            </div>
           </section>
         )}
 
@@ -388,54 +359,43 @@ export default async function HomePage() {
             FAQ
         ========================================================= */}
         {visibleHomeFaqs.length > 0 && (
-          <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-            <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">
-              {text(
-                "home.faqs.eyebrow",
-                "Answers"
-              )}
+          <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:py-24">
+            <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
+              {text("home.faqs.eyebrow", "Answers")}
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold">
-              {text(
-                "home.faqs.heading",
-                "Frequently asked questions"
-              )}
+            <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+              {text("home.faqs.heading", "Frequently asked questions")}
             </h2>
 
             <div className="mt-6 divide-y divide-slate-200 dark:divide-slate-800">
-              {visibleHomeFaqs.map(
-                (faq: Faq) => (
-                  <details
-                    key={faq.id}
-                    className="group py-4"
-                  >
-                    <summary className="min-h-11 cursor-pointer content-center font-semibold marker:text-emerald-800">
-                      {faq.question}
-                    </summary>
-
-                    <p className="pb-2 leading-7 text-slate-700 dark:text-slate-200">
-                      {faq.answer}
-                    </p>
-                  </details>
-                )
-              )}
+              {visibleHomeFaqs.map((faq: Faq) => (
+                <details key={faq.id} className="group py-4">
+                  <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden">
+                    {faq.question}
+                    <span aria-hidden="true" className="text-2xl leading-none transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  <p className="pb-2 pt-2 leading-7 text-slate-700 dark:text-slate-200">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
             </div>
           </section>
         )}
 
         {/* =========================================================
-           REVIEWS
+            REVIEWS
         ========================================================= */}
-        <section className="bg-stone-100 px-4 py-16 dark:bg-slate-900/70 sm:px-6">
+        <section className="bg-stone-100 px-4 py-16 dark:bg-slate-900/70 sm:px-6 lg:py-24">
           <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2">
             <div>
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
                 {settings?.available_24_7 ? settings.hours_label : ""}
               </p>
 
-              <h2 className="mt-2 text-3xl font-bold">
-                {text("review.home.heading", " Leave A Review")}
+              <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+                {text("review.home.heading", "Leave a review")}
               </h2>
 
               <p className="mt-3 leading-7 text-slate-700 dark:text-slate-200">
@@ -448,10 +408,7 @@ export default async function HomePage() {
               <div className="mt-5 space-y-2 text-sm text-slate-800 dark:text-slate-100">
                 {settings?.phone_primary && (
                   <p>
-                    <a
-                      className="font-semibold underline"
-                      href={`tel:${settings.phone_primary}`}
-                    >
+                    <a className="font-semibold underline" href={`tel:${settings.phone_primary}`}>
                       {settings.phone_primary}
                     </a>
                   </p>
@@ -470,10 +427,7 @@ export default async function HomePage() {
 
                 {settings?.email && (
                   <p>
-                    <a
-                      className="font-semibold underline"
-                      href={`mailto:${settings.email}`}
-                    >
+                    <a className="font-semibold underline" href={`mailto:${settings.email}`}>
                       {settings.email}
                     </a>
                   </p>
@@ -486,246 +440,139 @@ export default async function HomePage() {
             <ReviewForm />
           </div>
         </section>
-        </main>
+      </main>
 
       {/* =========================================================
-          TESTIMONIAL ANIMATION
+          TESTIMONIAL STYLES
       ========================================================= */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-            /*
-             * =========================================================
-             * TESTIMONIAL ESCALATOR / MARQUEE
-             * =========================================================
-             */
+      <style>{`
+        .tm-row { position: relative; width: 100%; overflow: hidden; }
+        .tm-track { display: flex; width: max-content; will-change: transform; }
+        .tm-left { animation: tm-scroll 55s linear infinite; }
+        .tm-right { animation: tm-scroll 65s linear infinite reverse; }
+        .tm-row:hover .tm-track { animation-play-state: paused; }
+        .tm-group { display: flex; flex-shrink: 0; gap: 20px; padding-right: 20px; }
 
-            .testimonial-marquee {
-              position: relative;
-              width: 100%;
-              overflow: hidden;
-              padding-top: 8px;
-              padding-bottom: 12px;
-            }
+        .tm-card {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          width: 360px;
+          min-width: 360px;
+          padding: 28px;
+          overflow: hidden;
+          border-radius: 24px;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          background: linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+          transition: transform 350ms ease, border-color 350ms ease, box-shadow 350ms ease;
+        }
+        .tm-card::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle at 20% 0%, rgba(255,255,255,0.18), transparent 55%);
+          opacity: 0;
+          transition: opacity 350ms ease;
+          pointer-events: none;
+        }
+        .tm-card:hover {
+          transform: translateY(-8px);
+          border-color: rgba(255, 255, 255, 0.35);
+          box-shadow: 0 28px 60px rgba(0, 0, 0, 0.4);
+        }
+        .tm-card:hover::before { opacity: 1; }
+        .tm-quote-mark {
+          position: absolute;
+          top: 6px;
+          right: 22px;
+          font-size: 110px;
+          line-height: 1;
+          font-family: Georgia, serif;
+          color: rgba(255, 255, 255, 0.08);
+          pointer-events: none;
+          user-select: none;
+        }
 
-            .testimonial-marquee-track {
-              display: flex;
-              width: max-content;
-              animation: testimonial-scroll 34s linear infinite;
-              will-change: transform;
-            }
+        @keyframes tm-scroll {
+          from { transform: translate3d(0, 0, 0); }
+          to { transform: translate3d(-50%, 0, 0); }
+        }
 
-            .testimonial-marquee:hover .testimonial-marquee-track {
-              animation-play-state: paused;
-            }
+        @media (max-width: 900px) {
+          .tm-card { width: 320px; min-width: 320px; }
+          .tm-left { animation-duration: 45s; }
+          .tm-right { animation-duration: 52s; }
+        }
+        @media (max-width: 640px) {
+          .tm-card { width: 285px; min-width: 285px; padding: 22px; }
+          .tm-group { gap: 14px; padding-right: 14px; }
+          .tm-left { animation-duration: 38s; }
+          .tm-right { animation-duration: 44s; }
+        }
 
-            .testimonial-marquee-group {
-              display: flex;
-              flex-shrink: 0;
-              gap: 18px;
-              padding-right: 18px;
-            }
-
-            .testimonial-card {
-              width: 330px;
-              min-width: 330px;
-              min-height: 178px;
-              padding: 24px;
-              border-radius: 18px;
-              border: 1px solid rgba(255, 255, 255, 0.14);
-              background: rgba(255, 255, 255, 0.08);
-              backdrop-filter: blur(8px);
-              -webkit-backdrop-filter: blur(8px);
-              box-shadow:
-                0 15px 35px rgba(0, 0, 0, 0.12);
-              transition:
-                transform 300ms ease,
-                background 300ms ease,
-                box-shadow 300ms ease;
-            }
-
-            .testimonial-card:hover {
-              transform: translateY(-10px) rotate(0deg) !important;
-              background: rgba(255, 255, 255, 0.13);
-              box-shadow:
-                0 22px 45px rgba(0, 0, 0, 0.2);
-              z-index: 10;
-            }
-
-            /*
-             * Escalator / staircase effect.
-             * Each card sits at a slightly different height.
-             */
-            .testimonial-card-0 {
-              transform: translateY(18px) rotate(-1deg);
-            }
-
-            .testimonial-card-1 {
-              transform: translateY(0px) rotate(0.5deg);
-            }
-
-            .testimonial-card-2 {
-              transform: translateY(24px) rotate(-0.5deg);
-            }
-
-            .testimonial-card-3 {
-              transform: translateY(-2px) rotate(1deg);
-            }
-
-            .testimonial-card-4 {
-              transform: translateY(15px) rotate(-0.5deg);
-            }
-
-            /*
-             * The two groups are identical.
-             * Moving exactly 50% creates the seamless loop.
-             */
-            @keyframes testimonial-scroll {
-              0% {
-                transform: translate3d(0, 0, 0);
-              }
-
-              100% {
-                transform: translate3d(-50%, 0, 0);
-              }
-            }
-
-            /*
-             * Tablet
-             */
-            @media (max-width: 900px) {
-              .testimonial-card {
-                width: 300px;
-                min-width: 300px;
-              }
-
-              .testimonial-marquee-track {
-                animation-duration: 30s;
-              }
-            }
-
-            /*
-             * Mobile
-             */
-            @media (max-width: 640px) {
-              .testimonial-marquee {
-                padding-top: 4px;
-              }
-
-              .testimonial-card {
-                width: 285px;
-                min-width: 285px;
-                min-height: 170px;
-                padding: 20px;
-              }
-
-              .testimonial-marquee-group {
-                gap: 14px;
-                padding-right: 14px;
-              }
-
-              .testimonial-marquee-track {
-                animation-duration: 27s;
-              }
-
-              .testimonial-card-0 {
-                transform: translateY(10px) rotate(-0.5deg);
-              }
-
-              .testimonial-card-1 {
-                transform: translateY(0px) rotate(0deg);
-              }
-
-              .testimonial-card-2 {
-                transform: translateY(14px) rotate(0.5deg);
-              }
-
-              .testimonial-card-3 {
-                transform: translateY(2px) rotate(-0.5deg);
-              }
-
-              .testimonial-card-4 {
-                transform: translateY(10px) rotate(0deg);
-              }
-            }
-
-            /*
-             * Respect users who prefer reduced motion.
-             */
-            @media (prefers-reduced-motion: reduce) {
-              .testimonial-marquee-track {
-                animation: none;
-              }
-
-              .testimonial-marquee-group:last-child {
-                display: none;
-              }
-            }
-          `,
-        }}
-      />
+        @media (prefers-reduced-motion: reduce) {
+          .tm-left, .tm-right { animation: none; }
+          .tm-row { overflow-x: auto; }
+          .tm-group:last-child { display: none; }
+        }
+      `}</style>
     </>
   );
 }
 
 /* =========================================================
-   TESTIMONIAL CARD
+   TESTIMONIAL HELPERS
 ========================================================= */
 
-function TestimonialCard({
-  testimonial,
-  index,
-}: {
-  testimonial: Testimonial;
-  index: number;
-}) {
+// Repeats the list so each marquee group is wide enough to loop seamlessly.
+function fillCards(items: Testimonial[]): Testimonial[] {
+  if (items.length === 0) return items;
+  const result: Testimonial[] = [];
+  while (result.length < 8) result.push(...items);
+  return result;
+}
+
+function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
+  const initial = testimonial.customer_name?.trim().charAt(0).toUpperCase() || "R";
   return (
-    <figure
-      className={`testimonial-card testimonial-card-${index % 5}`}
-    >
-      {testimonial.image_url && (
-        <div className="relative mb-4 size-12 overflow-hidden rounded-full">
-          <Image
-            src={
-              apiImageUrl(
-                testimonial.image_url
-              ) ||
-              testimonial.image_url
-            }
-            alt={
-              testimonial.image_alt || ""
-            }
-            fill
-            unoptimized={
-              !isImageOptimizable(
-                testimonial.image_url
-              )
-            }
-            sizes="48px"
-            className="object-cover"
-          />
-        </div>
-      )}
+    <figure className="tm-card">
+      <span aria-hidden="true" className="tm-quote-mark">“</span>
 
-      <blockquote className="leading-7 text-white">
-        “{testimonial.quote}”
-      </blockquote>
-
-      <p
-        className="mt-3 text-amber-300"
-        aria-label={`${testimonial.rating} out of 5 stars`}
-      >
+      <p className="relative text-lg tracking-widest text-amber-400" aria-label={`${testimonial.rating} out of 5 stars`}>
         {"★".repeat(testimonial.rating)}
+        <span className="text-white/20">{"★".repeat(Math.max(0, 5 - testimonial.rating))}</span>
       </p>
 
-      <figcaption className="mt-3 font-bold">
-        {testimonial.customer_name}
+      <blockquote className="relative mt-4 flex-1 leading-7 text-white/90">
+        {testimonial.quote}
+      </blockquote>
 
-        {testimonial.vehicle_note ? (
-          <span className="block text-sm font-normal text-emerald-100">
-            {testimonial.vehicle_note}
+      <figcaption className="relative mt-6 flex items-center gap-3 border-t border-white/10 pt-5">
+        {testimonial.image_url ? (
+          <span className="relative size-12 shrink-0 overflow-hidden rounded-full ring-2 ring-white/20">
+            <Image
+              src={apiImageUrl(testimonial.image_url) || testimonial.image_url}
+              alt={testimonial.image_alt || ""}
+              fill
+              unoptimized={!isImageOptimizable(testimonial.image_url)}
+              sizes="48px"
+              className="object-cover"
+            />
           </span>
-        ) : null}
+        ) : (
+          <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-full bg-white text-lg font-bold text-slate-950">
+            {initial}
+          </span>
+        )}
+        <span>
+          <span className="block font-bold">{testimonial.customer_name}</span>
+          {testimonial.vehicle_note && (
+            <span className="block text-sm font-normal text-white/60">{testimonial.vehicle_note}</span>
+          )}
+        </span>
       </figcaption>
     </figure>
   );

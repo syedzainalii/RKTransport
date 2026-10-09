@@ -163,31 +163,6 @@ export default async function ServicesPage() {
           )}
         </section>
 
-        {/* Call to action */}
-        <section className="px-4 sm:px-6">
-          <div className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl bg-slate-950 px-7 py-12 text-white sm:px-12 sm:py-16">
-            <div aria-hidden="true" className="absolute -right-24 -top-24 size-80 rounded-full bg-white/10 blur-3xl" />
-            <div className="relative flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
-              <div className="max-w-xl">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Ready to move your car?</h2>
-                <p className="mt-3 text-lg text-white/75">Tell us the pickup and drop-off and we will confirm the details with you.</p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/quote" className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-slate-950 transition hover:bg-slate-200">
-                  Get a quote
-                  <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-                {settings?.phone_primary && (
-                  <a href={`tel:${settings.phone_primary}`} className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/25 px-6 font-semibold transition hover:bg-white/10">
-                    <Phone aria-hidden="true" className="size-5" />
-                    Call us
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* FAQs */}
         {faqs.length > 0 && (
           <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:py-24">

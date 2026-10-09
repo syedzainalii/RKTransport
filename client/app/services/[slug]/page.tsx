@@ -50,7 +50,9 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
   const copy = copyResult.status === "fulfilled" ? copyResult.value : [];
   const cta = copy.find((item: { key: string }) => item.key === "services.detail.cta")?.value || "Request this service";
   const hours = settings?.available_24_7 ? settings.hours_label : "";
-  const whatsappDigits = settings?.whatsapp?.replace(/\D/g, "");
+  const whatsappDigits = settings?.whatsapp?.replace(/\D/g, "") || "971561379697";
+  const requestMessage = `Hello RK Transport, I would like to request this service: ${service.title}. Please contact me with details.`;
+  const requestWhatsappUrl = `https://wa.me/${whatsappDigits}?text=${encodeURIComponent(requestMessage)}`;
 
   const serviceSchema = {
     "@context": "https://schema.org",
@@ -167,17 +169,23 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                 <p className="mt-3 text-2xl font-bold tracking-tight">Get a free quote</p>
               )}
               <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Tell us the pickup and drop-off and we will confirm the price and timing with you.</p>
-              <Link href="/quote" className="group mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-slate-950 px-6 font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
+
+              <a
+                href={requestWhatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-slate-950 px-6 font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+              >
+                <MessageCircle aria-hidden="true" className="size-5" />
                 {cta}
                 <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
-              </Link>
+              </a>
+
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                {whatsappDigits && (
-                  <a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-300 px-4 font-semibold transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
-                    <MessageCircle aria-hidden="true" className="size-5" />
-                    WhatsApp
-                  </a>
-                )}
+                <Link href="/quote" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-300 px-4 font-semibold transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
+                  <ArrowRight aria-hidden="true" className="size-5" />
+                  Use form
+                </Link>
                 {settings?.phone_primary && (
                   <a href={`tel:${settings.phone_primary}`} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-300 px-4 font-semibold transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
                     <Phone aria-hidden="true" className="size-5" />
