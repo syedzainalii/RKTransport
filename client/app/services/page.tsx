@@ -31,6 +31,10 @@ export default async function ServicesPage() {
   const hours = settings?.available_24_7 ? settings.hours_label : "";
   const whatsappDigits = settings?.whatsapp?.replace(/\D/g, "");
 
+  const bannerUrl = 
+    (featured as Record<string, unknown>)?.banner_image_url as string | undefined || 
+    (services.find((s: unknown) => (s as Record<string, unknown>)?.banner_image_url) as Record<string, unknown>)?.banner_image_url as string | undefined;
+
   return (
     <>
       <BreadcrumbStructuredData items={[{ name: "Home", path: "/" }, { name: "Services", path: "/services" }]} />
@@ -38,7 +42,16 @@ export default async function ServicesPage() {
 
       <main>
         {/* Hero */}
-        <section className="relative isolate overflow-hidden bg-slate-950 text-white">
+        <section 
+          className="relative isolate overflow-hidden bg-slate-950 text-white bg-cover bg-center"
+          style={
+            bannerUrl
+              ? {
+                  backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url(${bannerUrl})`,
+                }
+              : undefined
+          }
+        >
           <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,rgba(148,163,184,0.28),transparent_55%),radial-gradient(ellipse_at_bottom_left,rgba(255,255,255,0.08),transparent_50%)]" />
           <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:56px_56px]" />
           <div className="mx-auto max-w-7xl px-4 pb-20 pt-32 sm:px-6 lg:pb-28 lg:pt-40">

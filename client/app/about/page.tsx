@@ -33,6 +33,7 @@ export default async function AboutPage() {
   const whatsappDigits = settings?.whatsapp?.replace(/\D/g, "") || "971561379697";
   const whatsappUrl = `https://wa.me/${whatsappDigits}?text=${encodeURIComponent("Hello RK Transport, I would like a quote for car transport. Please contact me with details.")}`;
   const firstStat = about?.stats?.[0];
+  const bannerUrl = (about as Record<string, unknown>)?.banner_image_url as string | undefined;
 
   return (
     <>
@@ -56,7 +57,16 @@ export default async function AboutPage() {
 
       <main>
         {/* Hero */}
-        <section className="relative isolate overflow-hidden bg-slate-950 text-white">
+        <section 
+          className="relative isolate overflow-hidden bg-slate-950 text-white bg-cover bg-center"
+          style={
+            bannerUrl
+              ? {
+                  backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url(${bannerUrl})`,
+                }
+              : undefined
+          }
+        >
           <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,rgba(148,163,184,0.28),transparent_55%),radial-gradient(ellipse_at_bottom_left,rgba(255,255,255,0.08),transparent_50%)]" />
           <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:56px_56px]" />
           <div className="about-rise mx-auto max-w-7xl px-4 pb-20 pt-32 sm:px-6 lg:pb-28 lg:pt-40">

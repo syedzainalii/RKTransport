@@ -297,86 +297,99 @@ export default async function HomePage() {
         {/* =========================================================
             TESTIMONIALS
         ========================================================= */}
-        {testimonials.length > 0 && (
-          <section
-            id="reviews-wall"
-            data-snap-section
-            data-label="Reviews"
-            className="snap-section relative isolate overflow-hidden bg-slate-950 text-white"
-          >
-            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.22),transparent_60%)]" />
-            <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.06] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:56px_56px]" />
+        {testimonials.length > 0 && (() => {
+          const bannerUrl = 
+            (testimonials.find((t: unknown) => (t as Record<string, unknown>)?.banner_image_url) as Record<string, unknown>)?.banner_image_url || 
+            (testimonials[0] as Record<string, unknown>)?.banner_image_url;
+            
+          return (
+            <section
+              id="reviews-wall"
+              data-snap-section
+              data-label="Reviews"
+              className="snap-section relative isolate overflow-hidden bg-slate-950 text-white bg-cover bg-center"
+              style={
+                typeof bannerUrl === "string" && bannerUrl
+                  ? {
+                      backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.88)), url(${bannerUrl})`,
+                    }
+                  : undefined
+              }
+            >
+              <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.22),transparent_60%)]" />
+              <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.06] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:56px_56px]" />
 
-            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
-              <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-                <div className="max-w-2xl">
-                  <p className="text-sm font-bold uppercase tracking-[.2em] text-white/60">
-                    {text("home.testimonials.eyebrow", "Customer feedback")}
-                  </p>
-                  <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl">
-                    {text("home.testimonials.heading", "Trusted to move what matters")}
-                  </h2>
-                </div>
-
-                <div className="inline-flex items-center gap-4 self-start rounded-2xl border border-white/15 bg-white/5 px-5 py-4 backdrop-blur lg:self-auto">
-                  <span className="text-4xl font-bold tabular-nums">{averageRating}</span>
-                  <div>
-                    <p className="text-lg leading-none text-amber-400" aria-hidden="true">★★★★★</p>
-                    <p className="mt-1 text-sm text-white/70">
-                      from {testimonials.length} customer {testimonials.length === 1 ? "review" : "reviews"}
+              <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
+                <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+                  <div className="max-w-2xl">
+                    <p className="text-sm font-bold uppercase tracking-[.2em] text-white/60">
+                      {text("home.testimonials.eyebrow", "Customer feedback")}
                     </p>
+                    <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl">
+                      {text("home.testimonials.heading", "Trusted to move what matters")}
+                    </h2>
+                  </div>
+
+                  <div className="inline-flex items-center gap-4 self-start rounded-2xl border border-white/15 bg-white/5 px-5 py-4 backdrop-blur lg:self-auto">
+                    <span className="text-4xl font-bold tabular-nums">{averageRating}</span>
+                    <div>
+                      <p className="text-lg leading-none text-amber-400" aria-hidden="true">★★★★★</p>
+                      <p className="mt-1 text-sm text-white/70">
+                        from {testimonials.length} customer {testimonials.length === 1 ? "review" : "reviews"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Row 1: moves left */}
-            <div className="tm-row mt-12">
-              <div className="tm-track tm-left">
-                <div className="tm-group">
-                  {fillCards(testimonials).map((testimonial: Testimonial, index: number) => (
-                    <TestimonialCard key={`a1-${testimonial.id}-${index}`} testimonial={testimonial} />
-                  ))}
-                </div>
-                <div className="tm-group" aria-hidden="true">
-                  {fillCards(testimonials).map((testimonial: Testimonial, index: number) => (
-                    <TestimonialCard key={`a2-${testimonial.id}-${index}`} testimonial={testimonial} />
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Row 2: moves right */}
-            <div className="tm-row mt-5">
-              <div className="tm-track tm-right">
-                <div className="tm-group">
-                  {fillCards([...testimonials].reverse()).map((testimonial: Testimonial, index: number) => (
-                    <TestimonialCard key={`b1-${testimonial.id}-${index}`} testimonial={testimonial} />
-                  ))}
-                </div>
-                <div className="tm-group" aria-hidden="true">
-                  {fillCards([...testimonials].reverse()).map((testimonial: Testimonial, index: number) => (
-                    <TestimonialCard key={`b2-${testimonial.id}-${index}`} testimonial={testimonial} />
-                  ))}
+              {/* Row 1: moves left */}
+              <div className="tm-row mt-12">
+                <div className="tm-track tm-left">
+                  <div className="tm-group">
+                    {fillCards(testimonials).map((testimonial: Testimonial, index: number) => (
+                      <TestimonialCard key={`a1-${testimonial.id}-${index}`} testimonial={testimonial} />
+                    ))}
+                  </div>
+                  <div className="tm-group" aria-hidden="true">
+                    {fillCards(testimonials).map((testimonial: Testimonial, index: number) => (
+                      <TestimonialCard key={`a2-${testimonial.id}-${index}`} testimonial={testimonial} />
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Edge fades */}
-            <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-20 w-16 bg-gradient-to-r from-slate-950 to-transparent sm:w-32" />
-            <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-20 w-16 bg-gradient-to-l from-slate-950 to-transparent sm:w-32" />
+              {/* Row 2: moves right */}
+              <div className="tm-row mt-5">
+                <div className="tm-track tm-right">
+                  <div className="tm-group">
+                    {fillCards([...testimonials].reverse()).map((testimonial: Testimonial, index: number) => (
+                      <TestimonialCard key={`b1-${testimonial.id}-${index}`} testimonial={testimonial} />
+                    ))}
+                  </div>
+                  <div className="tm-group" aria-hidden="true">
+                    {fillCards([...testimonials].reverse()).map((testimonial: Testimonial, index: number) => (
+                      <TestimonialCard key={`b2-${testimonial.id}-${index}`} testimonial={testimonial} />
+                    ))}
+                  </div>
+                </div>
+              </div>
 
-            <div className="relative z-30 mt-12 text-center">
-              <Link
-                href="/contact"
-                className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-slate-950 transition hover:bg-slate-200"
-              >
-                Share your experience
-                <ArrowUpRight aria-hidden="true" className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </Link>
-            </div>
-          </section>
-        )}
+              {/* Edge fades */}
+              <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-20 w-16 bg-gradient-to-r from-slate-950 to-transparent sm:w-32" />
+              <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-20 w-16 bg-gradient-to-l from-slate-950 to-transparent sm:w-32" />
+
+              <div className="relative z-30 mt-12 text-center">
+                <Link
+                  href="/contact"
+                  className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-slate-950 transition hover:bg-slate-200"
+                >
+                  Share your experience
+                  <ArrowUpRight aria-hidden="true" className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </Link>
+              </div>
+            </section>
+          );
+        })()}
 
         {/* =========================================================
             FAQ

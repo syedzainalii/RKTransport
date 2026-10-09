@@ -30,7 +30,7 @@ const collections: Record<string, Collection> = {
     { key: "portrait_image_url", label: "Portrait image", kind: "single-image", showDescription: false, help: "Shown on phones and tablets. Recommended size: 1080 × 1600 pixels. Shares the landscape image description." },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
-  services: { title: "Services", singular: "service", path: "/services", defaults: { title: "", short_description: "", detailed_description: "", starting_price_note: "", features: [], image_url: "", image_alt: "", icon: "Truck", category: "transport", sort_order: 0, is_active: true }, fields: [
+  services: { title: "Services", singular: "service", path: "/services", defaults: { title: "", short_description: "", detailed_description: "", starting_price_note: "", features: [], image_url: "", image_alt: "", banner_image_url: "", icon: "Truck", category: "transport", sort_order: 0, is_active: true }, fields: [
     { key: "title", label: "Service name", required: true },
     { key: "short_description", label: "Short summary", kind: "textarea", help: "One or two lines shown on service cards.", required: true },
     { key: "detailed_description", label: "Full description", kind: "rich", help: "Use the buttons for bold text, bullet points, and links." },
@@ -38,6 +38,7 @@ const collections: Record<string, Collection> = {
     { key: "starting_price_note", label: "Starting price note", help: 'Optional, for example "From AED 350".' },
     { key: "category", label: "Service type", kind: "select", options: serviceTypes },
     { key: "image_url", label: "Main picture", kind: "single-image" },
+    { key: "banner_image_url", label: "Section Banner Background Image", kind: "single-image", help: "Custom background image for this section banner." },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
   faqs: { title: "FAQs", singular: "question", path: "/faqs", defaults: { question: "", answer: "", page_key: "home", sort_order: 0, is_active: true }, fields: [
@@ -46,10 +47,11 @@ const collections: Record<string, Collection> = {
     { key: "page_key", label: "Which page?", kind: "select", options: [["home", "Home"], ["services", "Services"], ["storage", "Storage"], ["", "All pages"]] },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
-  testimonials: { title: "Testimonials", singular: "testimonial", path: "/testimonials", defaults: { customer_name: "", quote: "", rating: 5, vehicle_note: "", is_active: true, sort_order: 0 }, fields: [
+  testimonials: { title: "Testimonials", singular: "testimonial", path: "/testimonials", defaults: { customer_name: "", quote: "", rating: 5, vehicle_note: "", banner_image_url: "", is_active: true, sort_order: 0 }, fields: [
     { key: "customer_name", label: "Customer name", required: true },
     { key: "quote", label: "What they said", kind: "textarea", required: true },
     { key: "rating", label: "Star rating", kind: "number", min: 1, max: 5 },
+    { key: "banner_image_url", label: "Section Banner Background Image", kind: "single-image", help: "Custom background image for this section banner." },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
 };
@@ -151,7 +153,7 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
       payload.seo_title = payload.seo_title || `${stringValue(payload.title)} | RK Transport`;
       payload.seo_description = payload.seo_description || stringValue(payload.short_description);
     }
-    if (collectionKeyForPath(collection.path) === "testimonials") payload.rating = Number(payload.rating);
+    if (collectionKey === "testimonials") payload.rating = Number(payload.rating);
     const itemId = typeof draft.id === "number" ? draft.id : null;
     try {
       await apiRequest(itemId ? `/admin${collection.path}/${itemId}` : `/admin${collection.path}`, {
@@ -232,7 +234,6 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
   </div></main>;
 }
 
-function collectionKeyForPath(path: string) { return Object.keys(collections).find((key) => collections[key].path === path); }
 function imageUrlValue(value: unknown) {
   if (typeof value === "string") return value;
   const url = asRecord(value).url;
@@ -337,35 +338,39 @@ function AboutEditor() {
   const [loading, setLoading] = useState(true);
   const [dirty, setDirty] = useState(false);
   useUnsavedChanges(dirty);
-  const icons = [
-    { name: "Truck", Icon: Truck }, { name: "Shield", Icon: ShieldCheck }, { name: "Clock", Icon: Clock3 },
-    { name: "Location", Icon: MapPin }, { name: "Care", Icon: Heart }, { name: "Award", Icon: Award },
-    { name: "Trusted", Icon: CircleCheck }, { name: "Support", Icon: Headset }, { name: "Performance", Icon: Gauge },
-    { name: "Top rated", Icon: Star }, { name: "Repair", Icon: Wrench }, { name: "Car", Icon: CarFront },
-  ];
+
   const load = useCallback(async () => {
     try {
       const result = await apiRequest<About[]>("/admin/about");
       const about = result[0] as unknown as Row | undefined;
       setItem(about ?? null);
-      setDraft(about ? { ...about } : { title: "About RK Transport", subtitle: "", description: "", mission: "", vision: "", images: [], stats: [], story_image_side: "left", why_choose_us: [] });
+      setDraft(about ? { ...about } : { title: "About RK Transport", subtitle: "", description: "", mission: "", vision: "", images: [], stats: [], story_image_side: "left", why_choose_us: [], banner_image_url: "" });
       setError("");
     } catch { setError("We could not load the About page. Please try again."); }
     finally { setLoading(false); }
   }, []);
+
   useEffect(() => { void Promise.resolve().then(load); }, [load]);
   useEffect(() => { const warn = (event: BeforeUnloadEvent) => { if (dirty) { event.preventDefault(); event.returnValue = ""; } }; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
+
   const update = (key: string, value: unknown) => { setDirty(true); setDraft((current) => ({ ...current, [key]: value })); };
   const stats = Array.isArray(draft.stats) ? draft.stats.map(asRecord) : [];
   const reasons = Array.isArray(draft.why_choose_us) ? draft.why_choose_us.map(asRecord) : [];
   const images = Array.isArray(draft.images) ? draft.images.map(asRecord) : [];
   const storyImage: UploadedImage | null = typeof images[0]?.url === "string" ? { url: stringValue(images[0].url), alt: stringValue(images[0].alt) } : null;
+  const bannerImage: UploadedImage | null = typeof draft.banner_image_url === "string" && draft.banner_image_url ? { url: stringValue(draft.banner_image_url), alt: "" } : null;
+
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!stringValue(draft.title).trim()) { setError("Please add an About page heading before saving."); return; }
     if (!stringValue(draft.description).trim()) { setError("Please add your story before saving."); return; }
     setBusy(true); setError(""); setToast("");
-    const payload = { ...draft, stats: stats.slice(0, 4).map((stat) => ({ value: `${stringValue(stat.number)}${booleanValue(stat.plus) ? "+" : ""}`, label: stringValue(stat.label) })), images: storyImage ? [{ url: storyImage.url, alt: storyImage.alt || "", side: stringValue(draft.story_image_side) }] : [] };
+    const payload = {
+      ...draft,
+      stats: stats.slice(0, 4).map((stat) => ({ value: `${stringValue(stat.number)}${booleanValue(stat.plus) ? "+" : ""}`, label: stringValue(stat.label) })),
+      images: storyImage ? [{ url: storyImage.url, alt: storyImage.alt || "", side: stringValue(draft.story_image_side) }] : [],
+      banner_image_url: stringValue(draft.banner_image_url),
+    };
     try {
       if (typeof item?.id === "number") await apiRequest(`/admin/about/${item.id}`, { method: "PUT", body: JSON.stringify(payload) });
       else await apiRequest("/admin/about", { method: "POST", body: JSON.stringify(payload) });
@@ -373,40 +378,27 @@ function AboutEditor() {
     } catch (reason) { setError(apiErrorMessage(reason)); }
     finally { setBusy(false); }
   }
-  function updateArray(key: "stats" | "why_choose_us", index: number, patch: Row) {
-    const list = key === "stats" ? stats : reasons;
-    update(key, list.map((entry, entryIndex) => entryIndex === index ? { ...entry, ...patch } : entry));
-  }
-  function moveArray(key: "stats" | "why_choose_us", index: number, direction: -1 | 1) {
-    const list = [...(key === "stats" ? stats : reasons)];
-    const target = index + direction;
-    if (target < 0 || target >= list.length) return;
-    [list[index], list[target]] = [list[target], list[index]];
-    update(key, list);
-  }
+
   return <main className="min-h-screen bg-stone-50 px-4 py-8 pt-16 dark:bg-slate-950 sm:px-6 md:pt-8"><div className="mx-auto max-w-4xl">
-    <Link href="/admin/dashboard" className="inline-flex min-h-11 items-center font-semibold">← Dashboard</Link><h1 className="my-5 text-3xl font-bold">About page</h1><Link href="/about" target="_blank" className="inline-flex min-h-11 items-center font-semibold text-slate-800 underline dark:text-slate-300">View on website ↗</Link>
-    {error && <p role="alert" className="mb-4 rounded-xl bg-red-100 p-3 text-red-900">{error}</p>}{toast && <p role="status" className="mb-4 rounded-xl bg-slate-100 p-3">{toast}</p>}
-    {loading ? <div className="h-40 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" /> : <form onSubmit={(event) => void save(event)} className="space-y-5">
-      <fieldset className="space-y-4 rounded-2xl bg-white p-4 dark:bg-slate-900"><legend className="px-2 text-lg font-bold">1. Our story</legend>
-        <TextField label="Heading" value={stringValue(draft.title)} required onChange={(value) => update("title", value)} /><TextField label="Sub-heading" value={stringValue(draft.subtitle)} onChange={(value) => update("subtitle", value)} /><RichTextField label="Our story" value={stringValue(draft.description)} onChange={(value) => update("description", value)} required />
-        <ImageUpload label="Story picture" value={storyImage} onChange={(next) => update("images", next && !Array.isArray(next) ? [{ url: next.url, alt: next.alt }] : [])} folder="about" />
-        <fieldset><legend className="font-semibold">Picture position</legend><div className="flex gap-3">{(["left", "right"] as const).map((side) => <label key={side} className="flex min-h-12 flex-1 items-center gap-2 rounded border p-3 dark:border-slate-700"><input type="radio" checked={draft.story_image_side === side} onChange={() => update("story_image_side", side)} />Picture on the {side}</label>)}</div></fieldset>
-      </fieldset>
-      <fieldset className="space-y-3 rounded-2xl bg-white p-4 dark:bg-slate-900"><legend className="px-2 text-lg font-bold">2. Numbers</legend><p className="text-sm text-slate-600">Add up to four number cards.</p>
-        {stats.map((stat, index) => <div key={index} className="grid gap-2 rounded-xl border p-3 dark:border-slate-700 sm:grid-cols-[1fr_1fr_auto_auto]"><TextField label="Number" value={stringValue(stat.number ?? stringValue(stat.value).replace(/\+$/, ""))} onChange={(value) => updateArray("stats", index, { number: value })} /><TextField label="Label" value={stringValue(stat.label)} onChange={(value) => updateArray("stats", index, { label: value })} /><label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={booleanValue(stat.plus) || stringValue(stat.value).endsWith("+")} onChange={(event) => updateArray("stats", index, { plus: event.target.checked })} />Add +</label><div className="flex gap-1"><button type="button" aria-label="Move number up" onClick={() => moveArray("stats", index, -1)} className="min-h-11 min-w-11 rounded border">↑</button><button type="button" aria-label="Move number down" onClick={() => moveArray("stats", index, 1)} className="min-h-11 min-w-11 rounded border">↓</button><button type="button" onClick={() => update("stats", stats.filter((_, i) => i !== index))} className="min-h-11 rounded border border-red-300 px-2 text-red-800">Remove</button></div></div>)}
-        <button type="button" disabled={stats.length >= 4} onClick={() => update("stats", [...stats, { number: "", label: "", plus: false }])} className="min-h-11 rounded-lg border px-4 disabled:opacity-50">Add a number</button>
-      </fieldset>
-      <fieldset className="space-y-3 rounded-2xl bg-white p-4 dark:bg-slate-900"><legend className="px-2 text-lg font-bold">3. Why choose us</legend>
-        {reasons.map((reason, index) => <div key={index} className="space-y-3 rounded-xl border p-3 dark:border-slate-700"><label className="block font-semibold">Choose an icon<div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">{icons.map(({ name, Icon }) => <button key={name} type="button" aria-label={`Choose ${name} icon`} aria-pressed={reason.icon === name} onClick={() => updateArray("why_choose_us", index, { icon: name })} className={`min-h-16 rounded-lg border p-1 text-xs ${reason.icon === name ? "border-slate-700 bg-slate-100 dark:bg-slate-950" : "dark:border-slate-700"}`}><Icon aria-hidden="true" className="mx-auto size-5" /><span className="mt-1 block">{name}</span></button>)}</div></label><TextField label="Title" value={stringValue(reason.title)} onChange={(value) => updateArray("why_choose_us", index, { title: value })} /><TextField label="Description" value={stringValue(reason.description)} onChange={(value) => updateArray("why_choose_us", index, { description: value })} /><div className="flex gap-2"><button type="button" aria-label="Move reason up" onClick={() => moveArray("why_choose_us", index, -1)} className="min-h-11 min-w-11 rounded border">↑</button><button type="button" aria-label="Move reason down" onClick={() => moveArray("why_choose_us", index, 1)} className="min-h-11 min-w-11 rounded border">↓</button><button type="button" onClick={() => update("why_choose_us", reasons.filter((_, i) => i !== index))} className="min-h-11 rounded border border-red-300 px-3 text-red-800">Remove</button></div></div>)}
-        <button type="button" onClick={() => update("why_choose_us", [...reasons, { icon: "Star", title: "", description: "" }])} className="min-h-11 rounded-lg border px-4">Add a reason</button>
-      </fieldset>
-      <button type="submit" disabled={busy} className="min-h-12 w-full rounded-xl bg-slate-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-white border-r-transparent align-[-3px]" />Saving…</> : "Save About page"}</button>
+    <Link href="/admin/dashboard" className="inline-flex min-h-11 items-center font-semibold">← Dashboard</Link>
+    <h1 className="my-5 text-3xl font-bold">About page</h1>
+    <Link href="/about" target="_blank" className="inline-flex min-h-11 items-center font-semibold text-slate-800 underline dark:text-slate-300">View on website ↗</Link>
+    {error && <p role="alert" className="mb-4 rounded-xl bg-red-100 p-3 text-red-900">{error}</p>}
+    {toast && <p role="status" className="mb-4 rounded-xl bg-slate-100 p-3">{toast}</p>}
+    {loading ? <div className="h-40 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" /> : <form onSubmit={(event) => void save(event)} className="mt-5 space-y-6 bg-white p-6 rounded-2xl shadow dark:bg-slate-900">
+      <label className="block text-sm font-semibold">Heading <input type="text" value={stringValue(draft.title)} onChange={(e) => update("title", e.target.value)} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950" required /></label>
+      <label className="block text-sm font-semibold">Subtitle <input type="text" value={stringValue(draft.subtitle)} onChange={(e) => update("subtitle", e.target.value)} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950" /></label>
+      
+      <ImageUpload 
+        label="About Banner Background Image" 
+        hint="Custom background image for the About page hero banner." 
+        value={bannerImage} 
+        onChange={(next) => update("banner_image_url", next && !Array.isArray(next) ? next.url : "")} 
+      />
+
+      <label className="block text-sm font-semibold">Our Story / Description <textarea rows={6} value={stringValue(draft.description)} onChange={(e) => update("description", e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-700 dark:bg-slate-950" required /></label>
+      
+      <button type="submit" disabled={busy} className="min-h-12 w-full rounded-xl bg-slate-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? "Saving..." : "Save About Page"}</button>
     </form>}
   </div></main>;
-}
-
-function TextField({ label, value, onChange, required }: { label: string; value: string; onChange: (value: string) => void; required?: boolean }) {
-  const cls = "mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950";
-  return <label className="block text-sm font-semibold">{label}{required && <span className="text-red-700"> *</span>}<input required={required} value={value} onChange={(event) => onChange(event.target.value)} className={cls} /></label>;
 }
