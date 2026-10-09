@@ -36,46 +36,6 @@ export default function SiteFooter() {
       {/* soft glow */}
       <div aria-hidden="true" className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[60rem] -translate-x-1/2 rounded-full bg-white/5 blur-3xl" />
 
-      {/* Call-to-action band */}
-      <div className="relative mx-auto max-w-7xl px-4 pt-14 sm:px-6">
-        <div className="flex flex-col items-start justify-between gap-6 rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/[0.03] p-7 backdrop-blur sm:p-10 lg:flex-row lg:items-center">
-          <div className="max-w-xl">
-            <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Need your car moved between Dubai and Abu Dhabi?
-            </h2>
-            <p className="mt-2 text-green-200">Get a quick quote. Our team is ready to help, any time of day.</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/quote"
-              className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-[#002c22] transition hover:bg-green-200"
-            >
-              Get a quote
-              <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-            {whatsappDigits && (
-              <a
-                href={`https://wa.me/${whatsappDigits}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/25 px-6 font-semibold text-white transition hover:bg-white/10"
-              >
-                <MessageCircle aria-hidden="true" className="size-5" />
-                WhatsApp
-              </a>
-            )}
-            {phone && (
-              <a
-                href={`tel:${phone}`}
-                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/25 px-6 font-semibold text-white transition hover:bg-white/10"
-              >
-                <Phone aria-hidden="true" className="size-5" />
-                Call
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
 
       {/* Main columns */}
       <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-[1.4fr_1fr_1.2fr_1fr]">
