@@ -21,6 +21,7 @@ class Service(Base, TimestampMixin):
     features: Mapped[list | None] = mapped_column(JSONType, nullable=True)
     gallery: Mapped[list] = mapped_column(JSONType, default=list)
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    banner_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_alt: Mapped[str | None] = mapped_column(String(255), nullable=True)
     icon: Mapped[str | None] = mapped_column(String(80), nullable=True)
     seo_title: Mapped[str | None] = mapped_column(String(160), nullable=True)

@@ -34,6 +34,7 @@ class ServiceIn(BaseModel):
     features: list[str] | None = Field(default=None, max_length=50)
     gallery: list[dict[str, str | None]] = Field(default_factory=list, max_length=30)
     image_url: str | None = Field(default=None, max_length=2048)
+    banner_image_url: str | None = Field(default=None, max_length=2048)
     image_alt: str | None = Field(default=None, max_length=255)
     icon: str | None = Field(default=None, max_length=80)
     seo_title: str | None = Field(default=None, max_length=160)
@@ -135,6 +136,7 @@ class AboutIn(BaseModel):
     vision: str | None = None
     values: list[dict] | None = None
     images: list[dict] | None = None
+    banner_image_url: str | None = Field(default=None, max_length=2048)
     stats: list[dict] = Field(default_factory=list, max_length=20)
     story_image_side: str = Field(default="left", pattern="^(left|right)$")
     why_choose_us: list[dict] = Field(default_factory=list, max_length=30)
@@ -166,6 +168,7 @@ class TestimonialIn(BaseModel):
     rating: int = Field(default=5, ge=1, le=5)
     vehicle_note: str | None = Field(default=None, max_length=160)
     image_url: str | None = Field(default=None, max_length=2048)
+    banner_image_url: str | None = Field(default=None, max_length=2048)
     image_alt: str | None = Field(default=None, max_length=255)
     is_active: bool = True
     sort_order: int = Field(default=0, ge=0)

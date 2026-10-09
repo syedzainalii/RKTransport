@@ -14,6 +14,7 @@ class Testimonial(Base, TimestampMixin):
     rating: Mapped[int] = mapped_column(Integer, default=5)
     vehicle_note: Mapped[str | None] = mapped_column(String(160), nullable=True)
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    banner_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_alt: Mapped[str | None] = mapped_column(String(255), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
