@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest, type SiteSettings } from "../../lib/transport-api";
 
 // DEFAULT FALLBACK NUMBER (Replace with your actual UAE phone/WhatsApp number)
-const FALLBACK_PHONE = "+971500000000";
+const FALLBACK_PHONE = "+971561379697";
 
 function cleanTelNumber(phone?: string | null): string {
   const num = phone || FALLBACK_PHONE;
