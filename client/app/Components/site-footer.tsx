@@ -12,7 +12,6 @@ const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   { label: "About us", href: "/about" },
-  { label: "Track booking", href: "/track" },
   { label: "Contact & reviews", href: "/contact" },
 ];
 
@@ -119,9 +118,6 @@ export default function SiteFooter() {
             <li>
               <Link href="/about" className="inline-flex min-h-11 items-center text-sm text-slate-400 transition hover:translate-x-1 hover:text-white">About us</Link>
             </li>
-            <li>
-              <a href={quoteUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm text-slate-400 transition hover:translate-x-1 hover:text-white">Get a quote</a>
-            </li>
             {quickLinks.slice(3).map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className="inline-flex min-h-11 items-center text-sm text-slate-400 transition hover:translate-x-1 hover:text-white">
@@ -180,16 +176,19 @@ export default function SiteFooter() {
 
       {/* Bottom bar */}
       <div className="relative border-t border-white/10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs text-slate-500 sm:flex-row sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-xs text-slate-500 sm:flex-row sm:px-6">
           <p>© {new Date().getFullYear()} {brand}. All rights reserved.</p>
-          <a
-            href="#top"
-            onClick={(event) => { event.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-            className="inline-flex min-h-11 items-center gap-2 font-semibold text-slate-300 transition hover:text-white"
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-slate-300 shadow-sm transition-all duration-200 hover:border-emerald-500/40 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
           >
             Back to top
-            <ArrowUp aria-hidden="true" className="size-4" />
-          </a>
+            <ArrowUp
+              aria-hidden="true"
+              className="size-3.5 text-slate-400 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:text-emerald-400"
+            />
+          </button>
         </div>
       </div>
     </footer>
