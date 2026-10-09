@@ -15,23 +15,20 @@
 
   html {
     scroll-behavior: smooth;
-    overflow-x: clip;
+    overflow-x: hidden;
+    /* Smooth snap scroll behavior */
+    scroll-snap-type: y mandatory;
+    overscroll-behavior-y: contain;
   }
 
   body {
-    min-height: 100vh;
+    min-height: 100dvh;
     margin: 0;
-    padding-bottom: 4rem;
-    overflow-x: clip;
+    padding-bottom: 0; /* Removed padding-bottom to prevent mobile snap misalignment */
+    overflow-x: hidden;
     font-family: var(--font-geist), Arial, Helvetica, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  @media (min-width: 768px) {
-    body {
-      padding-bottom: 0;
-    }
   }
 
   button,
@@ -73,7 +70,7 @@
 
   .dark input:-webkit-autofill,
   .dark select:-webkit-autofill,
-  .dark textarea:-webkit-autofill {
+  textarea:-webkit-autofill {
     -webkit-text-fill-color: #f1f5f9;
     box-shadow: 0 0 0 1000px #0f172a inset;
   }
@@ -92,6 +89,9 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-snap-type: none !important;
+    }
     *,
     *::before,
     *::after {

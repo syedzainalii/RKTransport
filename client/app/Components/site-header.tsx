@@ -28,22 +28,26 @@ export default function SiteHeader() {
     ["About", "/about"],
     ["Reviews", "/review"],
   ];
+
   useEffect(() => {
     const updateScroll = () => setScrolled(window.scrollY > 32);
     updateScroll();
     window.addEventListener("scroll", updateScroll, { passive: true });
     return () => window.removeEventListener("scroll", updateScroll);
   }, [pathname]);
+
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => setMenuPath(null));
     return () => window.cancelAnimationFrame(frame);
   }, [pathname]);
+
   useEffect(() => {
     if (!menuOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = previousOverflow; };
   }, [menuOpen]);
+
   const transparent = isHome && !scrolled;
   const hours = settings
     ? settings.available_24_7 ? settings.hours_label : null
@@ -59,7 +63,7 @@ export default function SiteHeader() {
 
   return (
     <header className={`${isHome ? "fixed inset-x-0 top-0" : "sticky top-0"} z-40 transition-[background-color,border-color,box-shadow] duration-300 ${transparent ? "border-b border-transparent bg-transparent shadow-none" : "border-b border-slate-200/80 bg-stone-50/95 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"}`}>
-      <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link href="/" aria-current={pathname === "/" ? "page" : undefined} className={`flex min-h-11 items-center gap-3 font-bold tracking-tight ${transparent ? "text-white" : "text-slate-900 dark:text-white"}`}>
           {logo ? (
             <Image src={logo} alt="" width={144} height={48} unoptimized className="h-9 w-auto object-contain" />

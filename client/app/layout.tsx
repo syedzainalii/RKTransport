@@ -27,6 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
   themeColor: "#102d25",
 };
 
@@ -34,18 +35,20 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const settings = await getSiteSettings();
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geist.variable} min-h-screen bg-stone-50 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100`}>
+    <html lang="en" suppressHydrationWarning className="h-full">
+      <body className={`${geist.variable} min-h-dvh bg-stone-50 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100`}>
         <StructuredData data={businessJsonLd(settings)} />
         <Providers>
           <ConditionalLayout>{children}</ConditionalLayout>
         </Providers>
-        {measurementId && /^G-[A-Z0-9]+$/.test(measurementId) && <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`} strategy="afterInteractive" />
-          <Script id="google-analytics" strategy="afterInteractive">
-            {`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${measurementId}');`}
-          </Script>
-        </>}
+        {measurementId && /^G-[A-Z0-9]+$/.test(measurementId) && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`} strategy="afterInteractive" />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${measurementId}');`}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   );

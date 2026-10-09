@@ -10,18 +10,20 @@ import { Button } from "./ui/button";
 const reviewSchema = z.object({
   name: z.string().trim().min(2, "Enter your name."),
   phone: z.string().regex(/^\+971[0-9]{8,9}$/, "Use the +971 international format."),
-  email: z.union([z.email(), z.literal("")]),
+  email: z.union([z.string().email("Enter a valid email address."), z.literal("")]),
   trip: z.string(),
   rating: z.number().min(1, "Please choose a star rating.").max(5),
   review: z.string().trim().min(10, "Please write at least a short sentence."),
   canPublish: z.boolean(),
 });
+
 type ReviewValues = z.infer<typeof reviewSchema>;
 
 export default function ReviewForm() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+
   const { register, handleSubmit, reset, control, formState: { errors } } = useForm<ReviewValues>({
     resolver: zodResolver(reviewSchema),
     defaultValues: { name: "", phone: "", email: "", trip: "", rating: 0, review: "", canPublish: true },
@@ -39,6 +41,7 @@ export default function ReviewForm() {
         values.trip ? `Trip: ${values.trip}` : null,
         `OK to show on website: ${values.canPublish ? "Yes" : "No"}`,
       ].filter((line) => line !== null).join("\n");
+
       await publicApi.createInquiry({
         name: values.name,
         phone: values.phone,
@@ -46,6 +49,7 @@ export default function ReviewForm() {
         subject: `Customer review: ${values.rating}/5 stars`,
         message: body,
       });
+
       setMessage("Thank you for your review! We really appreciate your feedback.");
       reset();
     } catch (reason) {
@@ -55,37 +59,53 @@ export default function ReviewForm() {
     }
   }
 
-  const field = "min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-900 focus:border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-700/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white";
+  const inputClass = "min-h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-700/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white sm:min-h-11";
+
   return (
-    <form onSubmit={handleSubmit(submit)} className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-      <div>
-        <p id="rating-label" className="mb-1.5 block text-sm font-semibold">How was your experience?</p>
+    <form onSubmit={handleSubmit(submit)} className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-lg dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-2 sm:gap-4 sm:p-6">
+      <div className="sm:col-span-2">
+        <p id="rating-label" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          How was your experience?
+        </p>
         <Controller
           control={control}
           name="rating"
           render={({ field: { value, onChange } }) => <StarRating value={value} onChange={onChange} />}
         />
-        {errors.rating && <p className="mt-1 text-xs text-red-800">{errors.rating.message}</p>}
+        {errors.rating && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.rating.message}</p>}
       </div>
 
-      <Field name="name" label="Your name" className={field} register={register} error={errors.name?.message} />
-      <Field name="trip" label="Your trip (optional, e.g. Dubai to Abu Dhabi)" className={field} register={register} />
-      <div>
-        <label htmlFor="review-text" className="mb-1.5 block text-sm font-semibold">Your review</label>
-        <textarea id="review-text" {...register("review")} rows={5} placeholder="Tell us how the pickup, drive and delivery went." className={field} />
-        {errors.review && <p className="mt-1 text-xs text-red-800">{errors.review.message}</p>}
-      </div>
-      <Field name="phone" label="Phone (+971, kept private)" type="tel" className={field} register={register} error={errors.phone?.message} />
-      <Field name="email" label="Email (optional, kept private)" type="email" className={field} register={register} error={errors.email?.message} />
+      <Field name="name" label="Your name" className={inputClass} register={register} error={errors.name?.message} />
+      <Field name="trip" label="Trip (e.g. Dubai to Abu Dhabi)" className={inputClass} register={register} />
 
-      <label className="flex min-h-11 items-start gap-3 text-sm">
-        <input type="checkbox" {...register("canPublish")} className="mt-1 size-5 accent-slate-600" />
-        <span>You may show my name and review on the RK Transport website.</span>
+      <div className="sm:col-span-2">
+        <label htmlFor="review-text" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          Your review
+        </label>
+        <textarea
+          id="review-text"
+          {...register("review")}
+          rows={3}
+          placeholder="Tell us how pickup, drive, and delivery went."
+          className={inputClass}
+        />
+        {errors.review && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.review.message}</p>}
+      </div>
+
+      <Field name="phone" label="Phone (+971)" type="tel" className={inputClass} register={register} error={errors.phone?.message} />
+      <Field name="email" label="Email (optional)" type="email" className={inputClass} register={register} error={errors.email?.message} />
+
+      <label className="flex min-h-10 items-center gap-2.5 text-xs sm:col-span-2 sm:text-sm">
+        <input type="checkbox" {...register("canPublish")} className="size-4 rounded border-slate-300 accent-emerald-800" />
+        <span>You may show my name and review on the website.</span>
       </label>
 
-      {message && <p role="status" className="rounded-xl bg-slate-950 p-3 text-sm text-slate-300">{message}</p>}
-      {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
-      <Button type="submit" disabled={busy} className="min-h-12">{busy ? "Sending…" : "Submit review"}</Button>
+      {message && <p role="status" className="rounded-xl bg-slate-950 p-3 text-xs text-slate-300 sm:col-span-2">{message}</p>}
+      {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-xs text-red-800 sm:col-span-2 dark:bg-red-950/50 dark:text-red-200">{error}</p>}
+
+      <Button type="submit" disabled={busy} className="min-h-11 rounded-xl font-semibold sm:col-span-2">
+        {busy ? "Sending…" : "Submit review"}
+      </Button>
     </form>
   );
 }
@@ -94,8 +114,9 @@ function StarRating({ value, onChange }: { value: number; onChange: (rating: num
   const [hover, setHover] = useState(0);
   const labels = ["Poor", "Fair", "Good", "Very good", "Excellent"];
   const shown = hover || value;
+
   return (
-    <div>
+    <div className="flex items-center gap-3">
       <div role="radiogroup" aria-labelledby="rating-label" className="flex gap-1" onMouseLeave={() => setHover(0)}>
         {[1, 2, 3, 4, 5].map((star) => (
           <button
@@ -108,13 +129,17 @@ function StarRating({ value, onChange }: { value: number; onChange: (rating: num
             onMouseEnter={() => setHover(star)}
             onFocus={() => setHover(star)}
             onBlur={() => setHover(0)}
-            className={`grid size-11 place-items-center text-4xl leading-none transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 ${star <= shown ? "text-amber-400" : "text-slate-300 dark:text-slate-600"}`}
+            className={`grid size-9 place-items-center text-3xl leading-none transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 sm:size-10 sm:text-4xl ${
+              star <= shown ? "text-amber-400" : "text-slate-300 dark:text-slate-700"
+            }`}
           >
             ★
           </button>
         ))}
       </div>
-      <p className="mt-1 min-h-5 text-sm text-slate-600 dark:text-slate-300" aria-live="polite">{shown ? labels[shown - 1] : "Tap a star to rate"}</p>
+      <p className="text-xs font-semibold text-slate-600 dark:text-slate-300" aria-live="polite">
+        {shown ? labels[shown - 1] : "Tap to rate"}
+      </p>
     </div>
   );
 }
@@ -124,5 +149,13 @@ function Field({ name, label, className, type = "text", register, error }: {
   register: ReturnType<typeof useForm<ReviewValues>>["register"]; error?: string;
 }) {
   const id = `review-${name}`;
-  return <div><label htmlFor={id} className="mb-1.5 block text-sm font-semibold">{label}</label><input id={id} type={type} {...register(name)} className={className} />{error && <p className="mt-1 text-xs text-red-800">{error}</p>}</div>;
+  return (
+    <div>
+      <label htmlFor={id} className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        {label}
+      </label>
+      <input id={id} type={type} {...register(name)} className={className} />
+      {error && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>}
+    </div>
+  );
 }

@@ -11,7 +11,7 @@ const SLIDE_MS = 6000;
 export default function HeroSlideshow({ slides }: { slides: HeroBanner[] }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [cycle, setCycle] = useState(0); // restarts the timer and progress bar after a pause
+  const [cycle, setCycle] = useState(0);
   const touchStart = useRef<number | null>(null);
   const slide = slides[active];
   const count = slides.length;
@@ -31,7 +31,7 @@ export default function HeroSlideshow({ slides }: { slides: HeroBanner[] }) {
     <section
       aria-roledescription="carousel"
       aria-label="RK Transport"
-      className="relative isolate flex min-h-[640px] items-end overflow-hidden bg-slate-950 pt-20 text-white sm:min-h-[740px] lg:min-h-[820px] lg:items-center"
+      className="relative isolate flex h-[100dvh] min-h-[100dvh] flex-col justify-between overflow-hidden bg-slate-950 text-white"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={resume}
       onFocus={() => setPaused(true)}
@@ -92,38 +92,36 @@ export default function HeroSlideshow({ slides }: { slides: HeroBanner[] }) {
         );
       })}
 
-      {/* Fallback when a slide has no picture: dark neutral background with a soft glow */}
       <div className="absolute inset-0 -z-40 bg-[radial-gradient(ellipse_at_top_right,rgba(148,163,184,0.25),transparent_55%),linear-gradient(135deg,#0f172a,#020617)]" />
-
-      {/* Neutral overlays: readable text and navbar, no colour tint */}
       <div className="absolute inset-0 -z-20 bg-gradient-to-t from-black/85 via-black/35 to-black/20 lg:bg-gradient-to-r lg:from-black/80 lg:via-black/40 lg:to-black/10" />
-      <div className="absolute inset-x-0 top-0 -z-20 h-40 bg-gradient-to-b from-black/70 to-transparent" />
+      <div className="absolute inset-x-0 top-0 -z-20 h-32 bg-gradient-to-b from-black/70 to-transparent" />
 
-      {slide && (
-        <div className="mx-auto w-full max-w-7xl px-4 pb-28 pt-10 sm:px-6 lg:pb-24">
+      {/* Main Content Area */}
+      {slide ? (
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 pb-20 pt-20 sm:px-6 sm:pb-24">
           <div key={`${active}-${slide.id}`} className="hero-rise max-w-3xl">
             {slide.badge_text ? (
-              <p className="mb-5 inline-flex min-h-10 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white backdrop-blur-md">
+              <p className="mb-3 inline-flex min-h-9 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 text-xs font-semibold text-white backdrop-blur-md sm:mb-4 sm:text-sm">
                 <span aria-hidden="true" className="size-2 rounded-full bg-amber-400" />
                 {slide.badge_text}
               </p>
             ) : <span />}
 
             {slide.subtitle ? (
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[.22em] text-white/75">{slide.subtitle}</p>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[.22em] text-white/75 sm:text-sm">{slide.subtitle}</p>
             ) : <span />}
 
-            <h1 className="text-balance text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">{slide.title}</h1>
+            <h1 className="text-balance text-3xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">{slide.title}</h1>
 
             {slide.description ? (
-              <p className="mt-6 max-w-xl text-lg leading-8 text-white/85 sm:text-xl">{slide.description}</p>
+              <p className="mt-4 max-w-xl text-base leading-7 text-white/85 sm:text-lg lg:text-xl">{slide.description}</p>
             ) : <span />}
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap gap-2.5 sm:mt-8 sm:gap-3">
               {slide.button_text && slide.button_link && (
                 <Link
                   href={slide.button_link}
-                  className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-slate-950 shadow-lg shadow-black/20 transition hover:bg-slate-100"
+                  className="group inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-slate-950 shadow-lg shadow-black/20 transition hover:bg-slate-100 sm:min-h-12 sm:px-6 sm:text-base"
                 >
                   {slide.button_text}
                   <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
@@ -133,28 +131,28 @@ export default function HeroSlideshow({ slides }: { slides: HeroBanner[] }) {
                 href="https://wa.me/971561379697"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 font-semibold text-white backdrop-blur-md transition hover:bg-green-600"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-green-600 sm:min-h-12 sm:px-6 sm:text-base"
               >
-                <MessageCircle aria-hidden="true" className="size-5" />
+                <MessageCircle aria-hidden="true" className="size-4 sm:size-5" />
                 WhatsApp us
               </a>
               <a
                 href="tel:+971561379697"
-                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 font-semibold text-white backdrop-blur-md transition hover:bg-white/20"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/20 sm:min-h-12 sm:px-6 sm:text-base"
               >
-                <Phone aria-hidden="true" className="size-5" />
+                <Phone aria-hidden="true" className="size-4 sm:size-5" />
                 Call us
               </a>
             </div>
           </div>
         </div>
-      )}
+      ) : <div className="flex-1" />}
 
       {/* Bottom controls */}
       {count > 1 && (
-        <div className="absolute inset-x-0 bottom-0 z-10 mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 pb-8 sm:px-6">
+        <div className="absolute inset-x-0 bottom-0 z-10 mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 pb-6 sm:px-6 sm:pb-8">
           <div className="flex flex-1 items-center gap-3 sm:max-w-md" role="group" aria-label="Choose a slide">
-            <span className="text-sm font-semibold tabular-nums text-white/90">
+            <span className="text-xs font-semibold tabular-nums text-white/90 sm:text-sm">
               {String(active + 1).padStart(2, "0")}
               <span className="text-white/50"> / {String(count).padStart(2, "0")}</span>
             </span>
@@ -191,30 +189,30 @@ export default function HeroSlideshow({ slides }: { slides: HeroBanner[] }) {
               type="button"
               onClick={() => { previous(); setCycle((value) => value + 1); }}
               aria-label="Previous slide"
-              className="grid size-11 place-items-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition hover:bg-white/25"
+              className="grid size-9 place-items-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition hover:bg-white/25 sm:size-11"
             >
-              <ChevronLeft aria-hidden="true" />
+              <ChevronLeft aria-hidden="true" className="size-4 sm:size-5" />
             </button>
             <button
               type="button"
               onClick={() => { next(); setCycle((value) => value + 1); }}
               aria-label="Next slide"
-              className="grid size-11 place-items-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition hover:bg-white/25"
+              className="grid size-9 place-items-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition hover:bg-white/25 sm:size-11"
             >
-              <ChevronRight aria-hidden="true" />
+              <ChevronRight aria-hidden="true" className="size-4 sm:size-5" />
             </button>
           </div>
         </div>
       )}
 
-      {/* Scroll cue (desktop only) */}
+      {/* Scroll cue */}
       <a
-        href="#booking"
+        href="#services"
         aria-label="Scroll down"
-        className="hero-bounce absolute bottom-24 left-1/2 hidden -translate-x-1/2 text-white/70 hover:text-white lg:block"
+        className="hero-bounce absolute bottom-20 left-1/2 hidden -translate-x-1/2 text-white/70 hover:text-white lg:block"
         style={{ animation: "hero-bounce 2s ease-in-out infinite" }}
       >
-        <ChevronDown aria-hidden="true" className="size-7" />
+        <ChevronDown aria-hidden="true" className="size-6" />
       </a>
     </section>
   );
