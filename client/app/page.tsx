@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import ReviewForm from "./Components/review-form";
 import HeroSlideshow from "./Components/hero-slideshow";
+import SectionPager from "./Components/section-pager";
 import SimpleRichText from "./Components/simple-rich-text";
 import {
   BreadcrumbStructuredData,
@@ -99,13 +100,25 @@ export default async function HomePage() {
 
       {homeFaqs.length > 0 && <StructuredData data={faqJsonLd(homeFaqs)} />}
 
+      <SectionPager />
+
       <main>
-        <HeroSlideshow slides={slides} />
+        {/* =========================================================
+            HERO
+        ========================================================= */}
+        <div data-snap-section data-label="Home" className="snap-hero">
+          <HeroSlideshow slides={slides} />
+        </div>
 
         {/* =========================================================
             SERVICES
         ========================================================= */}
-        <section id="services" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-24">
+        <section
+          id="services"
+          data-snap-section
+          data-label="Services"
+          className="snap-section mx-auto w-full max-w-7xl px-4 sm:px-6"
+        >
           <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
@@ -201,14 +214,19 @@ export default async function HomePage() {
             ABOUT
         ========================================================= */}
         {about && (
-          <section className="relative overflow-hidden bg-stone-100 px-4 py-16 dark:bg-slate-900/60 sm:px-6 lg:py-24">
+          <section
+            id="about"
+            data-snap-section
+            data-label="About"
+            className="snap-section relative overflow-hidden bg-stone-100 px-4 dark:bg-slate-900/60 sm:px-6"
+          >
             <style>{`
               @keyframes home-about-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
               .home-about-float { animation: home-about-float 5s ease-in-out infinite; }
               @media (prefers-reduced-motion: reduce) { .home-about-float { animation: none !important; } }
             `}</style>
 
-            <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-2 lg:gap-20">
+            <div className="mx-auto grid w-full max-w-7xl items-center gap-14 lg:grid-cols-2 lg:gap-20">
               {aboutImage && (
                 <div className={`group relative ${about.story_image_side === "right" ? "lg:order-2" : ""}`}>
                   <div
@@ -280,11 +298,16 @@ export default async function HomePage() {
             TESTIMONIALS
         ========================================================= */}
         {testimonials.length > 0 && (
-          <section className="relative isolate overflow-hidden bg-slate-950 py-16 text-white sm:py-24">
+          <section
+            id="reviews-wall"
+            data-snap-section
+            data-label="Reviews"
+            className="snap-section relative isolate overflow-hidden bg-slate-950 text-white"
+          >
             <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.22),transparent_60%)]" />
             <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.06] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:56px_56px]" />
 
-            <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
               <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
                 <div className="max-w-2xl">
                   <p className="text-sm font-bold uppercase tracking-[.2em] text-white/60">
@@ -359,7 +382,12 @@ export default async function HomePage() {
             FAQ
         ========================================================= */}
         {visibleHomeFaqs.length > 0 && (
-          <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:py-24">
+          <section
+            id="faq"
+            data-snap-section
+            data-label="FAQ"
+            className="snap-section mx-auto w-full max-w-4xl px-4 sm:px-6"
+          >
             <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
               {text("home.faqs.eyebrow", "Answers")}
             </p>
@@ -387,8 +415,13 @@ export default async function HomePage() {
         {/* =========================================================
             REVIEWS
         ========================================================= */}
-        <section className="bg-stone-100 px-4 py-16 dark:bg-slate-900/70 sm:px-6 lg:py-24">
-          <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2">
+        <section
+          id="review"
+          data-snap-section
+          data-label="Leave a review"
+          className="snap-section bg-stone-100 px-4 dark:bg-slate-900/70 sm:px-6"
+        >
+          <div className="mx-auto grid w-full max-w-7xl gap-10 md:grid-cols-2">
             <div>
               <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
                 {settings?.available_24_7 ? settings.hours_label : ""}
@@ -441,6 +474,30 @@ export default async function HomePage() {
           </div>
         </section>
       </main>
+
+      {/* =========================================================
+          SECTION SNAP STYLES (active only while the home page is open)
+      ========================================================= */}
+      <style>{`
+        html { scroll-snap-type: y proximity; }
+        @media (min-width: 768px) { html { scroll-snap-type: y mandatory; } }
+
+        .snap-hero { scroll-snap-align: start; }
+        .snap-section {
+          scroll-snap-align: start;
+          min-height: 100svh;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding-top: 6rem !important;
+          padding-bottom: 3rem !important;
+        }
+        footer { scroll-snap-align: end; }
+
+        @media (prefers-reduced-motion: reduce) {
+          html { scroll-snap-type: none; }
+        }
+      `}</style>
 
       {/* =========================================================
           TESTIMONIAL STYLES
