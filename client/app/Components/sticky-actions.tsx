@@ -3,6 +3,26 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest, type SiteSettings } from "../../lib/transport-api";
 
+// DEFAULT FALLBACK NUMBER (Replace with your actual UAE phone/WhatsApp number)
+const FALLBACK_PHONE = "+971500000000";
+
+function cleanTelNumber(phone?: string | null): string {
+  const num = phone || FALLBACK_PHONE;
+  return `tel:${num.replace(/[^\d+]/g, "")}`;
+}
+
+function cleanWhatsappNumber(phone?: string | null): string {
+  let num = (phone || FALLBACK_PHONE).replace(/\D/g, "");
+
+  // Convert local UAE number (e.g. 0501234567) to international format (971501234567)
+  if (num.startsWith("05") && num.length === 10) {
+    num = `971${num.slice(1)}`;
+  }
+
+  // Use api.whatsapp.com for best mobile deep-linking support
+  return `https://api.whatsapp.com/send?phone=${num}`;
+}
+
 export default function StickyActions() {
   const { data: settings } = useQuery({
     queryKey: ["site-settings"],
@@ -12,10 +32,8 @@ export default function StickyActions() {
   const rawPhone = settings?.phone_primary;
   const rawWhatsapp = settings?.whatsapp || rawPhone;
 
-  // Formats tel: (+971...) and wa.me (971...) properly
-  const telHref = rawPhone ? `tel:${rawPhone.replace(/[^\d+]/g, "")}` : "/contact";
-  const waDigits = rawWhatsapp ? rawWhatsapp.replace(/\D/g, "") : null;
-  const waHref = waDigits ? `https://wa.me/${waDigits}` : "/contact";
+  const telHref = cleanTelNumber(rawPhone);
+  const waHref = cleanWhatsappNumber(rawWhatsapp);
 
   return (
     <nav
@@ -39,8 +57,6 @@ export default function StickyActions() {
 
         <a
           href={waHref}
-          target={waDigits ? "_blank" : undefined}
-          rel={waDigits ? "noreferrer" : undefined}
           className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition-transform hover:bg-emerald-500 active:scale-[0.98] dark:bg-emerald-600 dark:hover:bg-emerald-500"
         >
           <svg
