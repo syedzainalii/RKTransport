@@ -1,26 +1,18 @@
-from sqlalchemy import Integer, String, Text
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.types import JSON
-
+from sqlalchemy import Column, String, Text, Integer, JSON
 from app.core.database import Base
-from app.models.mixins import TimestampMixin
 
-JSONType = JSON().with_variant(JSONB, "postgresql")
-
-
-class About(Base, TimestampMixin):
+class About(Base):
     __tablename__ = "about"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    title: Mapped[str] = mapped_column(String(200))
-    subtitle: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    description: Mapped[str] = mapped_column(Text)
-    mission: Mapped[str | None] = mapped_column(Text, nullable=True)
-    vision: Mapped[str | None] = mapped_column(Text, nullable=True)
-    values: Mapped[list | None] = mapped_column(JSONType, nullable=True)
-    images: Mapped[list | None] = mapped_column(JSONType, nullable=True)
-    banner_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
-    stats: Mapped[list] = mapped_column(JSONType, default=list)
-    story_image_side: Mapped[str] = mapped_column(String(8), default="left")
-    why_choose_us: Mapped[list] = mapped_column(JSONType, default=list)
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    subtitle = Column(String, nullable=True)
+    description = Column(Text, nullable=False)
+    mission = Column(Text, nullable=True)
+    vision = Column(Text, nullable=True)
+    values = Column(JSON, nullable=True)
+    images = Column(JSON, nullable=True)
+    banner_image_url = Column(Text, nullable=True)  # <--- Make sure this is here
+    stats = Column(JSON, default=list)
+    story_image_side = Column(String, default="left")
+    why_choose_us = Column(JSON, default=list)

@@ -1,20 +1,16 @@
-from sqlalchemy import Boolean, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
-
+from sqlalchemy import Column, String, Text, Integer, Boolean
 from app.core.database import Base
-from app.models.mixins import TimestampMixin
 
-
-class Testimonial(Base, TimestampMixin):
+class Testimonial(Base):
     __tablename__ = "testimonials"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    customer_name: Mapped[str] = mapped_column(String(160))
-    quote: Mapped[str] = mapped_column(Text)
-    rating: Mapped[int] = mapped_column(Integer, default=5)
-    vehicle_note: Mapped[str | None] = mapped_column(String(160), nullable=True)
-    image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
-    banner_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
-    image_alt: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    sort_order: Mapped[int] = mapped_column(Integer, default=0)
+    id = Column(Integer, primary_key=True, index=True)
+    customer_name = Column(String, nullable=False)
+    quote = Column(Text, nullable=False)
+    rating = Column(Integer, default=5)
+    vehicle_note = Column(String, nullable=True)
+    image_url = Column(String, nullable=True)
+    banner_image_url = Column(Text, nullable=True)  # <--- Make sure this is here
+    image_alt = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    sort_order = Column(Integer, default=0)

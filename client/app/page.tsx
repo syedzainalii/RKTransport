@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Mail, MapPin, MessageCircle, Phone, Plus } from "lucide-react";
 import ReviewForm from "./Components/review-form";
 import HeroSlideshow from "./Components/hero-slideshow";
 import SectionPager from "./Components/section-pager";
@@ -20,9 +20,7 @@ import {
   type Testimonial,
 } from "../lib/transport-api";
 import { faqJsonLd } from "../lib/seo";
-
 export const revalidate = 60;
-
 async function getContent() {
   const results = await Promise.allSettled([
     publicApi.settings(),
@@ -33,7 +31,6 @@ async function getContent() {
     publicApi.about(),
     publicApi.testimonials(),
   ]);
-
   return {
     settings: results[0].status === "fulfilled" ? results[0].value : null,
     banners: results[1].status === "fulfilled" ? results[1].value : [],
@@ -44,14 +41,11 @@ async function getContent() {
     testimonials: results[6].status === "fulfilled" ? results[6].value : [],
   };
 }
-
 export default async function HomePage() {
   const { settings, banners, services, copy, faqs, about, testimonials } =
     await getContent();
-
   const text = (key: string, fallback: string) =>
     copy.find((item: PageCopy) => item.key === key)?.value || fallback;
-
   const slides: HeroBanner[] = banners.length
     ? banners
     : [
@@ -75,33 +69,28 @@ export default async function HomePage() {
           portrait_image_url: null,
         },
       ];
-
   const aboutImage = about?.images?.find((image) => image.url);
-
   const visibleHomeFaqs = faqs.filter(
     (faq: Faq) => !faq.page_key || faq.page_key === "home"
   );
-
   const homeFaqs = visibleHomeFaqs.map((faq: Faq) => ({
     question: faq.question,
     answer: faq.answer,
   }));
-
+  const bannerUrl =
+    (testimonials.find((item) => Boolean((item as Testimonial & { banner_image_url?: string | null }).banner_image_url)) as (Testimonial & { banner_image_url?: string | null }) | undefined)?.banner_image_url ??
+    (testimonials[0] as (Testimonial & { banner_image_url?: string | null }) | undefined)?.banner_image_url;
   const averageRating = testimonials.length
     ? (
         testimonials.reduce((sum: number, t: Testimonial) => sum + t.rating, 0) /
         testimonials.length
       ).toFixed(1)
     : "0.0";
-
   return (
     <>
       <BreadcrumbStructuredData items={[{ name: "Home", path: "/" }]} />
-
       {homeFaqs.length > 0 && <StructuredData data={faqJsonLd(homeFaqs)} />}
-
       <SectionPager />
-
       <main>
         {/* =========================================================
             HERO
@@ -109,7 +98,6 @@ export default async function HomePage() {
         <div data-snap-section data-label="Home" className="snap-hero">
           <HeroSlideshow slides={slides} />
         </div>
-
         {/* =========================================================
             SERVICES
         ========================================================= */}
@@ -136,7 +124,6 @@ export default async function HomePage() {
               <ArrowUpRight aria-hidden="true" className="size-4" />
             </Link>
           </div>
-
           {services.length ? (
             <div
               className={
@@ -186,7 +173,6 @@ export default async function HomePage() {
                       <ArrowUpRight aria-hidden="true" className="size-5" />
                     </span>
                   </div>
-
                   <div className="flex flex-1 flex-col justify-center p-6 sm:p-7">
                     <h3 className="text-2xl font-bold tracking-tight">{service.title}</h3>
                     <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300">
@@ -209,7 +195,6 @@ export default async function HomePage() {
             </p>
           )}
         </section>
-
         {/* =========================================================
             ABOUT
         ========================================================= */}
@@ -225,7 +210,6 @@ export default async function HomePage() {
               .home-about-float { animation: home-about-float 5s ease-in-out infinite; }
               @media (prefers-reduced-motion: reduce) { .home-about-float { animation: none !important; } }
             `}</style>
-
             <div className="mx-auto grid w-full max-w-7xl items-center gap-14 lg:grid-cols-2 lg:gap-20">
               {aboutImage && (
                 <div className={`group relative ${about.story_image_side === "right" ? "lg:order-2" : ""}`}>
@@ -251,7 +235,6 @@ export default async function HomePage() {
                   )}
                 </div>
               )}
-
               <div>
                 <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
                   {text("home.about.eyebrow", "About us")}
@@ -264,7 +247,6 @@ export default async function HomePage() {
                   value={about.description}
                   className="mt-5 leading-8 text-slate-700 dark:text-slate-200"
                 />
-
                 {about.stats.length > 1 && (
                   <dl className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
                     {about.stats.slice(1, 4).map((stat, index) => (
@@ -278,7 +260,6 @@ export default async function HomePage() {
                     ))}
                   </dl>
                 )}
-
                 <Link
                   href="/about"
                   className="group mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-slate-950 px-6 font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
@@ -293,16 +274,10 @@ export default async function HomePage() {
             </div>
           </section>
         )}
-
         {/* =========================================================
             TESTIMONIALS
         ========================================================= */}
-        {testimonials.length > 0 && (() => {
-          const bannerUrl = 
-            (testimonials.find((t: unknown) => (t as Record<string, unknown>)?.banner_image_url) as Record<string, unknown>)?.banner_image_url || 
-            (testimonials[0] as Record<string, unknown>)?.banner_image_url;
-            
-          return (
+        {testimonials.length > 0 && (
             <section
               id="reviews-wall"
               data-snap-section
@@ -318,7 +293,6 @@ export default async function HomePage() {
             >
               <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.22),transparent_60%)]" />
               <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.06] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:56px_56px]" />
-
               <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
                 <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
                   <div className="max-w-2xl">
@@ -329,7 +303,6 @@ export default async function HomePage() {
                       {text("home.testimonials.heading", "Trusted to move what matters")}
                     </h2>
                   </div>
-
                   <div className="inline-flex items-center gap-4 self-start rounded-2xl border border-white/15 bg-white/5 px-5 py-4 backdrop-blur lg:self-auto">
                     <span className="text-4xl font-bold tabular-nums">{averageRating}</span>
                     <div>
@@ -341,7 +314,6 @@ export default async function HomePage() {
                   </div>
                 </div>
               </div>
-
               {/* Row 1: moves left */}
               <div className="tm-row mt-12">
                 <div className="tm-track tm-left">
@@ -357,7 +329,6 @@ export default async function HomePage() {
                   </div>
                 </div>
               </div>
-
               {/* Row 2: moves right */}
               <div className="tm-row mt-5">
                 <div className="tm-track tm-right">
@@ -373,11 +344,9 @@ export default async function HomePage() {
                   </div>
                 </div>
               </div>
-
               {/* Edge fades */}
               <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-20 w-16 bg-gradient-to-r from-slate-950 to-transparent sm:w-32" />
               <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-20 w-16 bg-gradient-to-l from-slate-950 to-transparent sm:w-32" />
-
               <div className="relative z-30 mt-12 text-center">
                 <Link
                   href="/contact"
@@ -388,9 +357,7 @@ export default async function HomePage() {
                 </Link>
               </div>
             </section>
-          );
-        })()}
-
+        )}
         {/* =========================================================
             FAQ
         ========================================================= */}
@@ -399,49 +366,82 @@ export default async function HomePage() {
             id="faq"
             data-snap-section
             data-label="FAQ"
-            className="snap-section relative mx-auto w-full max-w-4xl px-4 sm:px-6"
+            className="snap-section relative px-4 sm:px-6"
           >
-            {/* Background Accent Glow */}
-            <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/10 blur-3xl" />
-
-            <div className="mb-8 text-center sm:mb-10">
-              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-800/20 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[.2em] text-emerald-800 dark:border-emerald-400/20 dark:text-emerald-300">
-                <span aria-hidden="true" className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                {text("home.faqs.eyebrow", "Answers")}
-              </span>
-              <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-                {text("home.faqs.heading", "Frequently asked questions")}
-              </h2>
-            </div>
-
-            <div className="space-y-3.5">
-              {visibleHomeFaqs.map((faq: Faq) => (
-                <details
-                  key={faq.id}
-                  className="group rounded-2xl border border-slate-200/80 bg-white/80 p-1 backdrop-blur-md transition-all duration-300 hover:border-slate-300 hover:shadow-md dark:border-slate-800/80 dark:bg-slate-900/80 dark:hover:border-slate-700 open:border-emerald-800/40 open:shadow-lg dark:open:border-emerald-500/40"
-                >
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-xl p-4 font-semibold text-slate-900 transition-colors dark:text-white [&::-webkit-details-marker]:hidden">
-                    <span className="text-base sm:text-lg">{faq.question}</span>
-                    <span
-                      aria-hidden="true"
-                      className="grid size-8 shrink-0 place-items-center rounded-full bg-slate-100 text-slate-500 transition-all duration-300 group-open:rotate-180 group-open:bg-emerald-900 group-open:text-white dark:bg-slate-800 dark:text-slate-400 dark:group-open:bg-emerald-600 dark:group-open:text-white"
+            <style>{`
+              details[open] .faq-answer { animation: faq-open .35s ease; }
+              @keyframes faq-open { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+              @media (prefers-reduced-motion: reduce) { details[open] .faq-answer { animation: none; } }
+            `}</style>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -left-24 top-1/3 -z-10 size-80 rounded-full bg-slate-300/40 blur-3xl dark:bg-slate-700/30"
+            />
+            <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[380px_1fr] lg:gap-16">
+              {/* Left: heading and help card */}
+              <div className="lg:sticky lg:top-28 lg:self-start">
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
+                  {text("home.faqs.eyebrow", "Answers")}
+                </p>
+                <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl">
+                  {text("home.faqs.heading", "Frequently asked questions")}
+                </h2>
+                <p className="mt-4 leading-7 text-slate-600 dark:text-slate-300">
+                  Quick answers about booking, pricing and your car&apos;s journey between Dubai and Abu Dhabi.
+                </p>
+                <div className="mt-8 rounded-3xl bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/20">
+                  <p className="text-lg font-bold">Still have questions?</p>
+                  <p className="mt-1 text-sm text-white/70">We reply fast, day or night.</p>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <a
+                      href={`https://wa.me/${settings?.whatsapp?.replace(/\D/g, "") || "971561379697"}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
                     >
-                      <svg className="size-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </span>
-                  </summary>
-                  <div className="px-4 pb-4 pt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300 sm:text-base">
-                    <p className="border-t border-slate-100 pt-3 dark:border-slate-800/60">
-                      {faq.answer}
-                    </p>
+                      <MessageCircle aria-hidden="true" className="size-4" />
+                      WhatsApp
+                    </a>
+                    {settings?.phone_primary && (
+                      <a
+                        href={`tel:${settings.phone_primary}`}
+                        className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-semibold transition hover:bg-white/10"
+                      >
+                        <Phone aria-hidden="true" className="size-4" />
+                        Call
+                      </a>
+                    )}
                   </div>
-                </details>
-              ))}
+                </div>
+              </div>
+              {/* Right: accordion */}
+              <div className="space-y-3">
+                {visibleHomeFaqs.map((faq: Faq, index: number) => (
+                  <details
+                    key={faq.id}
+                    className="group rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/5 open:border-slate-900 open:shadow-xl open:shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:open:border-white/60"
+                  >
+                    <summary className="flex min-h-16 cursor-pointer list-none items-center gap-4 p-4 sm:p-5 [&::-webkit-details-marker]:hidden">
+                      <span className="text-sm font-bold tabular-nums text-slate-400 transition-colors group-open:text-slate-900 dark:group-open:text-white">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span className="flex-1 text-base font-semibold sm:text-lg">{faq.question}</span>
+                      <span
+                        aria-hidden="true"
+                        className="grid size-9 shrink-0 place-items-center rounded-full bg-slate-100 text-slate-600 transition-all duration-300 group-open:rotate-45 group-open:bg-slate-950 group-open:text-white dark:bg-slate-800 dark:text-slate-300 dark:group-open:bg-white dark:group-open:text-slate-950"
+                      >
+                        <Plus className="size-4" />
+                      </span>
+                    </summary>
+                    <div className="faq-answer px-5 pb-5 sm:pl-[4.25rem]">
+                      <p className="leading-7 text-slate-600 dark:text-slate-300">{faq.answer}</p>
+                    </div>
+                  </details>
+                ))}
+              </div>
             </div>
           </section>
         )}
-
         {/* =========================================================
             REVIEWS
         ========================================================= */}
@@ -451,76 +451,86 @@ export default async function HomePage() {
           data-label="Leave a review"
           className="snap-section bg-stone-100 px-4 dark:bg-slate-900/70 sm:px-6"
         >
-          <div className="mx-auto grid w-full max-w-7xl gap-10 md:grid-cols-2">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
-                {settings?.available_24_7 ? settings.hours_label : ""}
-              </p>
-
-              <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-                {text("review.home.heading", "Leave a review")}
-              </h2>
-
-              <p className="mt-3 leading-7 text-slate-700 dark:text-slate-200">
-                {text(
-                  "review.home.subheading",
-                  "Call or message us about car transport between Dubai and Abu Dhabi, and tell us how your trip went."
-                )}
-              </p>
-
-              <div className="mt-5 space-y-2 text-sm text-slate-800 dark:text-slate-100">
-                {settings?.phone_primary && (
-                  <p>
-                    <a className="font-semibold underline" href={`tel:${settings.phone_primary}`}>
-                      {settings.phone_primary}
-                    </a>
+          <div className="mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+            {/* Left: dark contact panel */}
+            <div className="relative isolate flex flex-col justify-between overflow-hidden rounded-3xl bg-slate-950 p-7 text-white sm:p-10">
+              <div aria-hidden="true" className="absolute -right-20 -top-20 -z-10 size-72 rounded-full bg-white/10 blur-3xl" />
+              <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.06] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
+              <div>
+                {settings?.available_24_7 && (
+                  <p className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 text-sm font-semibold backdrop-blur">
+                    <span aria-hidden="true" className="size-2 rounded-full bg-amber-400" />
+                    {settings.hours_label}
                   </p>
                 )}
-
-                {settings?.whatsapp && (
-                  <p>
-                    <a
-                      className="font-semibold underline"
-                      href={`https://wa.me/${settings.whatsapp.replace(/\D/g, "")}`}
-                    >
-                      WhatsApp RK Transport
-                    </a>
-                  </p>
-                )}
-
-                {settings?.email && (
-                  <p>
-                    <a className="font-semibold underline" href={`mailto:${settings.email}`}>
-                      {settings.email}
-                    </a>
-                  </p>
-                )}
-
-                {settings?.address_line && <p>{settings.address_line}</p>}
+                <h2 className="mt-5 text-balance text-3xl font-bold leading-tight tracking-tight sm:text-5xl">
+                  {text("review.home.heading", "How was your trip?")}
+                </h2>
+                <p className="mt-4 max-w-md leading-7 text-white/75">
+                  {text(
+                    "review.home.subheading",
+                    "Your feedback helps other drivers choose RK Transport and helps us keep improving. It only takes a minute."
+                  )}
+                </p>
               </div>
+              <ul className="mt-10 space-y-3">
+                {settings?.phone_primary && (
+                  <li>
+                    <a href={`tel:${settings.phone_primary}`} className="group flex min-h-14 items-center gap-4 rounded-2xl border border-white/10 bg-white/5 px-4 transition hover:bg-white/10">
+                      <span className="grid size-10 place-items-center rounded-full bg-white text-slate-950"><Phone aria-hidden="true" className="size-4" /></span>
+                      <span className="flex-1 font-semibold">{settings.phone_primary}</span>
+                      <ArrowUpRight aria-hidden="true" className="size-4 text-white/50 transition group-hover:text-white" />
+                    </a>
+                  </li>
+                )}
+                <li>
+                  <a
+                    href={`https://wa.me/${settings?.whatsapp?.replace(/\D/g, "") || "971561379697"}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex min-h-14 items-center gap-4 rounded-2xl border border-white/10 bg-white/5 px-4 transition hover:bg-white/10"
+                  >
+                    <span className="grid size-10 place-items-center rounded-full bg-white text-slate-950"><MessageCircle aria-hidden="true" className="size-4" /></span>
+                    <span className="flex-1 font-semibold">Chat on WhatsApp</span>
+                    <ArrowUpRight aria-hidden="true" className="size-4 text-white/50 transition group-hover:text-white" />
+                  </a>
+                </li>
+                {settings?.email && (
+                  <li>
+                    <a href={`mailto:${settings.email}`} className="group flex min-h-14 items-center gap-4 rounded-2xl border border-white/10 bg-white/5 px-4 transition hover:bg-white/10">
+                      <span className="grid size-10 place-items-center rounded-full bg-white text-slate-950"><Mail aria-hidden="true" className="size-4" /></span>
+                      <span className="flex-1 break-all font-semibold">{settings.email}</span>
+                      <ArrowUpRight aria-hidden="true" className="size-4 text-white/50 transition group-hover:text-white" />
+                    </a>
+                  </li>
+                )}
+                {settings?.address_line && (
+                  <li className="flex items-center gap-4 px-4 py-2 text-white/75">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-full border border-white/20"><MapPin aria-hidden="true" className="size-4" /></span>
+                    <span>{settings.address_line}</span>
+                  </li>
+                )}
+              </ul>
             </div>
-
+            {/* Right: the form */}
             <ReviewForm />
           </div>
         </section>
       </main>
-
       {/* =========================================================
           SECTION SNAP STYLES
       ========================================================= */}
       <style>{`
-        html { 
-          scroll-snap-type: y mandatory; 
+        html {
+          scroll-snap-type: y mandatory;
           scroll-behavior: smooth;
           overscroll-behavior-y: contain;
         }
-
-        .snap-hero { 
-          scroll-snap-align: start; 
+        .snap-hero {
+          scroll-snap-align: start;
           scroll-snap-stop: always;
           min-height: 100dvh;
         }
-
         .snap-section {
           scroll-snap-align: start;
           scroll-snap-stop: always;
@@ -531,12 +541,10 @@ export default async function HomePage() {
           padding-top: 5.5rem !important;
           padding-bottom: 4rem !important;
         }
-
-        footer { 
-          scroll-snap-align: start; 
+        footer {
+          scroll-snap-align: start;
           scroll-snap-stop: always;
         }
-
         @media (max-width: 767px) {
           .snap-section {
             min-height: 100dvh;
@@ -544,12 +552,10 @@ export default async function HomePage() {
             padding-bottom: 4.5rem !important;
           }
         }
-
         @media (prefers-reduced-motion: reduce) {
           html { scroll-snap-type: none; }
         }
       `}</style>
-
       {/* =========================================================
           TESTIMONIAL STYLES
       ========================================================= */}
@@ -560,7 +566,6 @@ export default async function HomePage() {
         .tm-right { animation: tm-scroll 65s linear infinite reverse; }
         .tm-row:hover .tm-track { animation-play-state: paused; }
         .tm-group { display: flex; flex-shrink: 0; gap: 20px; padding-right: 20px; }
-
         .tm-card {
           position: relative;
           display: flex;
@@ -603,12 +608,10 @@ export default async function HomePage() {
           pointer-events: none;
           user-select: none;
         }
-
         @keyframes tm-scroll {
           from { transform: translate3d(0, 0, 0); }
           to { transform: translate3d(-50%, 0, 0); }
         }
-
         @media (max-width: 900px) {
           .tm-card { width: 320px; min-width: 320px; }
           .tm-left { animation-duration: 45s; }
@@ -620,7 +623,6 @@ export default async function HomePage() {
           .tm-left { animation-duration: 38s; }
           .tm-right { animation-duration: 44s; }
         }
-
         @media (prefers-reduced-motion: reduce) {
           .tm-left, .tm-right { animation: none; }
           .tm-row { overflow-x: auto; }
@@ -630,33 +632,27 @@ export default async function HomePage() {
     </>
   );
 }
-
 /* =========================================================
    TESTIMONIAL HELPERS
-========================================================= */
-
+\========================================================= */
 function fillCards(items: Testimonial[]): Testimonial[] {
   if (items.length === 0) return items;
   const result: Testimonial[] = [];
   while (result.length < 8) result.push(...items);
   return result;
 }
-
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   const initial = testimonial.customer_name?.trim().charAt(0).toUpperCase() || "R";
   return (
     <figure className="tm-card">
       <span aria-hidden="true" className="tm-quote-mark">“</span>
-
       <p className="relative text-lg tracking-widest text-amber-400" aria-label={`${testimonial.rating} out of 5 stars`}>
         {"★".repeat(testimonial.rating)}
         <span className="text-white/20">{"★".repeat(Math.max(0, 5 - testimonial.rating))}</span>
       </p>
-
       <blockquote className="relative mt-4 flex-1 leading-7 text-white/90">
         {testimonial.quote}
       </blockquote>
-
       <figcaption className="relative mt-6 flex items-center gap-3 border-t border-white/10 pt-5">
         {testimonial.image_url ? (
           <span className="relative size-12 shrink-0 overflow-hidden rounded-full ring-2 ring-white/20">
