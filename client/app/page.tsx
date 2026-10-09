@@ -476,23 +476,44 @@ export default async function HomePage() {
       </main>
 
       {/* =========================================================
-          SECTION SNAP STYLES (active only while the home page is open)
+          SECTION SNAP STYLES
       ========================================================= */}
       <style>{`
-        html { scroll-snap-type: y proximity; }
-        @media (min-width: 768px) { html { scroll-snap-type: y mandatory; } }
+        html { 
+          scroll-snap-type: y mandatory; 
+          scroll-behavior: smooth;
+          overscroll-behavior-y: contain;
+        }
 
-        .snap-hero { scroll-snap-align: start; }
+        .snap-hero { 
+          scroll-snap-align: start; 
+          scroll-snap-stop: always;
+          min-height: 100dvh;
+        }
+
         .snap-section {
           scroll-snap-align: start;
-          min-height: 100svh;
+          scroll-snap-stop: always;
+          min-height: 100dvh;
           display: flex;
           flex-direction: column;
           justify-content: center;
-          padding-top: 6rem !important;
-          padding-bottom: 3rem !important;
+          padding-top: 5.5rem !important;
+          padding-bottom: 4rem !important;
         }
-        footer { scroll-snap-align: end; }
+
+        footer { 
+          scroll-snap-align: start; 
+          scroll-snap-stop: always;
+        }
+
+        @media (max-width: 767px) {
+          .snap-section {
+            min-height: 100dvh;
+            padding-top: 4.5rem !important;
+            padding-bottom: 4.5rem !important;
+          }
+        }
 
         @media (prefers-reduced-motion: reduce) {
           html { scroll-snap-type: none; }
@@ -584,7 +605,6 @@ export default async function HomePage() {
    TESTIMONIAL HELPERS
 ========================================================= */
 
-// Repeats the list so each marquee group is wide enough to loop seamlessly.
 function fillCards(items: Testimonial[]): Testimonial[] {
   if (items.length === 0) return items;
   const result: Testimonial[] = [];
