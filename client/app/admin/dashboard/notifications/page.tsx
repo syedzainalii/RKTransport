@@ -38,7 +38,7 @@ export default function AdminNotificationsPage() {
 
   return <main className="min-h-screen bg-stone-50 px-4 py-8 dark:bg-slate-950 sm:px-6">
     <div className="mx-auto max-w-6xl">
-      <Link href="/admin/dashboard" className="text-sm font-semibold text-emerald-800 hover:underline dark:text-emerald-300">← Dashboard</Link>
+      <Link href="/admin/dashboard" className="text-sm font-semibold text-slate-800 hover:underline dark:text-slate-300">← Dashboard</Link>
       <h1 className="my-5 text-3xl font-bold">Notification history</h1>
       <p className="mb-5 text-sm text-slate-600 dark:text-slate-300">Delivery attempts refresh automatically. Failed attempts can be retried here.</p>
       {error && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
@@ -52,7 +52,7 @@ export default function AdminNotificationsPage() {
               {row.last_error && <p className="mt-2 break-words rounded-lg bg-red-50 p-3 text-sm text-red-900">{row.last_error}</p>}
             </div>
             <div className="flex items-center gap-3">
-              <span className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${row.status === "sent" ? "bg-emerald-100 text-emerald-900" : row.status === "failed" ? "bg-red-100 text-red-900" : "bg-amber-100 text-amber-900"}`}>{row.status}</span>
+              <span className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${row.status === "sent" ? "bg-slate-100 text-slate-900" : row.status === "failed" ? "bg-red-100 text-red-900" : "bg-amber-100 text-amber-900"}`}>{row.status}</span>
               {row.status === "failed" && <button onClick={() => retry(row.id)} disabled={retrying === row.id} className="min-h-11 rounded-lg border border-slate-300 px-3 text-sm font-semibold disabled:opacity-60 dark:border-slate-700">{retrying === row.id ? "Retrying…" : "Retry"}</button>}
             </div>
           </div>

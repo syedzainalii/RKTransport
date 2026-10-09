@@ -55,7 +55,7 @@ export default function ReviewForm() {
     }
   }
 
-  const field = "min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-900 focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white";
+  const field = "min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-900 focus:border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-700/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white";
   return (
     <form onSubmit={handleSubmit(submit)} className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
       <div>
@@ -79,11 +79,11 @@ export default function ReviewForm() {
       <Field name="email" label="Email (optional, kept private)" type="email" className={field} register={register} error={errors.email?.message} />
 
       <label className="flex min-h-11 items-start gap-3 text-sm">
-        <input type="checkbox" {...register("canPublish")} className="mt-1 size-5 accent-emerald-800" />
+        <input type="checkbox" {...register("canPublish")} className="mt-1 size-5 accent-slate-600" />
         <span>You may show my name and review on the RK Transport website.</span>
       </label>
 
-      {message && <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">{message}</p>}
+      {message && <p role="status" className="rounded-xl bg-slate-950 p-3 text-sm text-slate-300">{message}</p>}
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
       <Button type="submit" disabled={busy} className="min-h-12">{busy ? "Sending…" : "Submit review"}</Button>
     </form>
@@ -108,7 +108,7 @@ function StarRating({ value, onChange }: { value: number; onChange: (rating: num
             onMouseEnter={() => setHover(star)}
             onFocus={() => setHover(star)}
             onBlur={() => setHover(0)}
-            className={`grid size-11 place-items-center text-4xl leading-none transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 ${star <= shown ? "text-amber-400" : "text-slate-300 dark:text-slate-600"}`}
+            className={`grid size-11 place-items-center text-4xl leading-none transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 ${star <= shown ? "text-amber-400" : "text-slate-300 dark:text-slate-600"}`}
           >
             ★
           </button>

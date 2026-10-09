@@ -39,7 +39,7 @@ function Navigation({ pathname, onNavigate }: { pathname: string; onNavigate?: (
     {groups.map((group) => <section key={group.title}>
       <h2 className="mb-1 px-2 text-xs font-bold uppercase tracking-wide text-slate-500">{group.title}</h2>
       <ul className="space-y-1">{group.links.map(([label, href]) => <li key={href}>
-        <Link href={href} onClick={onNavigate} aria-current={pathname === href ? "page" : undefined} className={`flex min-h-11 items-center rounded-lg px-3 text-sm font-medium ${pathname === href ? "bg-emerald-100 text-emerald-950 dark:bg-emerald-900 dark:text-white" : "hover:bg-slate-100 dark:hover:bg-slate-800"}`}>{label}</Link>
+        <Link href={href} onClick={onNavigate} aria-current={pathname === href ? "page" : undefined} className={`flex min-h-11 items-center rounded-lg px-3 text-sm font-medium ${pathname === href ? "bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-white" : "hover:bg-slate-100 dark:hover:bg-slate-800"}`}>{label}</Link>
       </li>)}</ul>
     </section>)}
   </nav>;

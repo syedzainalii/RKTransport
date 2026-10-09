@@ -128,10 +128,10 @@ export default function ImageUpload({
   return <section className="space-y-3">
     <div><h3 className="font-semibold">{label}</h3>{hint && <p className="text-sm text-slate-600 dark:text-slate-300">{hint}</p>}</div>
     <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple={multiple && replaceIndex === null} className="sr-only" onChange={(event) => event.target.files && void uploadFiles(event.target.files)} />
-    <button type="button" disabled={busy} onClick={() => input.current?.click()} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); void uploadFiles(event.dataTransfer.files); }} className="flex min-h-20 w-full items-center justify-center rounded-xl border-2 border-dashed border-slate-300 px-4 text-center text-sm font-semibold hover:border-emerald-700 disabled:opacity-60 dark:border-slate-700">
+    <button type="button" disabled={busy} onClick={() => input.current?.click()} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); void uploadFiles(event.dataTransfer.files); }} className="flex min-h-20 w-full items-center justify-center rounded-xl border-2 border-dashed border-slate-300 px-4 text-center text-sm font-semibold hover:border-slate-700 disabled:opacity-60 dark:border-slate-700">
       Drop an image here or choose a file · JPG, PNG or WebP
     </button>
-    {busy && <div role="progressbar" aria-label={progress} className="h-2 overflow-hidden rounded bg-slate-200 dark:bg-slate-700"><div className="h-full w-2/3 animate-pulse bg-emerald-700" /></div>}
+    {busy && <div role="progressbar" aria-label={progress} className="h-2 overflow-hidden rounded bg-slate-200 dark:bg-slate-700"><div className="h-full w-2/3 animate-pulse bg-slate-700" /></div>}
     {progress && <p role="status" className="text-sm">{progress}</p>}
     {error && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{error}</p>}
     {images.length > 0 && <div className={multiple ? "grid grid-cols-2 gap-3 sm:grid-cols-3" : "max-w-sm"}>

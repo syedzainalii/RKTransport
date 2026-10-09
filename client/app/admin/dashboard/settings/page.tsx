@@ -86,11 +86,11 @@ export default function SiteSettingsPage() {
   const darkLogo: UploadedImage | null = draft?.logo_dark_url ? { url: draft.logo_dark_url, alt: draft.logo_dark_alt } : null;
 
   return <main className="min-h-screen bg-stone-50 px-4 py-8 pt-16 dark:bg-slate-950 sm:px-6 md:pt-8"><div className="mx-auto max-w-4xl">
-    <Link href="/admin/dashboard" className="inline-flex min-h-11 items-center font-semibold text-emerald-800 hover:underline dark:text-emerald-300">← Dashboard</Link>
+    <Link href="/admin/dashboard" className="inline-flex min-h-11 items-center font-semibold text-slate-800 hover:underline dark:text-slate-300">← Dashboard</Link>
     <h1 className="my-5 text-3xl font-bold">Business settings</h1>
-    <Link href="/" target="_blank" className="mb-5 inline-flex min-h-11 items-center font-semibold text-emerald-800 underline dark:text-emerald-300">View website ↗</Link>
+    <Link href="/" target="_blank" className="mb-5 inline-flex min-h-11 items-center font-semibold text-slate-800 underline dark:text-slate-300">View website ↗</Link>
     <p className="mb-5 text-slate-600 dark:text-slate-300">These details appear across your public website and help customers contact you.</p>
-    {notice && <p role="status" className="mb-4 rounded-xl bg-emerald-100 p-3 text-emerald-950 dark:bg-emerald-950 dark:text-emerald-100">{notice}</p>}
+    {notice && <p role="status" className="mb-4 rounded-xl bg-slate-100 p-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100">{notice}</p>}
     {error && <p role="alert" className="mb-4 rounded-xl bg-red-100 p-3 text-red-900 dark:bg-red-950 dark:text-red-100">{error}</p>}
     {loading || !draft ? <div aria-label="Loading settings" className="h-60 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" /> : <form onSubmit={(event) => void save(event)} className="space-y-4">
       <details open className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Business details</summary><div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -116,20 +116,20 @@ export default function SiteSettingsPage() {
       </div></details>
 
       <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Opening hours</summary><div className="mt-4 space-y-4">
-        <label className="flex min-h-12 items-center gap-3 font-semibold"><input type="checkbox" checked={draft.available_24_7} onChange={(event) => change("available_24_7", event.target.checked)} className="size-5 accent-emerald-800" />Available 24/7</label>
+        <label className="flex min-h-12 items-center gap-3 font-semibold"><input type="checkbox" checked={draft.available_24_7} onChange={(event) => change("available_24_7", event.target.checked)} className="size-5 accent-slate-800" />Available 24/7</label>
         {!draft.available_24_7 && field("hours_label", "Opening hours shown to customers", { hint: 'For example, "Mon–Sat, 8am–8pm".' })}
       </div></details>
 
       <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Admin notifications</summary><div className="mt-4 space-y-4">
         <p className="text-sm text-slate-600 dark:text-slate-300">Choose which alerts the team receives. Provider credentials are managed by your website administrator.</p>
-        <label className="flex min-h-12 items-center gap-3 font-semibold"><input type="checkbox" checked={draft.notifications_email_enabled} onChange={(event) => change("notifications_email_enabled", event.target.checked)} className="size-5 accent-emerald-800" />Email notifications are on</label>
-        <label className="flex min-h-12 items-center gap-3 font-semibold"><input type="checkbox" checked={draft.notifications_whatsapp_enabled} onChange={(event) => change("notifications_whatsapp_enabled", event.target.checked)} className="size-5 accent-emerald-800" />WhatsApp notifications are on</label>
+        <label className="flex min-h-12 items-center gap-3 font-semibold"><input type="checkbox" checked={draft.notifications_email_enabled} onChange={(event) => change("notifications_email_enabled", event.target.checked)} className="size-5 accent-slate-800" />Email notifications are on</label>
+        <label className="flex min-h-12 items-center gap-3 font-semibold"><input type="checkbox" checked={draft.notifications_whatsapp_enabled} onChange={(event) => change("notifications_whatsapp_enabled", event.target.checked)} className="size-5 accent-slate-800" />WhatsApp notifications are on</label>
         <div className="grid gap-4 sm:grid-cols-2">{field("notification_admin_email", "Team notification email", { type: "email" })}{field("notification_admin_phone", "Team WhatsApp number", { type: "tel", hint: "UAE format, for example +971501234567." })}</div>
       </div></details>
 
       <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Footer text</summary><div className="mt-4">{field("footer_blurb", "Short business description", { multiline: true, hint: "Shown near the bottom of each page." })}</div></details>
 
-      <button disabled={busy} className="min-h-12 w-full rounded-xl bg-emerald-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-white border-r-transparent align-[-3px]" />Saving…</> : "Save business settings"}</button>
+      <button disabled={busy} className="min-h-12 w-full rounded-xl bg-slate-800 px-4 font-semibold text-white disabled:opacity-60">{busy ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-white border-r-transparent align-[-3px]" />Saving…</> : "Save business settings"}</button>
     </form>}
   </div></main>;
 }

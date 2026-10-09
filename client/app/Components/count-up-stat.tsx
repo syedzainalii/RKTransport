@@ -34,7 +34,7 @@ export default function CountUpStat({ value, label }: { value: string; label: st
   }, [value]);
 
   return <div ref={ref} className="rounded-2xl bg-stone-100 p-5 dark:bg-slate-900">
-    <p className="text-3xl font-bold text-emerald-800 dark:text-emerald-300">{display}</p>
+    <p className="text-3xl font-bold text-slate-800 dark:text-slate-300">{display}</p>
     <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{label}</p>
   </div>;
 }

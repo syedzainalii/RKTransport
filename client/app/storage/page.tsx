@@ -33,13 +33,13 @@ export default async function StoragePage() {
     <BreadcrumbStructuredData items={[{ name: "Home", path: "/" }, { name: "Car storage", path: "/storage" }]} />
     <StructuredData data={faqJsonLd(visibleFaqs)} />
     <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
-      <p className="text-sm font-bold uppercase tracking-[.2em] text-emerald-800 dark:text-emerald-300">{settings?.available_24_7 ? settings.hours_label : ""}</p>
+      <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-800 dark:text-slate-300">{settings?.available_24_7 ? settings.hours_label : ""}</p>
       <h1 className="mt-3 text-4xl font-bold">{text("storage.heading", "Car storage")}</h1>
       <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">{text("storage.subheading", "Looking for a place to keep your vehicle? Review the storage options below and contact us with your vehicle details and intended storage period. We will confirm plan availability and arrangements with you.")}</p>
       {plans.length > 0 ? <div className="mt-10 grid gap-6 md:grid-cols-2">{plans.map((plan) => (
         <article key={plan.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           {plan.image_url && <div className="relative h-56"><Image src={apiImageUrl(plan.image_url) || plan.image_url} alt={plan.image_alt || ""} fill unoptimized={!isImageOptimizable(plan.image_url)} sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" /></div>}
-          <div className="p-6"><h2 className="text-2xl font-bold">{plan.title}</h2><p className="mt-3 leading-6 text-slate-600 dark:text-slate-300">{plan.description}</p><Link href="/contact" className="mt-5 inline-flex min-h-11 items-center rounded-full bg-emerald-900 px-5 font-semibold text-white hover:bg-emerald-800">{text("storage.cta", "Ask about storage")}</Link></div>
+          <div className="p-6"><h2 className="text-2xl font-bold">{plan.title}</h2><p className="mt-3 leading-6 text-slate-600 dark:text-slate-300">{plan.description}</p><Link href="/contact" className="mt-5 inline-flex min-h-11 items-center rounded-full bg-slate-900 px-5 font-semibold text-white hover:bg-slate-800">{text("storage.cta", "Ask about storage")}</Link></div>
         </article>
       ))}</div> : <p className="mt-8 rounded-xl bg-stone-100 p-5 dark:bg-slate-900">{text("empty.storage", "Storage options are currently unavailable.")}</p>}
       <section className="mt-12 max-w-3xl">
@@ -50,10 +50,10 @@ export default async function StoragePage() {
         </details>)}</div>
       </section>
       <nav aria-label="Related pages" className="mt-10 flex flex-wrap gap-x-6 gap-y-2">
-        <Link href="/services" className="font-semibold text-emerald-800 underline dark:text-emerald-300">All vehicle services</Link>
-        <Link href="/car-lift-recovery" className="font-semibold text-emerald-800 underline dark:text-emerald-300">Car lift and recovery</Link>
-        <Link href="/dubai-to-abu-dhabi-car-transport" className="font-semibold text-emerald-800 underline dark:text-emerald-300">Dubai to Abu Dhabi transport</Link>
-        <Link href="/contact" className="font-semibold text-emerald-800 underline dark:text-emerald-300">Ask about storage</Link>
+        <Link href="/services" className="font-semibold text-slate-800 underline dark:text-slate-300">All vehicle services</Link>
+        <Link href="/car-lift-recovery" className="font-semibold text-slate-800 underline dark:text-slate-300">Car lift and recovery</Link>
+        <Link href="/dubai-to-abu-dhabi-car-transport" className="font-semibold text-slate-800 underline dark:text-slate-300">Dubai to Abu Dhabi transport</Link>
+        <Link href="/contact" className="font-semibold text-slate-800 underline dark:text-slate-300">Ask about storage</Link>
       </nav>
     </main>
     </>

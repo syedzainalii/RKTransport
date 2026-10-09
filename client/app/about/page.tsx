@@ -205,33 +205,6 @@ export default async function AboutPage() {
             </ul>
           </section>
         ) : null}
-
-        {/* Call to action */}
-        <section className="px-4 pb-16 sm:px-6 lg:pb-24">
-          <div className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl bg-slate-950 px-7 py-14 text-white sm:px-12 sm:py-20">
-            <div aria-hidden="true" className="absolute -right-24 -top-24 size-96 rounded-full bg-white/10 blur-3xl" />
-            <div aria-hidden="true" className="absolute inset-0 opacity-[0.05] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
-            <div className="relative flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
-              <div className="max-w-2xl">
-                <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-5xl">Ready to move your car between Dubai and Abu Dhabi?</h2>
-                <p className="mt-4 text-lg text-white/75">Message us on WhatsApp and we will confirm the price and timing with you.</p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="about-shine group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-white px-6 font-semibold text-slate-950 transition hover:bg-slate-200">
-                  <MessageCircle aria-hidden="true" className="size-5" />
-                  Get a quote
-                  <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
-                </a>
-                {settings?.phone_primary && (
-                  <a href={`tel:${settings.phone_primary}`} className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/25 px-6 font-semibold transition hover:bg-white/10">
-                    <Phone aria-hidden="true" className="size-5" />
-                    Call us
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
     </>
   );

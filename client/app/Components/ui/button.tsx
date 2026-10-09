@@ -3,11 +3,11 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "../../../lib/utils";
 
 const buttonStyles = cva(
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-emerald-900 text-white hover:bg-emerald-800",
+        default: "bg-slate-800 text-white hover:bg-slate-700",
         outline: "border border-slate-300 bg-transparent hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800",
         destructive: "bg-red-700 text-white hover:bg-red-800",
       },
