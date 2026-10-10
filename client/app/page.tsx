@@ -357,7 +357,7 @@ export default async function HomePage() {
         <section
           id="cars"
           data-snap-section
-          data-label="Cars"
+          data-label="Vehicles"
           className="snap-section bg-white px-4 dark:bg-slate-950 sm:px-6"
         >
           <div className="mx-auto w-full max-w-7xl">
@@ -468,7 +468,7 @@ export default async function HomePage() {
           <section
             id="about"
             data-snap-section
-            data-label="About"
+            data-label="About us"
             className="snap-section relative overflow-hidden bg-stone-100 px-4 dark:bg-slate-900/60 sm:px-6"
           >
             <style>{`
@@ -591,7 +591,7 @@ export default async function HomePage() {
         <section
           id="routes"
           data-snap-section
-          data-label="Routes"
+          data-label="Location"
           className="snap-section bg-stone-100 px-4 dark:bg-slate-900/70 sm:px-6"
         >
           <div className="mx-auto w-full max-w-7xl">
@@ -653,7 +653,7 @@ export default async function HomePage() {
           <section
             id="reviews-wall"
             data-snap-section
-            data-label="Reviews"
+            data-label="Reviews Wall"
             className="snap-section relative isolate overflow-hidden bg-slate-950 text-white [clip-path:inset(0)]"
           >
             {typeof bannerUrl === "string" && bannerUrl && (
@@ -744,7 +744,7 @@ export default async function HomePage() {
         <section
           id="drivers"
           data-snap-section
-          data-label="Our drivers"
+          data-label="Drivers"
           className="snap-section bg-white px-4 dark:bg-slate-950 sm:px-6"
         >
           <div className="mx-auto w-full max-w-7xl">
@@ -853,7 +853,7 @@ export default async function HomePage() {
         <section
           id="review"
           data-snap-section
-          data-label="Leave a review"
+          data-label="Review"
           className="snap-section bg-stone-100 px-4 dark:bg-slate-900/70 sm:px-6"
         >
           <div className="mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -921,7 +921,7 @@ export default async function HomePage() {
         </section>
       </main>
 
-      {/* SECTION SNAP STYLES */}
+      {/* SECTION SNAP STYLES & MOBILE SCROLL FIX */}
       <style>{`
         html {
           scroll-snap-type: y mandatory;
@@ -948,10 +948,15 @@ export default async function HomePage() {
           scroll-snap-stop: always;
         }
         @media (max-width: 767px) {
+          html {
+            scroll-snap-type: none; /* Disable rigid snapping on mobile for smooth, natural touch scrolling */
+          }
+          .snap-hero,
           .snap-section {
-            min-height: 100dvh;
-            padding-top: 4.5rem !important;
-            padding-bottom: 4.5rem !important;
+            scroll-snap-align: none;
+            min-height: auto;
+            padding-top: 5rem !important;
+            padding-bottom: 4rem !important;
           }
         }
         @media (prefers-reduced-motion: reduce) {

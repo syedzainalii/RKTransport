@@ -1,26 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
-
-type Item = { label: string };
 
 function getSections(): HTMLElement[] {
   return Array.from(document.querySelectorAll<HTMLElement>("[data-snap-section], footer"));
 }
 
 export default function SectionPager() {
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<HTMLElement[]>([]);
   const [active, setActive] = useState(0);
 
   const refresh = useCallback(() => {
     const sections = getSections();
     if (sections.length === 0) return;
-    setItems(
-      sections.map((el) => ({
-        label: el.dataset.label || (el.tagName === "FOOTER" ? "Contact" : "Section"),
-      }))
-    );
+    setItems(sections);
     const probe = window.innerHeight * 0.4;
     let current = 0;
     sections.forEach((el, index) => {
@@ -53,7 +46,7 @@ export default function SectionPager() {
     };
   }, [refresh]);
 
-  // Keyboard navigation for desktop
+  // Keyboard navigation for desktop remains fully active
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -84,52 +77,7 @@ export default function SectionPager() {
     return () => window.removeEventListener("keydown", onKey);
   }, [active, goTo]);
 
-  if (items.length < 2) return null;
-
-  return (
-    <nav
-      aria-label="Page sections"
-      className="fixed right-3 top-1/2 z-40 flex -translate-y-1/2 flex-col items-center gap-2 text-white mix-blend-difference sm:right-4 sm:gap-3"
-    >
-      <button
-        type="button"
-        onClick={() => goTo(active - 1)}
-        disabled={active === 0}
-        aria-label="Previous section"
-        className="grid size-7 place-items-center rounded-full transition hover:scale-110 disabled:opacity-30 sm:size-8"
-      >
-        <ChevronUp aria-hidden="true" className="size-4 sm:size-5" />
-      </button>
-
-      {items.map((item, index) => (
-        <button
-          key={`${item.label}-${index}`}
-          type="button"
-          onClick={() => goTo(index)}
-          aria-label={`Go to ${item.label}`}
-          aria-current={active === index ? "true" : undefined}
-          title={item.label}
-          className="grid size-5 place-items-center sm:size-6"
-        >
-          <span
-            className={`block rounded-full transition-all duration-300 ${
-              active === index
-                ? "size-2.5 bg-white sm:size-3"
-                : "size-1.5 bg-white/40 hover:bg-white/70 sm:size-2"
-            }`}
-          />
-        </button>
-      ))}
-
-      <button
-        type="button"
-        onClick={() => goTo(active + 1)}
-        disabled={active === items.length - 1}
-        aria-label="Next section"
-        className="grid size-7 place-items-center rounded-full transition hover:scale-110 disabled:opacity-30 sm:size-8"
-      >
-        <ChevronDown aria-hidden="true" className="size-4 sm:size-5" />
-      </button>
-    </nav>
-  );
+  // Returns null to hide the visual dots/arrows from the screen,
+  // while keeping all the core functionality running in the background.
+  return null;
 }
