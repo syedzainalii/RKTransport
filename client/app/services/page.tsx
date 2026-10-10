@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ArrowUpRight, Check, MessageCircle } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Clock, MessageCircle, Phone, Route } from "lucide-react";
+import PageHero from "../Components/page-hero";
 import { BreadcrumbStructuredData, StructuredData } from "../Components/structured-data";
 import { apiImageUrl, isImageOptimizable, publicApi, type Faq, type Service } from "../../lib/transport-api";
 import { faqJsonLd, generatePageMetadata } from "../../lib/seo";
@@ -31,7 +32,7 @@ export default async function ServicesPage() {
   const hours = settings?.available_24_7 ? settings.hours_label : "";
   const whatsappDigits = settings?.whatsapp?.replace(/\D/g, "");
 
-  // Priority: 1. Admin Page Section Banner -> 2. Featured Service Banner -> 3. Any Service Banner
+  // Priority: 1. Admin page banner -> 2. Featured service banner -> 3. Any service banner
   const bannerUrl =
     copy.find((item: { key: string }) => item.key === "services_banner_url")?.value ||
     ((featured as Record<string, unknown>)?.banner_image_url as string | undefined) ||
@@ -44,45 +45,29 @@ export default async function ServicesPage() {
 
       <main>
         {/* Hero */}
-        <section 
-          className="relative isolate overflow-hidden bg-slate-950 text-white bg-cover bg-center"
-          style={
-            bannerUrl
-              ? {
-                  backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url(${bannerUrl})`,
-                }
-              : undefined
-          }
+        <PageHero
+          crumb="Services"
+          title={text("services.heading", "Car transport, done right")}
+          subtitle={text("services.subheading", settings?.tagline || "Safe, reliable car transport between Dubai and Abu Dhabi.")}
+          imageUrl={bannerUrl}
+          hours={hours}
+          highlights={[
+            { icon: <Clock aria-hidden="true" className="size-5" />, label: "Availability", value: hours || "Call us anytime" },
+            { icon: <Route aria-hidden="true" className="size-5" />, label: "Route", value: settings?.core_route_label || "Dubai ⇄ Abu Dhabi" },
+            { icon: <Phone aria-hidden="true" className="size-5" />, label: "Call us", value: settings?.phone_primary || "" },
+          ]}
         >
-          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,rgba(148,163,184,0.28),transparent_55%),radial-gradient(ellipse_at_bottom_left,rgba(255,255,255,0.08),transparent_50%)]" />
-          <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:56px_56px]" />
-          <div className="mx-auto max-w-7xl px-4 pb-20 pt-32 sm:px-6 lg:pb-28 lg:pt-40">
-            {hours && (
-              <p className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 text-sm font-semibold backdrop-blur">
-                <span aria-hidden="true" className="size-2 rounded-full bg-amber-400" />
-                {hours}
-              </p>
-            )}
-            <h1 className="mt-6 max-w-4xl text-balance text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-              {text("services.heading", "Car transport, done right")}
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/75 sm:text-xl">
-              {text("services.subheading", settings?.tagline || "Safe, reliable car transport between Dubai and Abu Dhabi.")}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/quote" className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-slate-950 transition hover:bg-slate-200">
-                Get a quote
-                <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-              {whatsappDigits && (
-                <a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 font-semibold backdrop-blur transition hover:bg-white/20">
-                  <MessageCircle aria-hidden="true" className="size-5" />
-                  WhatsApp
-                </a>
-              )}
-            </div>
-          </div>
-        </section>
+          <Link href="/quote" className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-slate-950 transition hover:bg-slate-200">
+            Get a quote
+            <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+          {whatsappDigits && (
+            <a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 font-semibold backdrop-blur-md transition hover:bg-white/20">
+              <MessageCircle aria-hidden="true" className="size-5" />
+              WhatsApp
+            </a>
+          )}
+        </PageHero>
 
         {/* Services */}
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-24">
@@ -102,7 +87,6 @@ export default async function ServicesPage() {
                     src={apiImageUrl(featured.image_url) || featured.image_url}
                     alt={featured.image_alt || ""}
                     fill
-                    priority
                     unoptimized={!isImageOptimizable(featured.image_url)}
                     sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-105"

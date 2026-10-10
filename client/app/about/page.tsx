@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import CountUpStat from "../Components/count-up-stat";
+import PageHero from "../Components/page-hero";
 import { BreadcrumbStructuredData } from "../Components/structured-data";
 import SimpleRichText from "../Components/simple-rich-text";
 import {
-  ArrowRight, Award, CarFront, CircleCheck, Clock3, Eye, Gauge, Headset, Heart,
-  MapPin, MessageCircle, Phone, ShieldCheck, Star, Target, Truck, Wrench, type LucideIcon,
+  ArrowRight, Award, CarFront, CircleCheck, Clock, Clock3, Eye, Gauge, Headset, Heart,
+  MapPin, MessageCircle, Phone, Route, ShieldCheck, Star, Target, Truck, Wrench, type LucideIcon,
 } from "lucide-react";
 import { apiImageUrl, isImageOptimizable, publicApi } from "../../lib/transport-api";
 import { generatePageMetadata } from "../../lib/seo";
@@ -41,50 +42,36 @@ export default async function AboutPage() {
 
       <style>{`
         @keyframes about-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes about-rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes about-shine { from { transform: translateX(-120%); } to { transform: translateX(220%); } }
         .about-float { animation: about-float 5s ease-in-out infinite; }
-        .about-rise > * { opacity: 0; animation: about-rise .7s ease-out forwards; }
-        .about-rise > *:nth-child(2) { animation-delay: .1s; }
-        .about-rise > *:nth-child(3) { animation-delay: .2s; }
-        .about-rise > *:nth-child(4) { animation-delay: .3s; }
-        .about-shine::after { content: ""; position: absolute; inset: 0; width: 40%; background: linear-gradient(110deg, transparent, rgba(255,255,255,.25), transparent); transform: translateX(-120%); }
-        .about-shine:hover::after { animation: about-shine .9s ease; }
         @media (prefers-reduced-motion: reduce) {
-          .about-float, .about-rise > *, .about-shine:hover::after { animation: none !important; opacity: 1 !important; }
+          .about-float { animation: none !important; }
         }
       `}</style>
 
       <main>
         {/* Hero */}
-        <section 
-          className="relative isolate overflow-hidden bg-slate-950 text-white bg-cover bg-center"
-          style={
-            bannerUrl
-              ? {
-                  backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url(${bannerUrl})`,
-                }
-              : undefined
-          }
+        <PageHero
+          crumb="About"
+          eyebrow="About us"
+          title={about?.title || "About RK Transport"}
+          subtitle={about?.subtitle}
+          imageUrl={bannerUrl}
+          hours={hours}
+          highlights={[
+            { icon: <Clock aria-hidden="true" className="size-5" />, label: "Availability", value: hours || "Call us anytime" },
+            { icon: <Route aria-hidden="true" className="size-5" />, label: "Route", value: settings?.core_route_label || "Dubai ⇄ Abu Dhabi" },
+            { icon: <Phone aria-hidden="true" className="size-5" />, label: "Call us", value: settings?.phone_primary || "" },
+          ]}
         >
-          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,rgba(148,163,184,0.28),transparent_55%),radial-gradient(ellipse_at_bottom_left,rgba(255,255,255,0.08),transparent_50%)]" />
-          <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:56px_56px]" />
-          <div className="about-rise mx-auto max-w-7xl px-4 pb-20 pt-32 sm:px-6 lg:pb-28 lg:pt-40">
-            {hours ? (
-              <p className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 text-sm font-semibold backdrop-blur">
-                <span aria-hidden="true" className="size-2 rounded-full bg-amber-400" />
-                {hours}
-              </p>
-            ) : <span />}
-            <p className="mt-6 text-sm font-semibold uppercase tracking-[.22em] text-white/60">About us</p>
-            <h1 className="mt-3 max-w-4xl text-balance text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-              {about?.title || "About RK Transport"}
-            </h1>
-            {about?.subtitle ? (
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-white/75 sm:text-xl">{about.subtitle}</p>
-            ) : <span />}
-          </div>
-        </section>
+          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-slate-950 transition hover:bg-slate-200">
+            <MessageCircle aria-hidden="true" className="size-5" />
+            Get a quote
+            <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
+          </a>
+          <Link href="/services" className="inline-flex min-h-12 items-center rounded-full border border-white/30 bg-white/10 px-6 font-semibold backdrop-blur-md transition hover:bg-white/20">
+            Our services
+          </Link>
+        </PageHero>
 
         {!about && (
           <p className="mx-auto max-w-3xl px-4 py-16 text-slate-700 dark:text-slate-200">Company information is currently unavailable.</p>
