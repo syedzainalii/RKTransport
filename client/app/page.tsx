@@ -20,7 +20,9 @@ import {
   type Testimonial,
 } from "../lib/transport-api";
 import { faqJsonLd } from "../lib/seo";
+
 export const revalidate = 60;
+
 async function getContent() {
   const results = await Promise.allSettled([
     publicApi.settings(),
@@ -41,11 +43,44 @@ async function getContent() {
     testimonials: results[6].status === "fulfilled" ? results[6].value : [],
   };
 }
+
+function fillCards(testimonials: Testimonial[]) {
+  if (testimonials.length === 0) return [];
+  let list = [...testimonials];
+  while (list.length < 6) {
+    list = [...list, ...testimonials];
+  }
+  return list;
+}
+
+function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
+  return (
+    <div className="tm-card">
+      <span className="tm-quote-mark">&ldquo;</span>
+      <div className="flex items-center gap-1 text-amber-400" aria-label={`${testimonial.rating} out of 5 stars`}>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <span key={i}>{i < testimonial.rating ? "★" : "☆"}</span>
+        ))}
+      </div>
+      <p className="mt-4 flex-1 text-sm leading-7 text-white/90">{testimonial.quote}</p>
+      <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+        <div>
+          <p className="font-semibold">{testimonial.customer_name}</p>
+          {testimonial.vehicle_note && (
+            <p className="text-xs text-white/60">{testimonial.vehicle_note}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default async function HomePage() {
   const { settings, banners, services, copy, faqs, about, testimonials } =
     await getContent();
   const text = (key: string, fallback: string) =>
     copy.find((item: PageCopy) => item.key === key)?.value || fallback;
+
   const slides: HeroBanner[] = banners.length
     ? banners
     : [
@@ -69,6 +104,7 @@ export default async function HomePage() {
           portrait_image_url: null,
         },
       ];
+
   const aboutImage = about?.images?.find((image) => image.url);
   const visibleHomeFaqs = faqs.filter(
     (faq: Faq) => !faq.page_key || faq.page_key === "home"
@@ -77,15 +113,21 @@ export default async function HomePage() {
     question: faq.question,
     answer: faq.answer,
   }));
+
   const bannerUrl =
-    (testimonials.find((item) => Boolean((item as Testimonial & { banner_image_url?: string | null }).banner_image_url)) as (Testimonial & { banner_image_url?: string | null }) | undefined)?.banner_image_url ??
-    (testimonials[0] as (Testimonial & { banner_image_url?: string | null }) | undefined)?.banner_image_url;
+    copy.find((item: PageCopy) => item.key === "testimonials_banner_url")?.value ||
+    (
+      (testimonials.find((item) => Boolean((item as Testimonial & { banner_image_url?: string | null }).banner_image_url)) as (Testimonial & { banner_image_url?: string | null }) | undefined)?.banner_image_url ??
+      (testimonials[0] as (Testimonial & { banner_image_url?: string | null }) | undefined)?.banner_image_url
+    );
+
   const averageRating = testimonials.length
     ? (
         testimonials.reduce((sum: number, t: Testimonial) => sum + t.rating, 0) /
         testimonials.length
       ).toFixed(1)
     : "0.0";
+
   return (
     <>
       <BreadcrumbStructuredData items={[{ name: "Home", path: "/" }]} />
@@ -98,6 +140,7 @@ export default async function HomePage() {
         <div data-snap-section data-label="Home" className="snap-hero">
           <HeroSlideshow slides={slides} />
         </div>
+
         {/* =========================================================
             SERVICES
         ========================================================= */}
@@ -195,6 +238,7 @@ export default async function HomePage() {
             </p>
           )}
         </section>
+
         {/* =========================================================
             ABOUT
         ========================================================= */}
@@ -274,6 +318,7 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
         {/* =========================================================
             TESTIMONIALS
         ========================================================= */}
@@ -358,6 +403,7 @@ export default async function HomePage() {
               </div>
             </section>
         )}
+
         {/* =========================================================
             FAQ
         ========================================================= */}
@@ -442,6 +488,7 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
         {/* =========================================================
             REVIEWS
         ========================================================= */}
@@ -614,69 +661,10 @@ export default async function HomePage() {
         }
         @media (max-width: 900px) {
           .tm-card { width: 320px; min-width: 320px; }
-          .tm-left { animation-duration: 45s; }
-          .tm-right { animation-duration: 52s; }
-        }
-        @media (max-width: 640px) {
-          .tm-card { width: 285px; min-width: 285px; padding: 22px; }
-          .tm-group { gap: 14px; padding-right: 14px; }
-          .tm-left { animation-duration: 38s; }
-          .tm-right { animation-duration: 44s; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .tm-left, .tm-right { animation: none; }
-          .tm-row { overflow-x: auto; }
-          .tm-group:last-child { display: none; }
+          .tm-left { animation-duration: 40s; }
+          .tm-right { animation-duration: 45s; }
         }
       `}</style>
     </>
-  );
-}
-/* =========================================================
-   TESTIMONIAL HELPERS
-\========================================================= */
-function fillCards(items: Testimonial[]): Testimonial[] {
-  if (items.length === 0) return items;
-  const result: Testimonial[] = [];
-  while (result.length < 8) result.push(...items);
-  return result;
-}
-function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
-  const initial = testimonial.customer_name?.trim().charAt(0).toUpperCase() || "R";
-  return (
-    <figure className="tm-card">
-      <span aria-hidden="true" className="tm-quote-mark">“</span>
-      <p className="relative text-lg tracking-widest text-amber-400" aria-label={`${testimonial.rating} out of 5 stars`}>
-        {"★".repeat(testimonial.rating)}
-        <span className="text-white/20">{"★".repeat(Math.max(0, 5 - testimonial.rating))}</span>
-      </p>
-      <blockquote className="relative mt-4 flex-1 leading-7 text-white/90">
-        {testimonial.quote}
-      </blockquote>
-      <figcaption className="relative mt-6 flex items-center gap-3 border-t border-white/10 pt-5">
-        {testimonial.image_url ? (
-          <span className="relative size-12 shrink-0 overflow-hidden rounded-full ring-2 ring-white/20">
-            <Image
-              src={apiImageUrl(testimonial.image_url) || testimonial.image_url}
-              alt={testimonial.image_alt || ""}
-              fill
-              unoptimized={!isImageOptimizable(testimonial.image_url)}
-              sizes="48px"
-              className="object-cover"
-            />
-          </span>
-        ) : (
-          <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-full bg-white text-lg font-bold text-slate-950">
-            {initial}
-          </span>
-        )}
-        <span>
-          <span className="block font-bold">{testimonial.customer_name}</span>
-          {testimonial.vehicle_note && (
-            <span className="block text-sm font-normal text-white/60">{testimonial.vehicle_note}</span>
-          )}
-        </span>
-      </figcaption>
-    </figure>
   );
 }

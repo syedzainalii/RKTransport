@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ArrowUpRight, Check, MessageCircle, Phone } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, MessageCircle } from "lucide-react";
 import { BreadcrumbStructuredData, StructuredData } from "../Components/structured-data";
 import { apiImageUrl, isImageOptimizable, publicApi, type Faq, type Service } from "../../lib/transport-api";
 import { faqJsonLd, generatePageMetadata } from "../../lib/seo";
@@ -31,9 +31,11 @@ export default async function ServicesPage() {
   const hours = settings?.available_24_7 ? settings.hours_label : "";
   const whatsappDigits = settings?.whatsapp?.replace(/\D/g, "");
 
-  const bannerUrl = 
-    (featured as Record<string, unknown>)?.banner_image_url as string | undefined || 
-    (services.find((s: unknown) => (s as Record<string, unknown>)?.banner_image_url) as Record<string, unknown>)?.banner_image_url as string | undefined;
+  // Priority: 1. Admin Page Section Banner -> 2. Featured Service Banner -> 3. Any Service Banner
+  const bannerUrl =
+    copy.find((item: { key: string }) => item.key === "services_banner_url")?.value ||
+    ((featured as Record<string, unknown>)?.banner_image_url as string | undefined) ||
+    ((services.find((s: unknown) => (s as Record<string, unknown>)?.banner_image_url) as Record<string, unknown>)?.banner_image_url as string | undefined);
 
   return (
     <>
