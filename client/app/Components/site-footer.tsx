@@ -8,6 +8,36 @@ import { apiRequest, type SiteSettings } from "../../lib/transport-api";
 const FALLBACK_WHATSAPP = "971561379697";
 const QUOTE_MESSAGE = "Hello RK Transport, I would like a quote for car transport between Dubai and Abu Dhabi. Please contact me with details.";
 
+const DUBAI_POINTS = [
+  "Bur Dubai",
+  "Deira",
+  "Al Quoz",
+  "Jebel Ali",
+  "Discovery Gardens",
+  "International City",
+  "Al Barsha",
+  "JLT",
+  "Dubai Marina",
+  "Karama",
+  "Satwa",
+  "Al Nahda",
+  "Silicon Oasis",
+  "Al Qusais",
+];
+
+const ABU_DHABI_POINTS = [
+  "Khalidiyah",
+  "Mussafah",
+  "City Center",
+  "Yas Island",
+  "Khalifa City",
+  "MBZ City",
+  "Al Reem Island",
+  "Electra Street",
+  "Hamdan Street",
+  "Tourist Club Area",
+];
+
 const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
@@ -38,9 +68,9 @@ export default function SiteFooter() {
       <div aria-hidden="true" className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[60rem] -translate-x-1/2 rounded-full bg-white/5 blur-3xl" />
 
       {/* Main Content Wrapper */}
-      <div className="flex flex-1 flex-col justify-center">
+      <div className="flex flex-1 flex-col justify-center py-8">
         {/* Call-to-action band */}
-        <div className="relative mx-auto w-full max-w-7xl px-4 pt-16 sm:px-6 sm:pt-20">
+        <div className="relative mx-auto w-full max-w-7xl px-4 pt-12 sm:px-6 sm:pt-16">
           <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/[0.03] p-6 backdrop-blur sm:p-8 lg:flex-row lg:items-center">
             <div className="max-w-xl">
               <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
@@ -73,7 +103,7 @@ export default function SiteFooter() {
         </div>
 
         {/* Main columns */}
-        <div className="relative mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 sm:grid-cols-2 sm:px-6 sm:py-12 lg:grid-cols-[1.4fr_1fr_1.2fr_1fr]">
+        <div className="relative mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 sm:grid-cols-2 sm:px-6 sm:py-10 lg:grid-cols-[1.4fr_0.8fr_1.2fr_1fr]">
           {/* Brand */}
           <div>
             <p className="text-lg font-bold tracking-tight text-white">{brand}</p>
@@ -162,6 +192,51 @@ export default function SiteFooter() {
               <Route aria-hidden="true" className="size-5 text-white" />
               <p className="mt-2 text-xs font-semibold text-white sm:text-sm">{settings?.core_route_label || "Dubai ⇄ Abu Dhabi"}</p>
               <p className="mt-1 text-xs text-slate-400">Safe, reliable car transport between the two cities.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Coverage Areas Section (Pickup & Drop Tags) */}
+        <div className="relative mx-auto w-full max-w-7xl px-4 pb-6 sm:px-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur sm:p-6">
+            <h3 className="text-xs font-semibold uppercase tracking-[.18em] text-slate-200">
+              Popular Pickup & Drop-off Points
+            </h3>
+            
+            <div className="mt-4 grid gap-6 lg:grid-cols-2">
+              {/* Dubai */}
+              <div>
+                <p className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+                  <span className="text-red-400">📍</span> Dubai Areas
+                </p>
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  {DUBAI_POINTS.map((pt) => (
+                    <span
+                      key={pt}
+                      className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] text-slate-300 backdrop-blur transition hover:border-white/20 hover:text-white"
+                    >
+                      {pt}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Abu Dhabi */}
+              <div>
+                <p className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+                  <span className="text-red-400">📍</span> Abu Dhabi Areas
+                </p>
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  {ABU_DHABI_POINTS.map((pt) => (
+                    <span
+                      key={pt}
+                      className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] text-slate-300 backdrop-blur transition hover:border-white/20 hover:text-white"
+                    >
+                      {pt}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

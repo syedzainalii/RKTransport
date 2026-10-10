@@ -8,6 +8,36 @@ export const revalidate = 60;
 const WHATSAPP_NUMBER = "971561379697";
 const PHONE_NUMBER = "+971561379697";
 
+const DUBAI_POINTS = [
+  "Bur Dubai",
+  "Deira",
+  "Al Quoz",
+  "Jebel Ali",
+  "Discovery Gardens",
+  "International City",
+  "Al Barsha",
+  "JLT",
+  "Dubai Marina",
+  "Karama",
+  "Satwa",
+  "Al Nahda",
+  "Silicon Oasis",
+  "Al Qusais",
+];
+
+const ABU_DHABI_POINTS = [
+  "Khalidiyah",
+  "Mussafah",
+  "City Center",
+  "Yas Island",
+  "Khalifa City",
+  "MBZ City",
+  "Al Reem Island",
+  "Electra Street",
+  "Hamdan Street",
+  "Tourist Club Area",
+];
+
 export function generateMetadata() {
   return generatePageMetadata("/reviews", {
     title: "Customer Reviews | RK Transport Dubai to Abu Dhabi",
@@ -91,6 +121,58 @@ export default async function ReviewsPage() {
           {/* Review Submission Form */}
           <ReviewForm />
         </div>
+
+        {/* =========================================================
+            PICKUP & DROP POINTS (Blue Box)
+        ========================================================= */}
+        <section className="mt-16 rounded-3xl bg-[#1a365d] p-6 text-white shadow-xl sm:p-10">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold sm:text-3xl">Car Lift Pickup & Drop Points</h2>
+            <p className="mt-2 text-sm text-slate-200 sm:text-base">
+              Dubai to Abu Dhabi & Abu Dhabi to Dubai — we cover all major areas
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            {/* Dubai Pickup Points */}
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm sm:p-6">
+              <h3 className="flex items-center gap-2 font-bold text-slate-100">
+                <span className="text-red-400">📍</span> Dubai Pickup Points
+              </h3>
+              <div className="mt-4 flex flex-wrap gap-2.5">
+                {DUBAI_POINTS.map((location) => (
+                  <span
+                    key={location}
+                    className="rounded-xl border border-white/10 bg-white/10 px-3.5 py-1.5 text-xs sm:text-sm font-medium text-slate-100 backdrop-blur"
+                  >
+                    {location}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Abu Dhabi Drop Points */}
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm sm:p-6">
+              <h3 className="flex items-center gap-2 font-bold text-slate-100">
+                <span className="text-red-400">📍</span> Abu Dhabi Drop Points
+              </h3>
+              <div className="mt-4 flex flex-wrap gap-2.5">
+                {ABU_DHABI_POINTS.map((location) => (
+                  <span
+                    key={location}
+                    className="rounded-xl border border-white/10 bg-white/10 px-3.5 py-1.5 text-xs sm:text-sm font-medium text-slate-100 backdrop-blur"
+                  >
+                    {location}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-8 text-center text-xs text-slate-300 sm:text-sm">
+            Whether you travel from JLT to Abu Dhabi, Deira to Mussafah, or Discovery Gardens to Khalifa City — RK Transport has you covered every single day.
+          </p>
+        </section>
       </main>
     </>
   );

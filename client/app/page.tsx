@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Mail, MapPin, MessageCircle, Phone, Plus } from "lucide-react";
+import { ArrowUpRight, Mail, MapPin, MessageCircle, Phone, Plus, Check, ShieldCheck, Car, Users, Compass, UserCheck } from "lucide-react";
 import ReviewForm from "./Components/review-form";
 import HeroSlideshow from "./Components/hero-slideshow";
 import SectionPager from "./Components/section-pager";
@@ -135,14 +135,14 @@ export default async function HomePage() {
       <SectionPager />
       <main>
         {/* =========================================================
-            HERO
+            1. HERO
         ========================================================= */}
         <div data-snap-section data-label="Home" className="snap-hero">
           <HeroSlideshow slides={slides} />
         </div>
 
         {/* =========================================================
-            SERVICES
+            2. SERVICES
         ========================================================= */}
         <section
           id="services"
@@ -240,7 +240,129 @@ export default async function HomePage() {
         </section>
 
         {/* =========================================================
-            ABOUT
+            3. PACKAGES ('Packages' -> Dark bg)
+        ========================================================= */}
+        <section
+          id="packages"
+          data-snap-section
+          data-label="Packages"
+          className="snap-section relative isolate overflow-hidden bg-slate-950 px-4 text-white sm:px-6"
+        >
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.15),transparent_60%)]" />
+          <div className="mx-auto w-full max-w-7xl">
+            <div className="text-center">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-white/60">Transparent Pricing</p>
+              <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl">Choose Your Travel Package</h2>
+              <p className="mt-4 text-slate-300">Affordable rates for individual seats or private rides between Dubai & Abu Dhabi.</p>
+            </div>
+            <div className="mt-12 grid gap-8 md:grid-cols-3">
+              {[
+                { name: "Single Passenger Seat", price: "AED 50", period: "one way", desc: "Ideal for daily commuters", popular: false, feats: ["Door-to-door pickup", "AC comfort", "Professional driver"] },
+                { name: "Full Private Car", price: "AED 250", period: "one way", desc: "Exclusive ride for families/VIP", popular: true, feats: ["100% private vehicle", "Custom timing", "Nonstop direct route"] },
+                { name: "Monthly Commuter Pass", price: "AED 1,200", period: "per month", desc: "Best value for regular travel", popular: false, feats: ["Guaranteed seat", "Flexible slots", "Dedicated support"] },
+              ].map((pkg) => (
+                <div key={pkg.name} className={`relative flex flex-col justify-between rounded-3xl border p-8 backdrop-blur ${pkg.popular ? "border-amber-400/50 bg-white/10 shadow-2xl" : "border-white/10 bg-white/5"}`}>
+                  {pkg.popular && <span className="absolute -top-3.5 right-8 rounded-full bg-amber-400 px-4 py-1 text-xs font-bold uppercase text-slate-950">Most Popular</span>}
+                  <div>
+                    <h3 className="text-2xl font-bold">{pkg.name}</h3>
+                    <p className="mt-2 text-sm text-slate-300">{pkg.desc}</p>
+                    <div className="mt-6 flex items-baseline gap-2">
+                      <span className="text-4xl font-extrabold tabular-nums">{pkg.price}</span>
+                      <span className="text-xs text-slate-400">{pkg.period}</span>
+                    </div>
+                    <ul className="mt-8 space-y-3 border-t border-white/10 pt-6">
+                      {pkg.feats.map((f) => (
+                        <li key={f} className="flex items-center gap-3 text-sm text-slate-200">
+                          <span className="grid size-5 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-emerald-400"><Check className="size-3.5" /></span>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <Link href="/contact" className={`mt-8 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full font-semibold transition ${pkg.popular ? "bg-amber-400 text-slate-950 hover:bg-amber-300" : "bg-white text-slate-950 hover:bg-slate-200"}`}>
+                    Book Package <ArrowUpRight className="size-4" />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            4. CARS (Links to /cars dedicated page)
+        ========================================================= */}
+        <section
+          id="cars"
+          data-snap-section
+          data-label="Cars"
+          className="snap-section mx-auto w-full max-w-7xl px-4 sm:px-6"
+        >
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">Our Fleet</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Travel in Comfort & Safety</h2>
+            </div>
+            <Link href="/cars" className="inline-flex min-h-11 items-center gap-2 font-semibold underline-offset-4 hover:underline">
+              View all cars & fleet <ArrowUpRight className="size-4" />
+            </Link>
+          </div>
+          <div className="mt-10 grid gap-8 md:grid-cols-3">
+            {[
+              { title: "Sedan Comfort", desc: "Smooth, air-conditioned sedans perfect for individual travelers and couples.", seats: "4 Passengers" },
+              { title: "SUV Family & Group", desc: "Spacious SUVs offering extra legroom and luggage space for comfortable journeys.", seats: "6-7 Passengers" },
+              { title: "Executive Van", desc: "Premium vans designed for group travel and corporate commuters between cities.", seats: "9-12 Passengers" },
+            ].map((car) => (
+              <div key={car.title} className="flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                <div>
+                  <div className="grid size-12 place-items-center rounded-2xl bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-white">
+                    <Car className="size-6" />
+                  </div>
+                  <h3 className="mt-5 text-xl font-bold">{car.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{car.desc}</p>
+                </div>
+                <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
+                  <span className="text-xs font-semibold text-slate-500">{car.seats}</span>
+                  <Link href="/cars" className="text-sm font-bold text-slate-950 dark:text-white hover:underline">Explore →</Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* =========================================================
+            5. WHAT MAKES OUR CARS SPECIAL ('...' -> Colored bg)
+        ========================================================= */}
+        <section
+          id="cars-special"
+          data-snap-section
+          data-label="Car Features"
+          className="snap-section relative isolate overflow-hidden bg-slate-900 px-4 text-white sm:px-6"
+        >
+          <div className="mx-auto w-full max-w-7xl">
+            <div className="text-center">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-white/60">Unmatched Quality</p>
+              <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl">What Makes Our Cars Special For Travel</h2>
+              <p className="mt-4 text-slate-300">Every vehicle in our fleet is meticulously maintained for long-distance city-to-city trips.</p>
+            </div>
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { title: "Sanitized Daily", desc: "Thoroughly cleaned and disinfected before every single trip." },
+                { title: "Climate Controlled", desc: "Powerful AC units optimized for UAE weather conditions." },
+                { title: "GPS Tracked", desc: "Real-time monitoring for maximum safety and punctual arrival." },
+                { title: "Extra Luggage Room", desc: "Dedicated storage compartments for all your bags and belongings." },
+              ].map((feat) => (
+                <div key={feat.title} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+                  <ShieldCheck className="size-8 text-amber-400" />
+                  <h3 className="mt-4 text-lg font-bold">{feat.title}</h3>
+                  <p className="mt-2 text-sm text-slate-300">{feat.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            6. ABOUT US
         ========================================================= */}
         {about && (
           <section
@@ -320,7 +442,84 @@ export default async function HomePage() {
         )}
 
         {/* =========================================================
-            TESTIMONIALS
+            7. WHY CHOOSE US ('why choose us' -> Dark bg)
+        ========================================================= */}
+        <section
+          id="why-choose-us"
+          data-snap-section
+          data-label="Why Choose Us"
+          className="snap-section relative isolate overflow-hidden bg-slate-950 px-4 text-white sm:px-6"
+        >
+          <div className="mx-auto w-full max-w-7xl">
+            <div className="text-center">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-white/60">The RK Advantage</p>
+              <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl">Why Choose Us For Your Journey</h2>
+              <p className="mt-4 text-slate-300">We make traveling between Dubai and Abu Dhabi effortless and dependable.</p>
+            </div>
+            <div className="mt-12 grid gap-8 md:grid-cols-3">
+              {[
+                { title: "Available 24/7", desc: "Day or night, our drivers and dispatch team are ready for your schedule." },
+                { title: "Fixed Transparent Rates", desc: "No hidden charges or surge pricing. You know your fare before you book." },
+                { title: "Door-to-Door Service", desc: "We pick you up directly from your location and drop you right at your destination." },
+              ].map((item) => (
+                <div key={item.title} className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
+                  <div className="grid size-12 place-items-center rounded-2xl bg-white text-slate-950 font-bold">✓</div>
+                  <h3 className="mt-6 text-xl font-bold">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            8. ROUTES WE COVER (Links to /routes dedicated page)
+        ========================================================= */}
+        <section
+          id="routes"
+          data-snap-section
+          data-label="Routes"
+          className="snap-section mx-auto w-full max-w-7xl px-4 sm:px-6"
+        >
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">Coverage Areas</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Routes We Cover</h2>
+            </div>
+            <Link href="/routes" className="inline-flex min-h-11 items-center gap-2 font-semibold underline-offset-4 hover:underline">
+              View all pickup & drop points <ArrowUpRight className="size-4" />
+            </Link>
+          </div>
+          <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-12">
+            <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+              <div>
+                <Compass className="size-10 text-slate-900 dark:text-white" />
+                <h3 className="mt-4 text-2xl font-bold">Dubai ⇄ Abu Dhabi Daily Corridors</h3>
+                <p className="mt-3 text-slate-600 dark:text-slate-300">
+                  Covering all major neighborhoods including JLT, Dubai Marina, Deira, Bur Dubai, Downtown, Khalifa City, Mussafah, Yas Island, and Al Reem Island.
+                </p>
+                <div className="mt-6 flex gap-4">
+                  <Link href="/routes" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-slate-950 px-6 font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950">
+                    Explore Route Points <ArrowUpRight className="size-4" />
+                  </Link>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-2xl bg-stone-100 p-6 dark:bg-slate-800">
+                  <p className="font-bold">Dubai Pickups</p>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">14+ Major areas covered daily</p>
+                </div>
+                <div className="rounded-2xl bg-stone-100 p-6 dark:bg-slate-800">
+                  <p className="font-bold">Abu Dhabi Drops</p>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">10+ Key locations serviced</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            9. TESTIMONIALS (Fixed background scroll effect)
         ========================================================= */}
         {testimonials.length > 0 && (
           <section
@@ -329,7 +528,6 @@ export default async function HomePage() {
             data-label="Reviews"
             className="snap-section relative isolate overflow-hidden bg-slate-950 text-white [clip-path:inset(0)]"
           >
-            {/* Fixed photo: stays still while the section scrolls over it */}
             {typeof bannerUrl === "string" && bannerUrl && (
               <div aria-hidden="true" className="fixed inset-0 -z-20">
                 <Image
@@ -342,8 +540,6 @@ export default async function HomePage() {
                 />
               </div>
             )}
-
-            {/* Dark overlay so the text stays readable (scrolls with the section) */}
             <div aria-hidden="true" className="absolute inset-0 -z-10 bg-slate-950/80" />
             <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.22),transparent_60%)]" />
             <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.06] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:56px_56px]" />
@@ -415,7 +611,38 @@ export default async function HomePage() {
         )}
 
         {/* =========================================================
-            FAQ
+            10. OUR DRIVERS
+        ========================================================= */}
+        <section
+          id="drivers"
+          data-snap-section
+          data-label="Our Drivers"
+          className="snap-section mx-auto w-full max-w-7xl px-4 sm:px-6"
+        >
+          <div className="text-center">
+            <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">Professional Team</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Meet Our Expert Drivers</h2>
+            <p className="mt-3 text-slate-600 dark:text-slate-300">Licensed, experienced, and dedicated to your safe arrival.</p>
+          </div>
+          <div className="mt-12 grid gap-8 md:grid-cols-3">
+            {[
+              { name: "Verified & Licensed", desc: "All our drivers hold official UAE driving licenses with clean driving records." },
+              { name: "Punctual & Courteous", desc: "Committed to timely pickups and respectful, helpful customer service." },
+              { name: "Route Experts", desc: "Extensive knowledge of all highways and shortcuts between Dubai and Abu Dhabi." },
+            ].map((d) => (
+              <div key={d.name} className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900 text-center">
+                <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-white">
+                  <UserCheck className="size-6" />
+                </div>
+                <h3 className="mt-5 text-xl font-bold">{d.name}</h3>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{d.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* =========================================================
+            11. FAQ
         ========================================================= */}
         {visibleHomeFaqs.length > 0 && (
           <section
@@ -434,7 +661,6 @@ export default async function HomePage() {
               className="pointer-events-none absolute -left-24 top-1/3 -z-10 size-80 rounded-full bg-slate-300/40 blur-3xl dark:bg-slate-700/30"
             />
             <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[380px_1fr] lg:gap-16">
-              {/* Left: heading and help card */}
               <div className="lg:sticky lg:top-28 lg:self-start">
                 <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
                   {text("home.faqs.eyebrow", "Answers")}
@@ -470,7 +696,6 @@ export default async function HomePage() {
                   </div>
                 </div>
               </div>
-              {/* Right: accordion */}
               <div className="space-y-3">
                 {visibleHomeFaqs.map((faq: Faq, index: number) => (
                   <details
@@ -500,7 +725,7 @@ export default async function HomePage() {
         )}
 
         {/* =========================================================
-            REVIEWS
+            12. REVIEW
         ========================================================= */}
         <section
           id="review"
@@ -509,7 +734,6 @@ export default async function HomePage() {
           className="snap-section bg-stone-100 px-4 dark:bg-slate-900/70 sm:px-6"
         >
           <div className="mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-            {/* Left: dark contact panel */}
             <div className="relative isolate flex flex-col justify-between overflow-hidden rounded-3xl bg-slate-950 p-7 text-white sm:p-10">
               <div aria-hidden="true" className="absolute -right-20 -top-20 -z-10 size-72 rounded-full bg-white/10 blur-3xl" />
               <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.06] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
@@ -569,11 +793,11 @@ export default async function HomePage() {
                 )}
               </ul>
             </div>
-            {/* Right: the form */}
             <ReviewForm />
           </div>
         </section>
       </main>
+
       {/* =========================================================
           SECTION SNAP STYLES
       ========================================================= */}
@@ -613,6 +837,7 @@ export default async function HomePage() {
           html { scroll-snap-type: none; }
         }
       `}</style>
+
       {/* =========================================================
           TESTIMONIAL STYLES
       ========================================================= */}
