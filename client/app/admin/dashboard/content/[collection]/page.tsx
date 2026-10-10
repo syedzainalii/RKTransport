@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Award, CarFront, CircleCheck, Clock3, Gauge, Headset, Heart, MapPin, ShieldCheck, Star, Truck, Wrench } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { notFound, useParams } from "next/navigation";
 import { apiRequest, type About } from "../../../../../lib/transport-api";
@@ -14,12 +13,15 @@ type Field = { key: string; label: string; help?: string; kind?: "text" | "texta
 type Collection = { title: string; path: string; singular: string; fields: Field[]; defaults: Row };
 
 const pageDestinations: [string, string][] = [
-  ["/services", "Services"], ["/contact", "Contact"], ["/about", "About"], ["/storage", "Storage"], ["/", "Home"],
+  ["/", "Home"],
+  ["/services", "Services"],
+  ["/about", "About"],
+  ["/reviews", "Reviews"],
 ];
 const serviceTypes: [string, string][] = [["transport", "Car transport"]];
 
 const collections: Record<string, Collection> = {
-  banners: { title: "Homepage banners", singular: "banner", path: "/hero-banners", defaults: { title: "", subtitle: "", description: "", badge_text: "", button_text: "Contact us", button_link: "/contact", button_custom_link: "", image_url: "", image_alt: "", portrait_image_url: "", sort_order: 0, is_active: true }, fields: [
+  banners: { title: "Homepage banners", singular: "banner", path: "/hero-banners", defaults: { title: "", subtitle: "", description: "", badge_text: "", button_text: "Get Quote", button_link: "/", button_custom_link: "", image_url: "", image_alt: "", portrait_image_url: "", sort_order: 0, is_active: true }, fields: [
     { key: "title", label: "Heading", help: "The big text on the banner.", required: true },
     { key: "subtitle", label: "Sub-heading" },
     { key: "description", label: "Short description", kind: "textarea", help: "Optional supporting text." },
@@ -44,7 +46,7 @@ const collections: Record<string, Collection> = {
   faqs: { title: "FAQs", singular: "question", path: "/faqs", defaults: { question: "", answer: "", page_key: "home", sort_order: 0, is_active: true }, fields: [
     { key: "question", label: "Question", required: true },
     { key: "answer", label: "Answer", kind: "textarea", required: true },
-    { key: "page_key", label: "Which page?", kind: "select", options: [["home", "Home"], ["services", "Services"], ["storage", "Storage"], ["", "All pages"]] },
+    { key: "page_key", label: "Which page?", kind: "select", options: [["home", "Home"], ["services", "Services"], ["", "All pages"]] },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
   testimonials: { title: "Testimonials", singular: "testimonial", path: "/testimonials", defaults: { customer_name: "", quote: "", rating: 5, vehicle_note: "", banner_image_url: "", is_active: true, sort_order: 0 }, fields: [
@@ -226,7 +228,7 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
         <form ref={formRef} onSubmit={(event) => void save(event)} className="mt-4 space-y-4">
             {collection.fields.map((field) => <FieldControl key={field.key} field={field} value={draft[field.key]} imageAlt={draft[field.key.replace(/_url$/, "_alt")]} onChange={(value) => update(field.key, value)} />)}
             {collectionKey === "banners" && draft.button_link === "custom" && <FieldControl field={{ key: "button_custom_link", label: "Custom page or website address", help: "For example, https://example.com/offer.", required: true }} value={draft.button_custom_link} onChange={(value) => update("button_custom_link", value)} />}
-                  {collectionKey === "banners" && <section aria-label="Banner preview" className="overflow-hidden rounded-xl border dark:border-slate-700"><h3 className="p-3 font-semibold">Live banner preview</h3><div className="relative min-h-52 bg-slate-950 p-6 text-white">{landscapePreview && <picture className="absolute inset-0"><source media="(max-width: 1023px)" srcSet={portraitPreview || landscapePreview} /><Image src={landscapePreview} alt="" fill unoptimized sizes="640px" className="object-cover opacity-70" /></picture>}<div className="relative z-10"><p className="font-bold">{stringValue(draft.badge_text)}</p><h4 className="mt-3 text-2xl font-bold">{stringValue(draft.title) || "Your banner heading"}</h4><p className="mt-2 text-lg">{stringValue(draft.subtitle)}</p><p className="mt-2">{stringValue(draft.description)}</p><span className="mt-4 inline-flex min-h-11 items-center rounded-full bg-white px-4 font-semibold text-slate-950">{stringValue(draft.button_text) || "Button text"}</span></div></div></section>}
+            {collectionKey === "banners" && <section aria-label="Banner preview" className="overflow-hidden rounded-xl border dark:border-slate-700"><h3 className="p-3 font-semibold">Live banner preview</h3><div className="relative min-h-52 bg-slate-950 p-6 text-white">{landscapePreview && <picture className="absolute inset-0"><source media="(max-width: 1023px)" srcSet={portraitPreview || landscapePreview} /><Image src={landscapePreview} alt="" fill unoptimized sizes="640px" className="object-cover opacity-70" /></picture>}<div className="relative z-10"><p className="font-bold">{stringValue(draft.badge_text)}</p><h4 className="mt-3 text-2xl font-bold">{stringValue(draft.title) || "Your banner heading"}</h4><p className="mt-2 text-lg">{stringValue(draft.subtitle)}</p><p className="mt-2">{stringValue(draft.description)}</p><span className="mt-4 inline-flex min-h-11 items-center rounded-full bg-white px-4 font-semibold text-slate-950">{stringValue(draft.button_text) || "Button text"}</span></div></div></section>}
           <footer className="sticky bottom-0 flex gap-3 bg-white py-3 dark:bg-slate-900"><button type="submit" disabled={busy} className="min-h-12 flex-1 rounded-xl bg-slate-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-white border-r-transparent align-[-3px]" />Saving…</> : "Save changes"}</button><button type="button" onClick={closeEdit} className="min-h-12 rounded-xl border px-4 font-semibold dark:border-slate-700">Cancel</button></footer>
         </form>
       </section>
@@ -355,10 +357,8 @@ function AboutEditor() {
 
   const update = (key: string, value: unknown) => { setDirty(true); setDraft((current) => ({ ...current, [key]: value })); };
   const stats = Array.isArray(draft.stats) ? draft.stats.map(asRecord) : [];
-  const reasons = Array.isArray(draft.why_choose_us) ? draft.why_choose_us.map(asRecord) : [];
   const images = Array.isArray(draft.images) ? draft.images.map(asRecord) : [];
   const storyImage: UploadedImage | null = typeof images[0]?.url === "string" ? { url: stringValue(images[0].url), alt: stringValue(images[0].alt) } : null;
-  const bannerImage: UploadedImage | null = typeof draft.banner_image_url === "string" && draft.banner_image_url ? { url: stringValue(draft.banner_image_url), alt: "" } : null;
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -385,20 +385,11 @@ function AboutEditor() {
     <Link href="/about" target="_blank" className="inline-flex min-h-11 items-center font-semibold text-slate-800 underline dark:text-slate-300">View on website ↗</Link>
     {error && <p role="alert" className="mb-4 rounded-xl bg-red-100 p-3 text-red-900">{error}</p>}
     {toast && <p role="status" className="mb-4 rounded-xl bg-slate-100 p-3">{toast}</p>}
-    {loading ? <div className="h-40 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" /> : <form onSubmit={(event) => void save(event)} className="mt-5 space-y-6 bg-white p-6 rounded-2xl shadow dark:bg-slate-900">
+    {loading ? <div className="h-40 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" /> : <form onSubmit={(event) => void save(event)} className="mt-5 space-y-6 rounded-2xl bg-white p-6 shadow dark:bg-slate-900">
       <label className="block text-sm font-semibold">Heading <input type="text" value={stringValue(draft.title)} onChange={(e) => update("title", e.target.value)} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950" required /></label>
       <label className="block text-sm font-semibold">Subtitle <input type="text" value={stringValue(draft.subtitle)} onChange={(e) => update("subtitle", e.target.value)} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950" /></label>
-      
-      <ImageUpload 
-        label="About Banner Background Image" 
-        hint="Custom background image for the About page hero banner." 
-        value={bannerImage} 
-        onChange={(next) => update("banner_image_url", next && !Array.isArray(next) ? next.url : "")} 
-      />
-
-      <label className="block text-sm font-semibold">Our Story / Description <textarea rows={6} value={stringValue(draft.description)} onChange={(e) => update("description", e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-700 dark:bg-slate-950" required /></label>
-      
-      <button type="submit" disabled={busy} className="min-h-12 w-full rounded-xl bg-slate-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? "Saving..." : "Save About Page"}</button>
+      <label className="block text-sm font-semibold">Story / Description <textarea value={stringValue(draft.description)} onChange={(e) => update("description", e.target.value)} rows={5} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-700 dark:bg-slate-950" required /></label>
+      <button type="submit" disabled={busy} className="min-h-12 w-full rounded-xl bg-slate-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? "Saving…" : "Save changes"}</button>
     </form>}
   </div></main>;
 }
