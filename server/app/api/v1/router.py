@@ -6,6 +6,7 @@ from app.api.v1.content import (
     faq_router,
     hero_router,
     locations_router,
+    page_banner_router,
     page_copy_router,
     routes_router,
     services_router,
@@ -26,6 +27,7 @@ api_v1.include_router(storage_router)
 api_v1.include_router(faq_router)
 api_v1.include_router(testimonial_router)
 api_v1.include_router(page_copy_router)
+api_v1.include_router(page_banner_router)
 api_v1.include_router(about_router)
 api_v1.include_router(car_catalog.router)
 api_v1.include_router(inquiries.router)
