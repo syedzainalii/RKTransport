@@ -36,9 +36,9 @@ const PACKAGES = [
 ];
 
 const FLEET = [
-  { title: "Sedan Comfort", desc: "Smooth, air-conditioned sedans perfect for individual travelers and couples.", seats: "4 passengers", chips: ["AC", "2 bags", "Wi-Fi ready"] },
-  { title: "SUV Family & Group", desc: "Spacious SUVs with extra legroom and luggage space for comfortable journeys.", seats: "6-7 passengers", chips: ["AC", "5 bags", "Extra legroom"] },
-  { title: "Executive Van", desc: "Premium vans designed for group travel and corporate commuters between cities.", seats: "9-12 passengers", chips: ["AC", "10 bags", "Group travel"] },
+  { title: "Sedan Comfort", desc: "Smooth, air-conditioned sedans perfect for individual travelers and couples.", seats: "4 passengers", chips: ["AC", "2 bags", "Wi-Fi ready"], image_url: null },
+  { title: "SUV Family & Group", desc: "Spacious SUVs with extra legroom and luggage space for comfortable journeys.", seats: "6-7 passengers", chips: ["AC", "5 bags", "Extra legroom"], image_url: null },
+  { title: "Executive Van", desc: "Premium vans designed for group travel and corporate commuters between cities.", seats: "9-12 passengers", chips: ["AC", "10 bags", "Group travel"], image_url: null },
 ];
 
 const CAR_FEATURES = [
@@ -161,6 +161,11 @@ export default async function HomePage() {
       (testimonials[0] as (Testimonial & { banner_image_url?: string | null }) | undefined)?.banner_image_url
     );
 
+  const packagesBannerUrl = copy.find((item: PageCopy) => item.key === "packages_banner_url")?.value || bannerUrl;
+  const carfeaturesBannerUrl = copy.find((item: PageCopy) => item.key === "carfeatures_banner_url")?.value || bannerUrl;
+  const whyBannerUrl = copy.find((item: PageCopy) => item.key === "why_banner_url")?.value || bannerUrl;
+  const faqBannerUrl = copy.find((item: PageCopy) => item.key === "faq_banner_url")?.value || bannerUrl;
+
   const averageRating = testimonials.length
     ? (
         testimonials.reduce((sum: number, t: Testimonial) => sum + t.rating, 0) /
@@ -280,14 +285,27 @@ export default async function HomePage() {
         </section>
 
         {/* =========================================================
-            3. PACKAGES (Slate Background bg-slate-950)
+            3. PACKAGES (Fixed Parallax Image Background)
         ========================================================= */}
         <section
           id="packages"
           data-snap-section
           data-label="Packages"
-          className="snap-section relative overflow-hidden bg-slate-950 px-4 text-white sm:px-6"
+          className="snap-section relative isolate overflow-hidden bg-slate-950 px-4 text-white sm:px-6 [clip-path:inset(0)]"
         >
+          {typeof packagesBannerUrl === "string" && packagesBannerUrl && (
+            <div aria-hidden="true" className="fixed inset-0 -z-20">
+              <Image
+                src={apiImageUrl(packagesBannerUrl) || packagesBannerUrl}
+                alt=""
+                fill
+                unoptimized={!isImageOptimizable(packagesBannerUrl)}
+                sizes="100vw"
+                className="object-cover object-center"
+              />
+            </div>
+          )}
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-slate-950/85" />
           <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full bg-amber-400/10 blur-3xl" />
           <div className="mx-auto w-full max-w-6xl">
             <div className="mx-auto max-w-2xl text-center">
@@ -352,7 +370,7 @@ export default async function HomePage() {
         </section>
 
         {/* =========================================================
-            4. CARS
+            4. CARS / VEHICLES (Supports Uploaded Images + Title)
         ========================================================= */}
         <section
           id="cars"
@@ -381,29 +399,45 @@ export default async function HomePage() {
                 <Link
                   key={car.title}
                   href="/cars"
-                  className="group relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-stone-50 p-7 transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900"
+                  className="group relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-stone-50 transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900"
                 >
-                  <Car aria-hidden="true" className="pointer-events-none absolute -right-6 -top-4 size-40 text-slate-900/[0.04] transition-transform duration-500 group-hover:-translate-x-2 group-hover:rotate-[-6deg] dark:text-white/[0.05]" />
-                  <div className="relative flex items-center justify-between">
-                    <span className="grid size-12 place-items-center rounded-2xl bg-slate-950 text-white dark:bg-white dark:text-slate-950">
-                      <Car aria-hidden="true" className="size-6" />
+                  {/* Uploaded vehicle image or fallback styled icon header */}
+                  <div className="relative h-52 w-full overflow-hidden bg-slate-200 dark:bg-slate-800">
+                    {car.image_url ? (
+                      <Image
+                        src={apiImageUrl(car.image_url) || car.image_url}
+                        alt={car.title}
+                        fill
+                        unoptimized={!isImageOptimizable(car.image_url)}
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-800 to-slate-950 text-white">
+                        <Car aria-hidden="true" className="size-16 opacity-30" />
+                      </div>
+                    )}
+                    <span className="absolute left-4 top-4 grid size-10 place-items-center rounded-full bg-white/90 text-xs font-bold text-slate-900 backdrop-blur">
+                      {String(index + 1).padStart(2, "0")}
                     </span>
-                    <span className="text-sm font-bold tabular-nums text-slate-400">{String(index + 1).padStart(2, "0")}</span>
                   </div>
-                  <h3 className="relative mt-6 text-2xl font-bold tracking-tight">{car.title}</h3>
-                  <p className="relative mt-2 flex-1 leading-7 text-slate-600 dark:text-slate-300">{car.desc}</p>
-                  <ul className="relative mt-5 flex flex-wrap gap-2">
-                    {car.chips.map((chip) => (
-                      <li key={chip} className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
-                        {chip}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="relative mt-6 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-800">
-                    <span className="text-sm font-semibold text-slate-500">{car.seats}</span>
-                    <span className="inline-flex items-center gap-1 text-sm font-bold transition-all group-hover:gap-2">
-                      Explore <ArrowUpRight aria-hidden="true" className="size-4" />
-                    </span>
+
+                  <div className="flex flex-1 flex-col p-7">
+                    <h3 className="text-2xl font-bold tracking-tight">{car.title}</h3>
+                    <p className="mt-2 flex-1 leading-7 text-slate-600 dark:text-slate-300">{car.desc}</p>
+                    <ul className="mt-5 flex flex-wrap gap-2">
+                      {car.chips.map((chip) => (
+                        <li key={chip} className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+                          {chip}
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-800">
+                      <span className="text-sm font-semibold text-slate-500">{car.seats}</span>
+                      <span className="inline-flex items-center gap-1 text-sm font-bold transition-all group-hover:gap-2">
+                        Explore <ArrowUpRight aria-hidden="true" className="size-4" />
+                      </span>
+                    </div>
                   </div>
                   <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-amber-400 transition-transform duration-500 group-hover:scale-x-100" />
                 </Link>
@@ -413,15 +447,27 @@ export default async function HomePage() {
         </section>
 
         {/* =========================================================
-            5. CAR FEATURES (Slate Background bg-slate-950)
+            5. CAR FEATURES (Fixed Parallax Image Background)
         ========================================================= */}
         <section
           id="cars-special"
           data-snap-section
           data-label="Car features"
-          className="snap-section relative isolate overflow-hidden bg-slate-950 px-4 text-white sm:px-6"
+          className="snap-section relative isolate overflow-hidden bg-slate-950 px-4 text-white sm:px-6 [clip-path:inset(0)]"
         >
-          <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-[0.06] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:56px_56px]" />
+          {typeof carfeaturesBannerUrl === "string" && carfeaturesBannerUrl && (
+            <div aria-hidden="true" className="fixed inset-0 -z-20">
+              <Image
+                src={apiImageUrl(carfeaturesBannerUrl) || carfeaturesBannerUrl}
+                alt=""
+                fill
+                unoptimized={!isImageOptimizable(carfeaturesBannerUrl)}
+                sizes="100vw"
+                className="object-cover object-center"
+              />
+            </div>
+          )}
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-slate-950/85" />
           <div aria-hidden="true" className="absolute -left-32 top-1/4 -z-10 size-96 rounded-full bg-amber-400/10 blur-3xl" />
           <div className="mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
             <div>
@@ -542,14 +588,27 @@ export default async function HomePage() {
         )}
 
         {/* =========================================================
-            7. WHY CHOOSE US (Slate Background bg-slate-950)
+            7. WHY CHOOSE US (Fixed Parallax Image Background)
         ========================================================= */}
         <section
           id="why-choose-us"
           data-snap-section
           data-label="Why choose us"
-          className="snap-section bg-slate-950 text-white px-4 sm:px-6"
+          className="snap-section relative isolate overflow-hidden bg-slate-950 text-white px-4 sm:px-6 [clip-path:inset(0)]"
         >
+          {typeof whyBannerUrl === "string" && whyBannerUrl && (
+            <div aria-hidden="true" className="fixed inset-0 -z-20">
+              <Image
+                src={apiImageUrl(whyBannerUrl) || whyBannerUrl}
+                alt=""
+                fill
+                unoptimized={!isImageOptimizable(whyBannerUrl)}
+                sizes="100vw"
+                className="object-cover object-center"
+              />
+            </div>
+          )}
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-slate-950/85" />
           <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <p className="text-sm font-bold uppercase tracking-[.2em] text-white/60">
@@ -768,15 +827,28 @@ export default async function HomePage() {
         </section>
 
         {/* =========================================================
-            11. FAQ (Slate Background bg-slate-950)
+            11. FAQ (Fixed Parallax Image Background)
         ========================================================= */}
         {visibleHomeFaqs.length > 0 && (
           <section
             id="faq"
             data-snap-section
             data-label="FAQ"
-            className="snap-section relative bg-slate-950 text-white px-4 sm:px-6"
+            className="snap-section relative isolate overflow-hidden bg-slate-950 text-white px-4 sm:px-6 [clip-path:inset(0)]"
           >
+            {typeof faqBannerUrl === "string" && faqBannerUrl && (
+              <div aria-hidden="true" className="fixed inset-0 -z-20">
+                <Image
+                  src={apiImageUrl(faqBannerUrl) || faqBannerUrl}
+                  alt=""
+                  fill
+                  unoptimized={!isImageOptimizable(faqBannerUrl)}
+                  sizes="100vw"
+                  className="object-cover object-center"
+                />
+              </div>
+            )}
+            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-slate-950/85" />
             <style>{`
               details[open] .faq-answer { animation: faq-open .35s ease; }
               @keyframes faq-open { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
@@ -949,7 +1021,7 @@ export default async function HomePage() {
         }
         @media (max-width: 767px) {
           html {
-            scroll-snap-type: none; /* Disable rigid snapping on mobile for smooth, natural touch scrolling */
+            scroll-snap-type: none; /* Disable rigid snapping on mobile for smooth touch scrolling */
           }
           .snap-hero,
           .snap-section {
