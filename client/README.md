@@ -30,4 +30,6 @@ Deploy `client/` as the Vercel Next.js project. Set `API_BASE_URL` to the deploy
 
 Image URLs stored in site content should point to Cloudinary. For additional image hosts, add a narrowly scoped host to `next.config.mjs`.
 
+The admin dashboard manages homepage hero slides and section backgrounds, and uploads the Cars and Routes & Coverage page hero images on fleet vehicle and location records.
+
 See the repository's [deployment guide](../DEPLOYMENT.md) for the full two-project Vercel setup, database migration/seed sequence, cookie and CORS settings, and launch checklist.

@@ -190,7 +190,7 @@ export default function SiteSettingsPage() {
 
       <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Footer text</summary><div className="mt-4">{field("footer_blurb", "Short business description", { multiline: true, hint: "Shown near the bottom of each page." })}</div></details>
 
-      <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Homepage section backgrounds</summary><div className="mt-4 grid gap-5 sm:grid-cols-2">
+      <details id="homepage-section-backgrounds" className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Homepage section backgrounds</summary><div className="mt-4 grid gap-5 sm:grid-cols-2">
         {SECTION_BANNERS.map(({ key, label }) => <div key={key} className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
           <ImageUpload label={`${label} section background`} value={sectionBanners[key]} onChange={(value) => changeSectionBanner(key, value && !Array.isArray(value) ? value : null)} folder="page-banners" />
           <button type="button" disabled={savingBanner !== null} onClick={() => void saveSectionBanner(key)} className="mt-3 min-h-11 rounded-lg bg-slate-800 px-4 font-semibold text-white disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900">

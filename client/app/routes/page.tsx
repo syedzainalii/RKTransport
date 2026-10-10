@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, Compass, MapPin, MessageCircle, Phone, Route } from "lucide-react";
+import { MapPin, MessageCircle, Phone, Route } from "lucide-react";
 import { BreadcrumbStructuredData } from "../Components/structured-data";
+import PageHero from "../Components/page-hero";
 import { generatePageMetadata } from "../../lib/seo";
-import { publicApi } from "../../lib/transport-api";
+import { publicApi, type Location } from "../../lib/transport-api";
 
 export const revalidate = 60;
 
@@ -47,12 +47,18 @@ export function generateMetadata() {
 }
 
 export default async function RoutesPage() {
-  const settingsResult = await Promise.resolve(publicApi.settings()).catch(() => null);
-  const settings = settingsResult;
+  const [settingsResult, locationsResult] = await Promise.allSettled([
+    publicApi.settings(),
+    publicApi.locations(),
+  ]);
+  const settings = settingsResult.status === "fulfilled" ? settingsResult.value : null;
+  const locations: Location[] = locationsResult.status === "fulfilled" ? locationsResult.value : [];
 
   const phone = settings?.phone_primary || PHONE_NUMBER;
   const whatsappDigits = settings?.whatsapp?.replace(/\D/g, "") || WHATSAPP_NUMBER;
   const routeLabel = settings?.core_route_label || "Dubai ⇄ Abu Dhabi";
+  const bannerUrl = locations.find((location) => location.banner_image_url)?.banner_image_url;
+  const hours = settings?.available_24_7 ? settings.hours_label : "";
 
   return (
     <>
@@ -61,28 +67,30 @@ export default async function RoutesPage() {
         { name: "Routes & Coverage", path: "/routes" }
       ]} />
 
+      <PageHero
+        crumb="Routes & Coverage"
+        title="Intercity Routes & Coverage Areas"
+        subtitle={`We provide reliable, door-to-door car transport and daily car lift services across the core corridor between ${routeLabel}.`}
+        imageUrl={bannerUrl}
+        hours={hours}
+        highlights={[
+          { icon: <Route aria-hidden="true" className="size-5" />, label: "Core corridor", value: routeLabel },
+          { icon: <Phone aria-hidden="true" className="size-5" />, label: "Call dispatch", value: phone },
+          { icon: <MapPin aria-hidden="true" className="size-5" />, label: "Coverage", value: "Dubai & Abu Dhabi" },
+        ]}
+      >
+        <a
+          href={`https://wa.me/${whatsappDigits}?text=Hello%20RK%20Transport,%20I%20would%20like%20to%20ask%20about%20your%20routes.`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-slate-950 transition hover:bg-slate-200"
+        >
+          <MessageCircle aria-hidden="true" className="size-5" />
+          Ask about a route
+        </a>
+      </PageHero>
+
       <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
-        {/* Back link */}
-        <div className="mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
-          >
-            <ArrowLeft className="size-4" /> Back to Home
-          </Link>
-        </div>
-
-        {/* Header */}
-        <div className="max-w-3xl">
-          <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-800 dark:text-slate-300">
-            {settings ? (settings.available_24_7 ? settings.hours_label : "") : "Available 24/7"}
-          </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Intercity Routes & Coverage Areas</h1>
-          <p className="mt-4 text-lg leading-8 text-slate-600 dark:text-slate-300">
-            We provide reliable, door-to-door car transport and daily car lift services across the core corridor between {routeLabel}.
-          </p>
-        </div>
-
         {/* Main Route Highlight Card */}
         <div className="mt-12 rounded-3xl bg-slate-950 p-8 text-white shadow-2xl sm:p-12">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">

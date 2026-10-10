@@ -12,6 +12,7 @@ class Location(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(120), index=True)
     slug: Mapped[str] = mapped_column(String(140), unique=True, index=True)
     emirate: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    banner_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     address: Mapped[str | None] = mapped_column(Text, nullable=True)
     lat: Mapped[float | None] = mapped_column(Float, nullable=True)
     lng: Mapped[float | None] = mapped_column(Float, nullable=True)

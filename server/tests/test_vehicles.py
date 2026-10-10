@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base, get_db
-from app.models import Vehicle
+from app.models import Location, Vehicle
 from main import app
 
 
@@ -49,6 +49,7 @@ class PublicVehiclesTests(unittest.TestCase):
                         slug="first",
                         description="First in order",
                         seats="6",
+                        banner_image_url="https://images.example.test/cars-banner.jpg",
                         chips=["AC", "Luggage"],
                         display_order=1,
                         is_active=True,
@@ -73,6 +74,30 @@ class PublicVehiclesTests(unittest.TestCase):
         self.assertEqual([item["title"] for item in response.json()], ["First", "Last"])
         self.assertEqual(response.json()[0]["chips"], ["AC", "Luggage"])
         self.assertEqual(response.json()[0]["slug"], "first")
+        self.assertEqual(
+            response.json()[0]["banner_image_url"],
+            "https://images.example.test/cars-banner.jpg",
+        )
+
+    def test_public_locations_include_the_uploaded_page_banner(self):
+        with Session(self.engine) as db:
+            db.add(
+                Location(
+                    name="Dubai",
+                    slug="dubai",
+                    banner_image_url="https://images.example.test/locations-banner.jpg",
+                )
+            )
+            db.commit()
+
+        with TestClient(app) as client:
+            response = client.get("/api/v1/locations")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()[0]["banner_image_url"],
+            "https://images.example.test/locations-banner.jpg",
+        )
 
 
 if __name__ == "__main__":

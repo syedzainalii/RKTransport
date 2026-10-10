@@ -57,7 +57,7 @@ export type Service = {
   is_active: boolean;
 };
 
-export type Location = { id: number; name: string; emirate: string | null };
+export type Location = { id: number; name: string; emirate: string | null; banner_image_url: string | null };
 export type Route = { id: number; title: string; origin_location_id: number; destination_location_id: number; base_price_aed: string | number | null };
 export type VehicleType = { id: number; name: string; description: string | null; surcharge_aed?: string | number; is_active?: boolean };
 export type Vehicle = {
@@ -67,6 +67,7 @@ export type Vehicle = {
   description: string;
   seats: string;
   image_url: string | null;
+  banner_image_url: string | null;
   chips: string[];
   display_order: number;
   is_active: boolean;

@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Check, ShieldCheck, Users, Luggage, Fuel, Sparkles, MessageCircle, Phone } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, ShieldCheck, Users, Luggage, Fuel, Sparkles, MessageCircle, Phone, Route } from "lucide-react";
 import { BreadcrumbStructuredData } from "../Components/structured-data";
+import PageHero from "../Components/page-hero";
 import { generatePageMetadata } from "../../lib/seo";
-import { publicApi } from "../../lib/transport-api";
+import { publicApi, type Vehicle } from "../../lib/transport-api";
 
 export const revalidate = 60;
 
@@ -84,28 +84,50 @@ const SPECIAL_FEATURES = [
 ];
 
 export default async function CarsPage() {
-  const settingsResult = await Promise.resolve(publicApi.settings()).catch(() => null);
-  const settings = settingsResult;
+  const [settingsResult, carsResult] = await Promise.allSettled([
+    publicApi.settings(),
+    publicApi.cars(),
+  ]);
+  const settings = settingsResult.status === "fulfilled" ? settingsResult.value : null;
+  const cars: Vehicle[] = carsResult.status === "fulfilled" ? carsResult.value : [];
+  const bannerUrl = cars.find((car) => car.banner_image_url)?.banner_image_url;
 
   const phone = settings?.phone_primary || PHONE_NUMBER;
   const whatsappDigits = settings?.whatsapp?.replace(/\D/g, "") || WHATSAPP_NUMBER;
+  const hours = settings?.available_24_7 ? settings.hours_label : "";
 
   return (
     <>
       <BreadcrumbStructuredData items={[{ name: "Home", path: "/" }, { name: "Our Fleet", path: "/cars" }]} />
-      
-      <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
-        {/* Header */}
-        <div className="max-w-3xl">
-          <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-800 dark:text-slate-300">
-            {settings ? (settings.available_24_7 ? settings.hours_label : "") : "Available 24/7"}
-          </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Our Transport Fleet</h1>
-          <p className="mt-4 text-lg leading-8 text-slate-600 dark:text-slate-300">
-            From sleek luxury sedans for daily commute to spacious SUVs and high-capacity executive vans, we maintain a top-tier fleet for travel between Dubai and Abu Dhabi.
-          </p>
-        </div>
 
+      <PageHero
+        crumb="Our Fleet"
+        title="Our Transport Fleet"
+        subtitle="From sleek luxury sedans for daily commute to spacious SUVs and high-capacity executive vans, we maintain a top-tier fleet for travel between Dubai and Abu Dhabi."
+        imageUrl={bannerUrl}
+        hours={hours}
+        highlights={[
+          { icon: <Route aria-hidden="true" className="size-5" />, label: "Route", value: settings?.core_route_label || "Dubai ⇄ Abu Dhabi" },
+          { icon: <Phone aria-hidden="true" className="size-5" />, label: "Call us", value: phone },
+          { icon: <MessageCircle aria-hidden="true" className="size-5" />, label: "Fleet enquiries", value: "WhatsApp available" },
+        ]}
+      >
+        <a
+          href={`https://wa.me/${whatsappDigits}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-slate-950 transition hover:bg-slate-200"
+        >
+          Ask about the fleet
+          <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
+        </a>
+        <Link href="/routes" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 font-semibold backdrop-blur-md transition hover:bg-white/20">
+          View our routes
+          <ArrowUpRight aria-hidden="true" className="size-4" />
+        </Link>
+      </PageHero>
+
+      <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
         {/* Fleet Grid */}
         <div className="mt-12 grid gap-8 lg:grid-cols-3">
           {FLEET.map((vehicle) => (

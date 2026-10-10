@@ -18,6 +18,7 @@ class Vehicle(Base, TimestampMixin):
     description: Mapped[str] = mapped_column(Text)
     seats: Mapped[str] = mapped_column(String(120))
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    banner_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     chips: Mapped[list[str]] = mapped_column(JSONType, default=list)
     display_order: Mapped[int] = mapped_column(Integer, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)

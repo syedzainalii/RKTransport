@@ -54,6 +54,7 @@ class ServiceResponse(ServiceIn, ORMModel):
 class LocationIn(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     emirate: str | None = Field(default=None, max_length=80)
+    banner_image_url: str | None = Field(default=None, max_length=2048)
     address: str | None = Field(default=None, max_length=5000)
     lat: float | None = Field(default=None, ge=-90, le=90)
     lng: float | None = Field(default=None, ge=-180, le=180)
@@ -113,6 +114,7 @@ class VehicleIn(BaseModel):
     description: str = Field(min_length=1, max_length=10000)
     seats: str = Field(min_length=1, max_length=120)
     image_url: str | None = Field(default=None, max_length=2048)
+    banner_image_url: str | None = Field(default=None, max_length=2048)
     chips: list[str] = Field(default_factory=list, max_length=30)
     display_order: int = Field(default=0, ge=0)
     is_active: bool = True

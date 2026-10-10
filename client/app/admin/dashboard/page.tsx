@@ -62,6 +62,7 @@ export default function AdminDashboardPage() {
             </ManagementGroup>
             <ManagementGroup title="Website pages">
               <AdminCard href="/admin/dashboard/content/banners" title="Homepage banners" description="Edit and arrange the home page slideshow." />
+              <AdminCard href="/admin/dashboard/settings#homepage-section-backgrounds" title="Homepage section backgrounds" description="Upload or remove backgrounds for the Packages, Car Features, Why Choose Us, and FAQ sections." />
               <AdminCard href="/admin/dashboard/content/services" title="Services" description="Manage service pages, pictures, and Google descriptions." />
               <AdminCard href="/admin/dashboard/content/cars" title="Cars and fleet" description="Manage fleet vehicles, images, passenger capacity, and feature chips." />
               <AdminCard href="/admin/dashboard/content/locations" title="Locations" description="Manage pickup and drop-off locations, hubs, and map coordinates." />

@@ -42,18 +42,20 @@ const collections: Record<string, Collection> = {
     { key: "image_url", label: "Main picture", kind: "single-image" },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
-  cars: { title: "Cars and fleet", singular: "vehicle", path: "/cars", defaults: { title: "", description: "", seats: "", image_url: "", chips: [], display_order: 0, is_active: true }, fields: [
+  cars: { title: "Cars and fleet", singular: "vehicle", path: "/cars", defaults: { title: "", description: "", seats: "", image_url: "", banner_image_url: "", chips: [], display_order: 0, is_active: true }, fields: [
     { key: "title", label: "Vehicle name", required: true },
     { key: "description", label: "Description", kind: "textarea", required: true },
     { key: "seats", label: "Passenger capacity", required: true },
     { key: "image_url", label: "Vehicle image", kind: "single-image" },
+    { key: "banner_image_url", label: "Cars page hero image", kind: "single-image", help: "The first active fleet item with a hero image supplies the Cars page banner." },
     { key: "chips", label: "Feature chips", kind: "string-list", help: "Add one short feature per line." },
     { key: "display_order", label: "Display order", kind: "number", min: 0 },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
-  locations: { title: "Locations", singular: "location", path: "/locations", defaults: { name: "", emirate: "", address: "", lat: null, lng: null, is_hub: false, pickup_enabled: true, dropoff_enabled: true, notes: "", sort_order: 0, is_active: true }, fields: [
+  locations: { title: "Locations", singular: "location", path: "/locations", defaults: { name: "", emirate: "", banner_image_url: "", address: "", lat: null, lng: null, is_hub: false, pickup_enabled: true, dropoff_enabled: true, notes: "", sort_order: 0, is_active: true }, fields: [
     { key: "name", label: "Location name", required: true },
     { key: "emirate", label: "Emirate" },
+    { key: "banner_image_url", label: "Locations page hero image", kind: "single-image", help: "The first active location with a hero image supplies the Routes & Coverage page banner." },
     { key: "address", label: "Address", kind: "textarea" },
     { key: "lat", label: "Latitude", kind: "number", min: -90, max: 90 },
     { key: "lng", label: "Longitude", kind: "number", min: -180, max: 180 },
@@ -285,7 +287,7 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
     {loading ? <div aria-label="Loading list" className="mt-5 space-y-3">{[1, 2, 3].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" />)}</div>
       : rows.length === 0 ? <p className="mt-5 rounded-2xl bg-white p-6 dark:bg-slate-900">No {collection.title.toLowerCase()} yet. Add your first {collection.singular}.</p>
       : <div className="mt-5 space-y-3">{rows.map((row, index) => <article key={String(row.id ?? index)} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center">
-        {typeof row.image_url === "string" && row.image_url && <div className="relative h-20 w-full shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:w-28"><Image src={row.image_url} alt="" fill unoptimized sizes="112px" className="object-cover" /></div>}
+        {Boolean(row.image_url || row.banner_image_url) && <div className="relative h-20 w-full shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:w-28"><Image src={stringValue(row.image_url || row.banner_image_url)} alt="" fill unoptimized sizes="112px" className="object-cover" /></div>}
         <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="truncate font-semibold">{titleOf(collection, row)}</h2>{"is_active" in row && <span className={`rounded-full px-2 py-1 text-xs font-bold ${booleanValue(row.is_active) ? "bg-slate-100 text-slate-900" : "bg-slate-200 text-slate-700"}`}>{booleanValue(row.is_active) ? "Visible" : "Hidden"}</span>}</div><p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{stringValue(row.short_description || row.quote || row.description || row.subtitle)}</p></div>
         <div className="flex flex-wrap gap-1">
           <button type="button" aria-label="Move up" disabled={index === 0} onClick={() => void move(index, -1)} className="min-h-11 min-w-11 rounded-lg border text-lg disabled:opacity-40 dark:border-slate-700">↑</button><button type="button" aria-label="Move down" disabled={index === rows.length - 1} onClick={() => void move(index, 1)} className="min-h-11 min-w-11 rounded-lg border text-lg disabled:opacity-40 dark:border-slate-700">↓</button>
