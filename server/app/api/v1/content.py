@@ -68,7 +68,6 @@ locations_router = crud_router(
     tag="Locations",
     slug_from="name",
     order_by=Location.sort_order,
-    admin_enabled=False,
 )
 
 vehicle_router = crud_router(

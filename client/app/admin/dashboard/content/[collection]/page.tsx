@@ -51,6 +51,19 @@ const collections: Record<string, Collection> = {
     { key: "display_order", label: "Display order", kind: "number", min: 0 },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
+  locations: { title: "Locations", singular: "location", path: "/locations", defaults: { name: "", emirate: "", address: "", lat: null, lng: null, is_hub: false, pickup_enabled: true, dropoff_enabled: true, notes: "", sort_order: 0, is_active: true }, fields: [
+    { key: "name", label: "Location name", required: true },
+    { key: "emirate", label: "Emirate" },
+    { key: "address", label: "Address", kind: "textarea" },
+    { key: "lat", label: "Latitude", kind: "number", min: -90, max: 90 },
+    { key: "lng", label: "Longitude", kind: "number", min: -180, max: 180 },
+    { key: "notes", label: "Pickup and drop-off notes", kind: "textarea" },
+    { key: "is_hub", label: "Main transport hub", kind: "boolean" },
+    { key: "pickup_enabled", label: "Allow pickups", kind: "boolean" },
+    { key: "dropoff_enabled", label: "Allow drop-offs", kind: "boolean" },
+    { key: "sort_order", label: "Display order", kind: "number", min: 0 },
+    { key: "is_active", label: "Show on website", kind: "boolean" },
+  ] },
   faqs: { title: "FAQs", singular: "question", path: "/faqs", defaults: { question: "", answer: "", page_key: "home", sort_order: 0, is_active: true }, fields: [
     { key: "question", label: "Question", required: true },
     { key: "answer", label: "Answer", kind: "textarea", required: true },
@@ -165,6 +178,11 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
         .map((item) => item.trim())
         .filter(Boolean);
     }
+    if (collectionKey === "locations") {
+      for (const key of ["lat", "lng"] as const) {
+        if (payload[key] === "") payload[key] = null;
+      }
+    }
     if (collectionKey === "banners") {
       if (payload.button_link === "custom") payload.button_link = payload.button_custom_link || "";
       delete payload.button_custom_link;
@@ -220,7 +238,7 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
     } catch (reason) { setError(apiErrorMessage(reason)); await load(); }
   }
 
-  const pageLink = collection.path === "/hero-banners" ? "/" : collection.path === "/services" ? "/services" : collection.path === "/faqs" ? "/" : collection.path === "/cars" ? "/cars" : undefined;
+  const pageLink = collection.path === "/hero-banners" ? "/" : collection.path === "/services" ? "/services" : collection.path === "/faqs" ? "/" : collection.path === "/cars" ? "/cars" : collection.path === "/locations" ? "/routes" : undefined;
   const landscapePreview = imageUrlValue(draft.image_url) || imageUrlValue(draft.portrait_image_url);
   const portraitPreview = imageUrlValue(draft.portrait_image_url);
 

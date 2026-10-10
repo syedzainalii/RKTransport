@@ -43,7 +43,7 @@ class CarCatalogTests(unittest.TestCase):
         self.assertIn("Corolla", model_names)
         self.assertNotIn("Camry", model_names)
 
-    def test_public_api_lists_seeded_catalog_and_admin_management_is_removed(self):
+    def test_public_api_lists_seeded_catalog_and_admin_location_management_is_protected(self):
         def override_db():
             yield self.db
 
@@ -52,21 +52,22 @@ class CarCatalogTests(unittest.TestCase):
             public_response = client.get("/api/v1/car-makes")
             admin_response = client.get("/api/v1/admin/car-makes")
             admin_write_response = client.post("/api/v1/admin/car-makes", json={"name": "New Make"})
-            booking_option_admin_paths = [
-                "/api/v1/admin/locations",
+            restricted_booking_option_admin_paths = [
                 "/api/v1/admin/routes",
                 "/api/v1/admin/vehicle-types",
                 "/api/v1/admin/storage-plans",
             ]
             booking_option_admin_responses = [
-                client.get(path) for path in booking_option_admin_paths
+                client.get(path) for path in restricted_booking_option_admin_paths
             ]
+            admin_locations_response = client.get("/api/v1/admin/locations")
         self.assertEqual(public_response.status_code, 200)
         toyota = next(row for row in public_response.json() if row["name"] == "Toyota")
         self.assertIn("Corolla", [model["name"] for model in toyota["models"]])
         self.assertEqual(admin_response.status_code, 404)
         self.assertEqual(admin_write_response.status_code, 404)
         self.assertTrue(all(response.status_code == 404 for response in booking_option_admin_responses))
+        self.assertEqual(admin_locations_response.status_code, 401)
 
 
 if __name__ == "__main__":

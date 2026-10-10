@@ -64,6 +64,7 @@ export default function AdminDashboardPage() {
               <AdminCard href="/admin/dashboard/content/banners" title="Homepage banners" description="Edit and arrange the home page slideshow." />
               <AdminCard href="/admin/dashboard/content/services" title="Services" description="Manage service pages, pictures, and Google descriptions." />
               <AdminCard href="/admin/dashboard/content/cars" title="Cars and fleet" description="Manage fleet vehicles, images, passenger capacity, and feature chips." />
+              <AdminCard href="/admin/dashboard/content/locations" title="Locations" description="Manage pickup and drop-off locations, hubs, and map coordinates." />
               <AdminCard href="/admin/dashboard/content/about" title="About page" description="Update your story, numbers, and reasons customers choose you." />
               <AdminCard href="/admin/dashboard/content/faqs" title="FAQs" description="Add answers to common customer questions." />
               <AdminCard href="/admin/dashboard/content/testimonials" title="Testimonials" description="Manage customer reviews and ratings." />
