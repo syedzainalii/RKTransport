@@ -191,3 +191,31 @@ async def delete_about(
     db.commit()
     schedule_public_revalidation(background_tasks)
     return {"detail": "Deleted"}
+
+# --- Page Section Banners (Stored via PageCopy) ---
+page_banner_router = APIRouter(tags=["Page Banners"])
+
+@page_banner_router.get("/page-banners/{page_key}")
+async def get_page_banner(page_key: str, db: Session = Depends(get_db)):
+    row = db.query(PageCopy).filter(PageCopy.key == f"{page_key}_banner_url").first()
+    return {"url": row.value if row else ""}
+
+@page_banner_router.put("/admin/page-banners/{page_key}")
+async def update_page_banner(
+    page_key: str,
+    payload: dict,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_admin_user),
+):
+    url = payload.get("url", "")
+    key = f"{page_key}_banner_url"
+    row = db.query(PageCopy).filter(PageCopy.key == key).first()
+    if row:
+        row.value = url
+    else:
+        row = PageCopy(key=key, value=url)
+        db.add(row)
+    db.commit()
+    schedule_public_revalidation(background_tasks)
+    return {"url": url}

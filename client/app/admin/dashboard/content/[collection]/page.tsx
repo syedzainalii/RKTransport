@@ -87,7 +87,6 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
   const [dirty, setDirty] = useState(false);
   useUnsavedChanges(dirty);
 
-  // Separate state for page-level section banner background image management
   const [pageBanner, setPageBanner] = useState<UploadedImage | null>(null);
   const [bannerSaving, setBannerSaving] = useState(false);
 
@@ -95,14 +94,20 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
     try {
       const data = await apiRequest<unknown[]>(`/admin${collection.path}`);
       setRows(data.map(asRecord));
-      setError("");
 
-      // If collection supports a page banner background (services/testimonials), we can fetch/check if stored
-      // or manage it via dedicated settings endpoints if available.
+      if (collectionKey === "services" || collectionKey === "testimonials") {
+        try {
+          const bannerRes = await apiRequest<{ url: string }>(`/page-banners/${collectionKey}`);
+          if (bannerRes?.url) setPageBanner({ url: bannerRes.url });
+        } catch {
+          // Ignore if banner not set yet
+        }
+      }
+      setError("");
     } catch {
       setError("We could not load this list. Please refresh and try again.");
     } finally { setLoading(false); }
-  }, [collection.path]);
+  }, [collection.path, collectionKey]);
 
   useEffect(() => { void Promise.resolve().then(load); }, [load]);
   useEffect(() => {
@@ -213,7 +218,6 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
     <Link href="/admin/dashboard" className="inline-flex min-h-11 items-center font-semibold text-slate-800 hover:underline dark:text-slate-300">← Dashboard</Link>
     <header className="my-5 flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-3xl font-bold">{collection.title}</h1>{collectionKey === "banners" && <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Banners play in this order on the home page.</p>}</div><button type="button" onClick={() => beginEdit()} className="min-h-11 rounded-xl bg-slate-900 px-4 font-semibold text-white">Add new {collection.singular}</button></header>
     
-    {/* Dedicated Section Banner Background Manager for Services and Testimonials */}
     {(collectionKey === "services" || collectionKey === "testimonials") && (
       <section className="my-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h3 className="text-lg font-bold">Page Section Banner Background</h3>
@@ -226,9 +230,14 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
           disabled={bannerSaving}
           onClick={async () => {
             setBannerSaving(true);
+            setError("");
+            setToast("");
             try {
-              // Save banner background setting to a page configuration or dedicated endpoint if needed
-              setToast("Page banner background updated.");
+              await apiRequest(`/admin/page-banners/${collectionKey}`, {
+                method: "PUT",
+                body: JSON.stringify({ url: pageBanner?.url || "" }),
+              });
+              setToast("Page banner background updated successfully.");
             } catch {
               setError("Could not update banner background.");
             } finally {
@@ -394,7 +403,6 @@ function AboutEditor() {
   const images = Array.isArray(draft.images) ? draft.images.map(asRecord) : [];
   const storyImage: UploadedImage | null = typeof images[0]?.url === "string" ? { url: stringValue(images[0].url), alt: stringValue(images[0].alt) } : null;
 
-  // Standalone banner image state for About Us page
   const aboutBannerImage: UploadedImage | null = stringValue(draft.banner_image_url) ? { url: stringValue(draft.banner_image_url) } : null;
 
   async function save(event: FormEvent<HTMLFormElement>) {
@@ -424,7 +432,6 @@ function AboutEditor() {
     {toast && <p role="status" className="mb-4 rounded-xl bg-slate-100 p-3">{toast}</p>}
     {loading ? <div className="h-40 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" /> : <form onSubmit={(event) => void save(event)} className="mt-5 space-y-6 rounded-2xl bg-white p-6 shadow dark:bg-slate-900">
       
-      {/* Standalone Section Banner Image Manager for About Us */}
       <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-800">
         <h3 className="text-base font-bold">About Page Section Banner Background</h3>
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">Upload a clean background image for the top banner without any title restrictions.</p>
