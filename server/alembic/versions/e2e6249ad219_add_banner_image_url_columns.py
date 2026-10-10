@@ -38,4 +38,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     for table in TABLES:
         if COLUMN in _columns(table):
-            op.drop_column(table, COLUMN)
+            op.drop_column(table, COLUMN) 
