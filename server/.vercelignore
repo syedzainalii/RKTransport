@@ -7,6 +7,9 @@ __pycache__/
 *.egg
 *.egg-info/
 .venv/
+/.venv/**
+/server/.venv/
+/server/.venv/**
 venv/
 
 # ---------- Secrets and local env (never deploy; set these in the Vercel dashboard) ----------
