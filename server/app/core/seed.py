@@ -15,6 +15,7 @@ from app.models import (
     SiteSettings,
     StoragePlan,
     User,
+    Vehicle,
     VehicleType,
 )
 
@@ -27,6 +28,10 @@ PAGE_COPY = {
     "nav.contact": "Contact",
     "home.hero.title": "Car transport, recovery & storage",
     "home.hero.description": "Vehicle transport between Dubai and Abu Dhabi, lift and recovery, and car storage.",
+    "packages_banner_url": "",
+    "carfeatures_banner_url": "",
+    "why_banner_url": "",
+    "faq_banner_url": "",
     "home.services.eyebrow": "How we help",
     "home.services.heading": "Transport support, when you need it",
     "home.services.link": "Explore services",
@@ -330,6 +335,36 @@ def seed_defaults(db: Session) -> None:
                     covered=True,
                     features=["Covered bay", "Collection available"],
                     sort_order=2,
+                ),
+            ]
+        )
+
+    if not db.query(Vehicle).first():
+        db.add_all(
+            [
+                Vehicle(
+                    title="Sedan Comfort",
+                    slug="sedan-comfort",
+                    description="Smooth, air-conditioned sedans perfect for individual travelers and couples.",
+                    seats="4 passengers",
+                    chips=["AC", "2 bags", "Wi-Fi ready"],
+                    display_order=1,
+                ),
+                Vehicle(
+                    title="SUV Family & Group",
+                    slug="suv-family-group",
+                    description="Spacious SUVs with extra legroom and luggage space for comfortable journeys.",
+                    seats="6-7 passengers",
+                    chips=["AC", "5 bags", "Extra legroom"],
+                    display_order=2,
+                ),
+                Vehicle(
+                    title="Executive Van",
+                    slug="executive-van",
+                    description="Premium vans designed for group travel and corporate commuters between cities.",
+                    seats="9-12 passengers",
+                    chips=["AC", "10 bags", "Group travel"],
+                    display_order=3,
                 ),
             ]
         )

@@ -60,6 +60,17 @@ export type Service = {
 export type Location = { id: number; name: string; emirate: string | null };
 export type Route = { id: number; title: string; origin_location_id: number; destination_location_id: number; base_price_aed: string | number | null };
 export type VehicleType = { id: number; name: string; description: string | null; surcharge_aed?: string | number; is_active?: boolean };
+export type Vehicle = {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  seats: string;
+  image_url: string | null;
+  chips: string[];
+  display_order: number;
+  is_active: boolean;
+};
 export type CarModelOption = { id: number; make_id: number; name: string; default_vehicle_type_id: number | null; is_active: boolean };
 export type CarMakeOption = { id: number; name: string; is_active: boolean; sort_order: number; models: CarModelOption[] };
 export type StoragePlan = {
@@ -179,6 +190,7 @@ export const publicApi = {
   locations: () => apiRequest<Location[]>("/locations", { next: { revalidate: 60 } }),
   routes: () => apiRequest<Route[]>("/routes", { next: { revalidate: 60 } }),
   vehicles: () => apiRequest<VehicleType[]>("/vehicle-types", { next: { revalidate: 60 } }),
+  cars: () => apiRequest<Vehicle[]>("/cars", { next: { revalidate: 60 } }),
   carMakes: () => apiRequest<CarMakeOption[]>("/car-makes", { next: { revalidate: 60 } }),
   storagePlans: () => apiRequest<StoragePlan[]>("/storage-plans", { next: { revalidate: 60 } }),
   heroBanners: () => apiRequest<HeroBanner[]>("/hero-banners", { next: { revalidate: 60 } }),

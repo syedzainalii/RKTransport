@@ -14,6 +14,7 @@ from app.models.service import Service
 from app.models.storage_plan import StoragePlan
 from app.models.testimonial import Testimonial
 from app.models.user import User
+from app.models.vehicle import Vehicle
 from app.models.vehicle_type import VehicleType
 from app.schemas.content import (
     AboutIn,
@@ -33,6 +34,8 @@ from app.schemas.content import (
     StoragePlanResponse,
     TestimonialIn,
     TestimonialResponse,
+    VehicleIn,
+    VehicleResponse,
     VehicleTypeIn,
     VehicleTypeResponse,
 )
@@ -77,6 +80,16 @@ vehicle_router = crud_router(
     slug_from="name",
     order_by=VehicleType.sort_order,
     admin_enabled=False,
+)
+
+cars_router = crud_router(
+    model=Vehicle,
+    schema_in=VehicleIn,
+    schema_out=VehicleResponse,
+    prefix="/cars",
+    tag="Cars",
+    slug_from="title",
+    order_by=Vehicle.display_order,
 )
 
 storage_router = crud_router(

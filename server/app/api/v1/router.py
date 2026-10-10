@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.api.v1 import auth, car_catalog, inquiries, media, notifications, revalidate, settings
 from app.api.v1.content import (
     about_router,
+    cars_router,
     faq_router,
     hero_router,
     locations_router,
@@ -23,6 +24,7 @@ api_v1.include_router(services_router)
 api_v1.include_router(locations_router)
 api_v1.include_router(routes_router)
 api_v1.include_router(vehicle_router)
+api_v1.include_router(cars_router)
 api_v1.include_router(storage_router)
 api_v1.include_router(faq_router)
 api_v1.include_router(testimonial_router)

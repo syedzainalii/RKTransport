@@ -108,6 +108,23 @@ class VehicleTypeResponse(VehicleTypeIn, ORMModel):
     updated_at: datetime | None = None
 
 
+class VehicleIn(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    description: str = Field(min_length=1, max_length=10000)
+    seats: str = Field(min_length=1, max_length=120)
+    image_url: str | None = Field(default=None, max_length=2048)
+    chips: list[str] = Field(default_factory=list, max_length=30)
+    display_order: int = Field(default=0, ge=0)
+    is_active: bool = True
+
+
+class VehicleResponse(VehicleIn, ORMModel):
+    id: int
+    slug: str
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
 class StoragePlanIn(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: str | None = Field(default=None, max_length=5000)

@@ -8,9 +8,22 @@ import useUnsavedChanges from "../components/use-unsaved-changes";
 
 type Settings = AdminSiteSettings;
 type TextKey = "brand_name" | "tagline" | "phone_primary" | "whatsapp" | "email" | "address_line" | "city" | "emirate" | "country" | "facebook_url" | "instagram_url" | "maps_embed_url" | "hours_label" | "footer_blurb" | "notification_admin_email" | "notification_admin_phone";
+type SectionBannerKey = "packages" | "carfeatures" | "why" | "faq";
+const SECTION_BANNERS: { key: SectionBannerKey; label: string }[] = [
+  { key: "packages", label: "Packages" },
+  { key: "carfeatures", label: "Car features" },
+  { key: "why", label: "Why choose us" },
+  { key: "faq", label: "FAQ" },
+];
 
 const inputClass = "mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950";
 const PHONE_PATTERN = "^\\+971[0-9]{8,9}$";
+const EMPTY_BANNER_DIRTY: Record<SectionBannerKey, boolean> = {
+  packages: false,
+  carfeatures: false,
+  why: false,
+  faq: false,
+};
 
 function friendlyError(reason: unknown) {
   if (reason instanceof Error && "status" in reason && reason.status === 422) return "Please check the highlighted details and try again.";
@@ -24,26 +37,74 @@ export default function SiteSettingsPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [dirty, setDirty] = useState(false);
-  useUnsavedChanges(dirty);
+  const [sectionBanners, setSectionBanners] = useState<Record<SectionBannerKey, UploadedImage | null>>({
+    packages: null,
+    carfeatures: null,
+    why: null,
+    faq: null,
+  });
+  const [sectionBannerDirty, setSectionBannerDirty] = useState(EMPTY_BANNER_DIRTY);
+  const [savingBanner, setSavingBanner] = useState<SectionBannerKey | null>(null);
+  const hasUnsavedBanners = Object.values(sectionBannerDirty).some(Boolean);
+  useUnsavedChanges(dirty || hasUnsavedBanners);
 
   const load = useCallback(async () => {
     try {
-      const value = await apiRequest<Settings>("/admin/settings");
-      setDraft(value); setDirty(false);
+      const [value, bannerValues] = await Promise.all([
+        apiRequest<Settings>("/admin/settings"),
+        Promise.all(SECTION_BANNERS.map(async ({ key }) => {
+          const banner = await apiRequest<{ url: string }>(`/page-banners/${key}`);
+          return [key, banner.url ? { url: banner.url } : null] as const;
+        })),
+      ]);
+      const nextBanners: Record<SectionBannerKey, UploadedImage | null> = {
+        packages: null,
+        carfeatures: null,
+        why: null,
+        faq: null,
+      };
+      for (const [key, image] of bannerValues) nextBanners[key] = image;
+      setDraft(value);
+      setSectionBanners(nextBanners);
+      setSectionBannerDirty(EMPTY_BANNER_DIRTY);
+      setDirty(false);
     } catch { setError("We could not load business settings. Please refresh and try again."); }
     finally { setLoading(false); }
   }, []);
 
   useEffect(() => { void Promise.resolve().then(load); }, [load]);
   useEffect(() => {
-    const warn = (event: BeforeUnloadEvent) => { if (dirty) { event.preventDefault(); event.returnValue = ""; } };
+    const warn = (event: BeforeUnloadEvent) => { if (dirty || hasUnsavedBanners) { event.preventDefault(); event.returnValue = ""; } };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty]);
+  }, [dirty, hasUnsavedBanners]);
 
   function change<K extends keyof Settings>(key: K, value: Settings[K]) {
     setDirty(true);
     setDraft((current) => current ? { ...current, [key]: value } : current);
+  }
+
+  function changeSectionBanner(key: SectionBannerKey, image: UploadedImage | null) {
+    setSectionBanners((current) => ({ ...current, [key]: image }));
+    setSectionBannerDirty((current) => ({ ...current, [key]: true }));
+  }
+
+  async function saveSectionBanner(key: SectionBannerKey) {
+    setSavingBanner(key);
+    setError("");
+    setNotice("");
+    try {
+      await apiRequest(`/admin/page-banners/${key}`, {
+        method: "PUT",
+        body: JSON.stringify({ url: sectionBanners[key]?.url || "" }),
+      });
+      setSectionBannerDirty((current) => ({ ...current, [key]: false }));
+      setNotice(`${SECTION_BANNERS.find((banner) => banner.key === key)?.label} banner saved.`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "We could not save the section banner.");
+    } finally {
+      setSavingBanner(null);
+    }
   }
 
   async function save(event: FormEvent<HTMLFormElement>) {
@@ -128,6 +189,15 @@ export default function SiteSettingsPage() {
       </div></details>
 
       <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Footer text</summary><div className="mt-4">{field("footer_blurb", "Short business description", { multiline: true, hint: "Shown near the bottom of each page." })}</div></details>
+
+      <details className="rounded-2xl bg-white p-4 dark:bg-slate-900"><summary className="min-h-11 cursor-pointer content-center text-lg font-bold">Homepage section backgrounds</summary><div className="mt-4 grid gap-5 sm:grid-cols-2">
+        {SECTION_BANNERS.map(({ key, label }) => <div key={key} className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+          <ImageUpload label={`${label} section background`} value={sectionBanners[key]} onChange={(value) => changeSectionBanner(key, value && !Array.isArray(value) ? value : null)} folder="page-banners" />
+          <button type="button" disabled={savingBanner !== null} onClick={() => void saveSectionBanner(key)} className="mt-3 min-h-11 rounded-lg bg-slate-800 px-4 font-semibold text-white disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900">
+            {savingBanner === key ? "Saving…" : `Save ${label} background`}
+          </button>
+        </div>)}
+      </div></details>
 
       <button disabled={busy} className="min-h-12 w-full rounded-xl bg-slate-800 px-4 font-semibold text-white disabled:opacity-60">{busy ? <><span aria-hidden="true" className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-white border-r-transparent align-[-3px]" />Saving…</> : "Save business settings"}</button>
     </form>}

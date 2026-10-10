@@ -42,6 +42,15 @@ const collections: Record<string, Collection> = {
     { key: "image_url", label: "Main picture", kind: "single-image" },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
+  cars: { title: "Cars and fleet", singular: "vehicle", path: "/cars", defaults: { title: "", description: "", seats: "", image_url: "", chips: [], display_order: 0, is_active: true }, fields: [
+    { key: "title", label: "Vehicle name", required: true },
+    { key: "description", label: "Description", kind: "textarea", required: true },
+    { key: "seats", label: "Passenger capacity", required: true },
+    { key: "image_url", label: "Vehicle image", kind: "single-image" },
+    { key: "chips", label: "Feature chips", kind: "string-list", help: "Add one short feature per line." },
+    { key: "display_order", label: "Display order", kind: "number", min: 0 },
+    { key: "is_active", label: "Show on website", kind: "boolean" },
+  ] },
   faqs: { title: "FAQs", singular: "question", path: "/faqs", defaults: { question: "", answer: "", page_key: "home", sort_order: 0, is_active: true }, fields: [
     { key: "question", label: "Question", required: true },
     { key: "answer", label: "Answer", kind: "textarea", required: true },
@@ -118,7 +127,7 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
 
   function beginEdit(row?: Row) {
     setEditing(row ?? { ...collection.defaults });
-    setDraft(row ? { ...row } : { ...collection.defaults, sort_order: rows.length });
+    setDraft(row ? { ...row } : { ...collection.defaults, [collectionKey === "cars" ? "display_order" : "sort_order"]: rows.length });
     setDirty(false);
     setToast("");
     setError("");
@@ -203,14 +212,15 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
     const reordered = [...rows];
     [reordered[rowIndex], reordered[target]] = [reordered[target], reordered[rowIndex]];
     try {
+      const orderField = collectionKey === "cars" ? "display_order" : "sort_order";
       for (const [index, item] of reordered.entries()) {
-        if (typeof item.id === "number") await apiRequest(`/admin${collection.path}/${item.id}`, { method: "PUT", body: JSON.stringify({ ...item, sort_order: index }) });
+        if (typeof item.id === "number") await apiRequest(`/admin${collection.path}/${item.id}`, { method: "PUT", body: JSON.stringify({ ...item, [orderField]: index }) });
       }
       setRows(reordered); setToast("Order updated.");
     } catch (reason) { setError(apiErrorMessage(reason)); await load(); }
   }
 
-  const pageLink = collection.path === "/hero-banners" ? "/" : collection.path === "/services" ? "/services" : collection.path === "/faqs" ? "/" : undefined;
+  const pageLink = collection.path === "/hero-banners" ? "/" : collection.path === "/services" ? "/services" : collection.path === "/faqs" ? "/" : collection.path === "/cars" ? "/cars" : undefined;
   const landscapePreview = imageUrlValue(draft.image_url) || imageUrlValue(draft.portrait_image_url);
   const portraitPreview = imageUrlValue(draft.portrait_image_url);
 

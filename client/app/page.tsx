@@ -21,6 +21,7 @@ import {
   type PageCopy,
   type Service,
   type Testimonial,
+  type Vehicle,
 } from "../lib/transport-api";
 import { faqJsonLd } from "../lib/seo";
 
@@ -33,12 +34,6 @@ const PACKAGES = [
   { name: "Single Passenger Seat", price: "AED 50", period: "one way", desc: "Ideal for daily commuters", popular: false, feats: ["Door-to-door pickup", "AC comfort", "Professional driver"] },
   { name: "Full Private Car", price: "AED 250", period: "one way", desc: "Exclusive ride for families and VIPs", popular: true, feats: ["100% private vehicle", "Custom timing", "Nonstop direct route"] },
   { name: "Monthly Commuter Pass", price: "AED 1,200", period: "per month", desc: "Best value for regular travel", popular: false, feats: ["Guaranteed seat", "Flexible slots", "Dedicated support"] },
-];
-
-const FLEET = [
-  { title: "Sedan Comfort", desc: "Smooth, air-conditioned sedans perfect for individual travelers and couples.", seats: "4 passengers", chips: ["AC", "2 bags", "Wi-Fi ready"], image_url: null },
-  { title: "SUV Family & Group", desc: "Spacious SUVs with extra legroom and luggage space for comfortable journeys.", seats: "6-7 passengers", chips: ["AC", "5 bags", "Extra legroom"], image_url: null },
-  { title: "Executive Van", desc: "Premium vans designed for group travel and corporate commuters between cities.", seats: "9-12 passengers", chips: ["AC", "10 bags", "Group travel"], image_url: null },
 ];
 
 const CAR_FEATURES = [
@@ -72,6 +67,7 @@ async function getContent() {
     publicApi.faqs(),
     publicApi.about(),
     publicApi.testimonials(),
+    publicApi.cars(),
   ]);
   return {
     settings: results[0].status === "fulfilled" ? results[0].value : null,
@@ -81,6 +77,7 @@ async function getContent() {
     faqs: results[4].status === "fulfilled" ? results[4].value : [],
     about: results[5].status === "fulfilled" ? results[5].value[0] ?? null : null,
     testimonials: results[6].status === "fulfilled" ? results[6].value : [],
+    cars: results[7].status === "fulfilled" ? results[7].value : [],
   };
 }
 
@@ -116,7 +113,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
 }
 
 export default async function HomePage() {
-  const { settings, banners, services, copy, faqs, about, testimonials } =
+  const { settings, banners, services, copy, faqs, about, testimonials, cars } =
     await getContent();
   const text = (key: string, fallback: string) =>
     copy.find((item: PageCopy) => item.key === key)?.value || fallback;
@@ -395,9 +392,9 @@ export default async function HomePage() {
             </div>
 
             <div className="mt-10 grid gap-6 md:grid-cols-3">
-              {FLEET.map((car, index) => (
+              {cars.map((car: Vehicle, index: number) => (
                 <Link
-                  key={car.title}
+                  key={car.id}
                   href="/cars"
                   className="group relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-stone-50 transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900"
                 >
@@ -424,7 +421,7 @@ export default async function HomePage() {
 
                   <div className="flex flex-1 flex-col p-7">
                     <h3 className="text-2xl font-bold tracking-tight">{car.title}</h3>
-                    <p className="mt-2 flex-1 leading-7 text-slate-600 dark:text-slate-300">{car.desc}</p>
+                    <p className="mt-2 flex-1 leading-7 text-slate-600 dark:text-slate-300">{car.description}</p>
                     <ul className="mt-5 flex flex-wrap gap-2">
                       {car.chips.map((chip) => (
                         <li key={chip} className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
@@ -443,6 +440,11 @@ export default async function HomePage() {
                 </Link>
               ))}
             </div>
+            {cars.length === 0 && (
+              <p className="mt-10 rounded-2xl bg-stone-100 p-6 text-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                {text("empty.cars", "Our fleet information is currently unavailable.")}
+              </p>
+            )}
           </div>
         </section>
 
