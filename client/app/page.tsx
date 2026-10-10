@@ -27,7 +27,7 @@ import { faqJsonLd } from "../lib/seo";
 export const revalidate = 60;
 
 /* =========================================================
-   STATIC CONTENT (edit the wording here)
+   STATIC CONTENT
 ========================================================= */
 const PACKAGES = [
   { name: "Single Passenger Seat", price: "AED 50", period: "one way", desc: "Ideal for daily commuters", popular: false, feats: ["Door-to-door pickup", "AC comfort", "Professional driver"] },
@@ -54,8 +54,8 @@ const WHY_US = [
   { title: "Door-to-Door Service", desc: "We pick you up directly from your location and drop you right at your destination.", icon: MapPin },
 ];
 
-const DUBAI_AREAS = ["JLT", "Dubai Marina", "Deira", "Bur Dubai", "Downtown"];
-const ABU_DHABI_AREAS = ["Khalifa City", "Mussafah", "Yas Island", "Al Reem Island"];
+const DUBAI_AREAS: string[] = ["JLT", "Dubai Marina", "Deira", "Bur Dubai", "Downtown"];
+const ABU_DHABI_AREAS: string[] = ["Khalifa City", "Mussafah", "Yas Island", "Al Reem Island"];
 
 const DRIVERS = [
   { name: "Verified & Licensed", desc: "All our drivers hold official UAE driving licenses with clean driving records." },
@@ -280,25 +280,25 @@ export default async function HomePage() {
         </section>
 
         {/* =========================================================
-            3. PACKAGES  (light stone, pricing cards, popular one dark)
+            3. PACKAGES (Slate Background bg-slate-950)
         ========================================================= */}
         <section
           id="packages"
           data-snap-section
           data-label="Packages"
-          className="snap-section relative overflow-hidden bg-stone-100 px-4 dark:bg-slate-900/60 sm:px-6"
+          className="snap-section relative overflow-hidden bg-slate-950 px-4 text-white sm:px-6"
         >
-          <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full bg-amber-200/40 blur-3xl dark:bg-amber-400/10" />
+          <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full bg-amber-400/10 blur-3xl" />
           <div className="mx-auto w-full max-w-6xl">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="inline-flex min-h-9 items-center gap-2 rounded-full border border-slate-300 bg-white px-4 text-xs font-bold uppercase tracking-[.2em] text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+              <p className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 text-xs font-bold uppercase tracking-[.2em] text-white/80 backdrop-blur">
                 <span aria-hidden="true" className="size-2 rounded-full bg-amber-400" />
                 {text("home.packages.eyebrow", "Transparent pricing")}
               </p>
-              <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight sm:text-5xl">
+              <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight sm:text-5xl text-white">
                 {text("home.packages.heading", "Choose your travel package")}
               </h2>
-              <p className="mt-4 leading-7 text-slate-600 dark:text-slate-300">
+              <p className="mt-4 leading-7 text-slate-300">
                 {text("home.packages.subheading", "Affordable rates for individual seats or private rides between Dubai and Abu Dhabi.")}
               </p>
             </div>
@@ -309,8 +309,8 @@ export default async function HomePage() {
                   key={pkg.name}
                   className={`relative flex flex-col rounded-3xl p-8 transition duration-300 hover:-translate-y-1 ${
                     pkg.popular
-                      ? "bg-slate-950 text-white shadow-2xl shadow-slate-900/30 md:scale-105 md:py-12 dark:bg-white dark:text-slate-950"
-                      : "border border-slate-200 bg-white shadow-sm hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
+                      ? "bg-white text-slate-950 shadow-2xl shadow-slate-900/30 md:scale-105 md:py-12"
+                      : "border border-white/10 bg-white/5 shadow-xl backdrop-blur"
                   }`}
                 >
                   {pkg.popular && (
@@ -319,15 +319,15 @@ export default async function HomePage() {
                     </span>
                   )}
                   <h3 className="text-lg font-bold">{pkg.name}</h3>
-                  <p className={`mt-1 text-sm ${pkg.popular ? "text-white/70 dark:text-slate-600" : "text-slate-500 dark:text-slate-400"}`}>{pkg.desc}</p>
+                  <p className={`mt-1 text-sm ${pkg.popular ? "text-slate-600" : "text-slate-300"}`}>{pkg.desc}</p>
                   <div className="mt-6 flex items-baseline gap-2">
                     <span className="text-5xl font-extrabold tabular-nums tracking-tight">{pkg.price}</span>
-                    <span className={`text-sm ${pkg.popular ? "text-white/60 dark:text-slate-500" : "text-slate-500"}`}>{pkg.period}</span>
+                    <span className={`text-sm ${pkg.popular ? "text-slate-500" : "text-slate-400"}`}>{pkg.period}</span>
                   </div>
-                  <ul className={`mt-7 space-y-3 border-t pt-6 ${pkg.popular ? "border-white/15 dark:border-slate-200" : "border-slate-200 dark:border-slate-800"}`}>
+                  <ul className={`mt-7 space-y-3 border-t pt-6 ${pkg.popular ? "border-slate-200" : "border-white/10"}`}>
                     {pkg.feats.map((feat) => (
                       <li key={feat} className="flex items-center gap-3 text-sm">
-                        <span className={`grid size-5 shrink-0 place-items-center rounded-full ${pkg.popular ? "bg-amber-400 text-slate-950" : "bg-slate-950 text-white dark:bg-white dark:text-slate-950"}`}>
+                        <span className={`grid size-5 shrink-0 place-items-center rounded-full ${pkg.popular ? "bg-slate-950 text-white" : "bg-amber-400 text-slate-950"}`}>
                           <Check aria-hidden="true" className="size-3" />
                         </span>
                         {feat}
@@ -338,8 +338,8 @@ export default async function HomePage() {
                     href="/contact"
                     className={`group mt-8 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full font-semibold transition ${
                       pkg.popular
-                        ? "bg-amber-400 text-slate-950 hover:bg-amber-300"
-                        : "bg-slate-950 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+                        ? "bg-slate-950 text-white hover:bg-slate-800"
+                        : "bg-white text-slate-950 hover:bg-slate-200"
                     }`}
                   >
                     Book package
@@ -352,7 +352,7 @@ export default async function HomePage() {
         </section>
 
         {/* =========================================================
-            4. CARS  (white, watermark cards, spec chips)
+            4. CARS
         ========================================================= */}
         <section
           id="cars"
@@ -413,7 +413,7 @@ export default async function HomePage() {
         </section>
 
         {/* =========================================================
-            5. CAR FEATURES  (dark bento: heading left, glowing tiles right)
+            5. CAR FEATURES (Slate Background bg-slate-950)
         ========================================================= */}
         <section
           id="cars-special"
@@ -542,40 +542,40 @@ export default async function HomePage() {
         )}
 
         {/* =========================================================
-            7. WHY CHOOSE US  (white, editorial numbered rows)
+            7. WHY CHOOSE US (Slate Background bg-slate-950)
         ========================================================= */}
         <section
           id="why-choose-us"
           data-snap-section
           data-label="Why choose us"
-          className="snap-section bg-white px-4 dark:bg-slate-950 sm:px-6"
+          className="snap-section bg-slate-950 text-white px-4 sm:px-6"
         >
           <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
             <div className="lg:sticky lg:top-28 lg:self-start">
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-white/60">
                 {text("home.why.eyebrow", "The RK advantage")}
               </p>
-              <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl">
+              <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl text-white">
                 {text("home.why.heading", "Why choose us for your journey")}
               </h2>
-              <p className="mt-5 max-w-md leading-7 text-slate-600 dark:text-slate-300">
+              <p className="mt-5 max-w-md leading-7 text-slate-300">
                 {text("home.why.subheading", "We make traveling between Dubai and Abu Dhabi effortless and dependable.")}
               </p>
             </div>
 
-            <ul className="divide-y divide-slate-200 border-y border-slate-200 dark:divide-slate-800 dark:border-slate-800">
+            <ul className="divide-y divide-white/10 border-y border-white/10">
               {WHY_US.map((item, index) => {
                 const Icon = item.icon;
                 return (
                   <li key={item.title} className="group flex items-start gap-5 py-8 sm:gap-8">
-                    <span className="w-14 shrink-0 text-5xl font-black tabular-nums text-slate-200 transition-colors duration-300 group-hover:text-amber-400 dark:text-slate-800 sm:w-20 sm:text-6xl">
+                    <span className="w-14 shrink-0 text-5xl font-black tabular-nums text-white/20 transition-colors duration-300 group-hover:text-amber-400 sm:w-20 sm:text-6xl">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <div className="flex-1 transition-transform duration-300 group-hover:translate-x-2">
-                      <h3 className="text-xl font-bold tracking-tight sm:text-2xl">{item.title}</h3>
-                      <p className="mt-2 max-w-lg leading-7 text-slate-600 dark:text-slate-300">{item.desc}</p>
+                      <h3 className="text-xl font-bold tracking-tight sm:text-2xl text-white">{item.title}</h3>
+                      <p className="mt-2 max-w-lg leading-7 text-slate-300">{item.desc}</p>
                     </div>
-                    <span className="hidden size-12 shrink-0 place-items-center rounded-full border border-slate-300 transition duration-300 group-hover:bg-slate-950 group-hover:text-white dark:border-slate-700 dark:group-hover:bg-white dark:group-hover:text-slate-950 sm:grid">
+                    <span className="hidden size-12 shrink-0 place-items-center rounded-full border border-white/20 transition duration-300 group-hover:bg-white group-hover:text-slate-950 sm:grid">
                       <Icon aria-hidden="true" className="size-5" />
                     </span>
                   </li>
@@ -586,95 +586,68 @@ export default async function HomePage() {
         </section>
 
         {/* =========================================================
-            8. ROUTES  (stone, route visual with a driving car)
+            8. ROUTES WE COVER
         ========================================================= */}
         <section
           id="routes"
           data-snap-section
           data-label="Routes"
-          className="snap-section bg-stone-100 px-4 dark:bg-slate-900/60 sm:px-6"
+          className="snap-section bg-stone-100 px-4 dark:bg-slate-900/70 sm:px-6"
         >
           <div className="mx-auto w-full max-w-7xl">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
-                  {text("home.routes.eyebrow", "Coverage areas")}
-                </p>
-                <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-                  {text("home.routes.heading", "Routes we cover")}
-                </h2>
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">Coverage areas</p>
+                <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Routes we cover</h2>
               </div>
               <Link href="/routes" className="inline-flex min-h-11 items-center gap-2 font-semibold underline-offset-4 hover:underline">
-                View all pickup and drop points
+                View all pickup & drop points
                 <ArrowUpRight aria-hidden="true" className="size-4" />
               </Link>
             </div>
 
-            <div className="mt-10 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              {/* Route line */}
-              <div className="border-b border-slate-200 bg-gradient-to-r from-stone-50 via-white to-stone-50 px-6 py-10 dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 sm:px-12">
-                <div className="flex items-center gap-4 sm:gap-8">
-                  <div className="text-center">
-                    <span className="mx-auto grid size-14 place-items-center rounded-full bg-slate-950 text-white dark:bg-white dark:text-slate-950">
-                      <MapPin aria-hidden="true" className="size-6" />
-                    </span>
-                    <p className="mt-2 font-bold">Dubai</p>
-                  </div>
-                  <div className="relative h-0 flex-1 border-t-2 border-dashed border-slate-300 dark:border-slate-600">
-                    <Car aria-hidden="true" className="route-car absolute -top-4 size-8 text-amber-500" />
-                  </div>
-                  <div className="text-center">
-                    <span className="mx-auto grid size-14 place-items-center rounded-full bg-amber-400 text-slate-950">
-                      <MapPin aria-hidden="true" className="size-6" />
-                    </span>
-                    <p className="mt-2 font-bold">Abu Dhabi</p>
-                  </div>
-                </div>
-                <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-                  {text("home.routes.caption", "Daily corridors in both directions, 24/7")}
-                </p>
-              </div>
-
-              {/* Area chips */}
-              <div className="grid gap-8 p-6 sm:p-10 md:grid-cols-2">
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
+              <div className="flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div>
-                  <div className="flex items-baseline justify-between">
-                    <h3 className="text-lg font-bold">Dubai pickups</h3>
-                    <span className="text-xs font-semibold text-slate-500">14+ areas daily</span>
-                  </div>
-                  <ul className="mt-4 flex flex-wrap gap-2">
+                  <p className="text-sm font-bold uppercase tracking-widest text-amber-500">Dubai</p>
+                  <h3 className="mt-2 text-2xl font-bold">Pickup Neighborhoods</h3>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">We pick you up directly from your doorstep across Dubai.</p>
+                  <ul className="mt-6 flex flex-wrap gap-2">
                     {DUBAI_AREAS.map((area) => (
-                      <li key={area} className="rounded-full border border-slate-300 px-4 py-1.5 text-sm font-medium dark:border-slate-700">{area}</li>
+                      <li key={area} className="rounded-xl border border-slate-200 bg-stone-50 px-3.5 py-1.5 text-xs font-semibold text-slate-800 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200">
+                        {area}
+                      </li>
                     ))}
-                    <li className="rounded-full bg-slate-950 px-4 py-1.5 text-sm font-medium text-white dark:bg-white dark:text-slate-950">+ more</li>
                   </ul>
                 </div>
-                <div>
-                  <div className="flex items-baseline justify-between">
-                    <h3 className="text-lg font-bold">Abu Dhabi drops</h3>
-                    <span className="text-xs font-semibold text-slate-500">10+ locations</span>
-                  </div>
-                  <ul className="mt-4 flex flex-wrap gap-2">
-                    {ABU_DHABI_AREAS.map((area) => (
-                      <li key={area} className="rounded-full border border-slate-300 px-4 py-1.5 text-sm font-medium dark:border-slate-700">{area}</li>
-                    ))}
-                    <li className="rounded-full bg-amber-400 px-4 py-1.5 text-sm font-medium text-slate-950">+ more</li>
-                  </ul>
+                <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <Link href="/routes" className="text-sm font-bold hover:underline">See all 14+ Dubai pickup points →</Link>
                 </div>
               </div>
 
-              <div className="border-t border-slate-200 bg-stone-50 px-6 py-5 dark:border-slate-800 dark:bg-slate-950/40 sm:px-10">
-                <Link href="/routes" className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-slate-950 px-6 font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
-                  Explore route points
-                  <ArrowUpRight aria-hidden="true" className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                </Link>
+              <div className="flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div>
+                  <p className="text-sm font-bold uppercase tracking-widest text-amber-500">Abu Dhabi</p>
+                  <h3 className="mt-2 text-2xl font-bold">Drop-off Zones</h3>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Reliable drop-offs across major Abu Dhabi districts.</p>
+                  <ul className="mt-6 flex flex-wrap gap-2">
+                    {ABU_DHABI_AREAS.map((area) => (
+                      <li key={area} className="rounded-xl border border-slate-200 bg-stone-50 px-3.5 py-1.5 text-xs font-semibold text-slate-800 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200">
+                        {area}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <Link href="/routes" className="text-sm font-bold hover:underline">See all 10+ Abu Dhabi drop points →</Link>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* =========================================================
-            9. TESTIMONIALS (fixed background scroll effect)
+            9. TESTIMONIALS (Fixed Image Scroll)
         ========================================================= */}
         {testimonials.length > 0 && (
           <section
@@ -766,7 +739,7 @@ export default async function HomePage() {
         )}
 
         {/* =========================================================
-            10. DRIVERS  (white, profile cards with overlapping avatars)
+            10. OUR DRIVERS
         ========================================================= */}
         <section
           id="drivers"
@@ -774,34 +747,20 @@ export default async function HomePage() {
           data-label="Our drivers"
           className="snap-section bg-white px-4 dark:bg-slate-950 sm:px-6"
         >
-          <div className="mx-auto w-full max-w-6xl">
+          <div className="mx-auto w-full max-w-7xl">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
-                {text("home.drivers.eyebrow", "Professional team")}
-              </p>
-              <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl">
-                {text("home.drivers.heading", "Meet our expert drivers")}
-              </h2>
-              <p className="mt-4 leading-7 text-slate-600 dark:text-slate-300">
-                {text("home.drivers.subheading", "Licensed, experienced, and dedicated to your safe arrival.")}
-              </p>
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">Professional team</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Meet our expert drivers</h2>
+              <p className="mt-3 text-slate-600 dark:text-slate-300">Licensed, experienced, and dedicated to your safe arrival.</p>
             </div>
-
-            <div className="mt-16 grid gap-x-6 gap-y-14 md:grid-cols-3">
-              {DRIVERS.map((driver) => (
-                <div
-                  key={driver.name}
-                  className="group relative rounded-3xl border border-slate-200 bg-stone-50 px-7 pb-8 pt-14 text-center transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900"
-                >
-                  <span className="absolute -top-8 left-1/2 grid size-16 -translate-x-1/2 place-items-center rounded-full bg-slate-950 text-white ring-8 ring-white transition duration-300 group-hover:scale-110 group-hover:bg-amber-400 group-hover:text-slate-950 dark:bg-white dark:text-slate-950 dark:ring-slate-950">
-                    <UserCheck aria-hidden="true" className="size-7" />
-                  </span>
-                  <h3 className="text-xl font-bold tracking-tight">{driver.name}</h3>
-                  <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{driver.desc}</p>
-                  <p className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                    <ShieldCheck aria-hidden="true" className="size-3.5" />
-                    Verified
-                  </p>
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {DRIVERS.map((d) => (
+                <div key={d.name} className="rounded-3xl border border-slate-200 bg-stone-50 p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900 text-center">
+                  <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-slate-950 text-white dark:bg-white dark:text-slate-950">
+                    <UserCheck className="size-6" />
+                  </div>
+                  <h3 className="mt-5 text-xl font-bold">{d.name}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{d.desc}</p>
                 </div>
               ))}
             </div>
@@ -809,37 +768,34 @@ export default async function HomePage() {
         </section>
 
         {/* =========================================================
-            11. FAQ
+            11. FAQ (Slate Background bg-slate-950)
         ========================================================= */}
         {visibleHomeFaqs.length > 0 && (
           <section
             id="faq"
             data-snap-section
             data-label="FAQ"
-            className="snap-section relative px-4 sm:px-6"
+            className="snap-section relative bg-slate-950 text-white px-4 sm:px-6"
           >
             <style>{`
               details[open] .faq-answer { animation: faq-open .35s ease; }
               @keyframes faq-open { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
               @media (prefers-reduced-motion: reduce) { details[open] .faq-answer { animation: none; } }
             `}</style>
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -left-24 top-1/3 -z-10 size-80 rounded-full bg-slate-300/40 blur-3xl dark:bg-slate-700/30"
-            />
+            <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-1/3 -z-10 size-80 rounded-full bg-amber-400/10 blur-3xl" />
             <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[380px_1fr] lg:gap-16">
               <div className="lg:sticky lg:top-28 lg:self-start">
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-slate-500 dark:text-slate-400">
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-white/60">
                   {text("home.faqs.eyebrow", "Answers")}
                 </p>
-                <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl">
+                <h2 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-5xl text-white">
                   {text("home.faqs.heading", "Frequently asked questions")}
                 </h2>
-                <p className="mt-4 leading-7 text-slate-600 dark:text-slate-300">
+                <p className="mt-4 leading-7 text-slate-300">
                   Quick answers about booking, pricing and your car&apos;s journey between Dubai and Abu Dhabi.
                 </p>
-                <div className="mt-8 rounded-3xl bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/20">
-                  <p className="text-lg font-bold">Still have questions?</p>
+                <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur shadow-xl">
+                  <p className="text-lg font-bold text-white">Still have questions?</p>
                   <p className="mt-1 text-sm text-white/70">We reply fast, day or night.</p>
                   <div className="mt-5 flex flex-wrap gap-3">
                     <a
@@ -854,7 +810,7 @@ export default async function HomePage() {
                     {settings?.phone_primary && (
                       <a
                         href={`tel:${settings.phone_primary}`}
-                        className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-semibold transition hover:bg-white/10"
+                        className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
                       >
                         <Phone aria-hidden="true" className="size-4" />
                         Call
@@ -867,22 +823,22 @@ export default async function HomePage() {
                 {visibleHomeFaqs.map((faq: Faq, index: number) => (
                   <details
                     key={faq.id}
-                    className="group rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/5 open:border-slate-900 open:shadow-xl open:shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:open:border-white/60"
+                    className="group rounded-2xl border border-white/10 bg-white/5 backdrop-blur transition-all duration-300 hover:border-white/30 hover:shadow-lg open:border-white/60 open:bg-white/10"
                   >
                     <summary className="flex min-h-16 cursor-pointer list-none items-center gap-4 p-4 sm:p-5 [&::-webkit-details-marker]:hidden">
-                      <span className="text-sm font-bold tabular-nums text-slate-400 transition-colors group-open:text-slate-900 dark:group-open:text-white">
+                      <span className="text-sm font-bold tabular-nums text-white/50 transition-colors group-open:text-white">
                         {String(index + 1).padStart(2, "0")}
                       </span>
-                      <span className="flex-1 text-base font-semibold sm:text-lg">{faq.question}</span>
+                      <span className="flex-1 text-base font-semibold sm:text-lg text-white">{faq.question}</span>
                       <span
                         aria-hidden="true"
-                        className="grid size-9 shrink-0 place-items-center rounded-full bg-slate-100 text-slate-600 transition-all duration-300 group-open:rotate-45 group-open:bg-slate-950 group-open:text-white dark:bg-slate-800 dark:text-slate-300 dark:group-open:bg-white dark:group-open:text-slate-950"
+                        className="grid size-9 shrink-0 place-items-center rounded-full bg-white/10 text-white transition-all duration-300 group-open:rotate-45 group-open:bg-white group-open:text-slate-950"
                       >
                         <Plus className="size-4" />
                       </span>
                     </summary>
                     <div className="faq-answer px-5 pb-5 sm:pl-[4.25rem]">
-                      <p className="leading-7 text-slate-600 dark:text-slate-300">{faq.answer}</p>
+                      <p className="leading-7 text-slate-300">{faq.answer}</p>
                     </div>
                   </details>
                 ))}
@@ -965,9 +921,7 @@ export default async function HomePage() {
         </section>
       </main>
 
-      {/* =========================================================
-          SECTION SNAP STYLES
-      ========================================================= */}
+      {/* SECTION SNAP STYLES */}
       <style>{`
         html {
           scroll-snap-type: y mandatory;
@@ -1005,21 +959,7 @@ export default async function HomePage() {
         }
       `}</style>
 
-      {/* =========================================================
-          ROUTE ANIMATION
-      ========================================================= */}
-      <style>{`
-        @keyframes route-drive {
-          from { left: 0; }
-          to { left: calc(100% - 32px); }
-        }
-        .route-car { animation: route-drive 5s ease-in-out infinite alternate; }
-        @media (prefers-reduced-motion: reduce) { .route-car { animation: none; left: 50%; } }
-      `}</style>
-
-      {/* =========================================================
-          TESTIMONIAL STYLES
-      ========================================================= */}
+      {/* TESTIMONIAL STYLES */}
       <style>{`
         .tm-row { position: relative; width: 100%; overflow: hidden; }
         .tm-track { display: flex; width: max-content; will-change: transform; }
