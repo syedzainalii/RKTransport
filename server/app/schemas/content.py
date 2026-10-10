@@ -22,8 +22,8 @@ class HeroBannerIn(BaseModel):
 
 class HeroBannerResponse(HeroBannerIn, ORMModel):
     id: int
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class ServiceIn(BaseModel):
@@ -47,8 +47,8 @@ class ServiceIn(BaseModel):
 class ServiceResponse(ServiceIn, ORMModel):
     id: int
     slug: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class LocationIn(BaseModel):
@@ -68,8 +68,8 @@ class LocationIn(BaseModel):
 class LocationResponse(LocationIn, ORMModel):
     id: int
     slug: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class RouteIn(BaseModel):
@@ -85,8 +85,8 @@ class RouteIn(BaseModel):
 
 class RouteResponse(RouteIn, ORMModel):
     id: int
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
     origin: LocationResponse | None = None
     destination: LocationResponse | None = None
 
@@ -104,8 +104,8 @@ class VehicleTypeIn(BaseModel):
 class VehicleTypeResponse(VehicleTypeIn, ORMModel):
     id: int
     slug: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class StoragePlanIn(BaseModel):
@@ -124,8 +124,8 @@ class StoragePlanIn(BaseModel):
 class StoragePlanResponse(StoragePlanIn, ORMModel):
     id: int
     slug: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class AboutIn(BaseModel):
@@ -144,8 +144,8 @@ class AboutIn(BaseModel):
 
 class AboutResponse(AboutIn, ORMModel):
     id: int
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class FaqIn(BaseModel):
@@ -158,8 +158,8 @@ class FaqIn(BaseModel):
 
 class FaqResponse(FaqIn, ORMModel):
     id: int
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class TestimonialIn(BaseModel):
@@ -176,8 +176,8 @@ class TestimonialIn(BaseModel):
 
 class TestimonialResponse(TestimonialIn, ORMModel):
     id: int
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class PageCopyIn(BaseModel):
@@ -187,7 +187,7 @@ class PageCopyIn(BaseModel):
 
 class PageCopyResponse(PageCopyIn, ORMModel):
     id: int
-    updated_at: datetime
+    updated_at: datetime | None = None
 
 
 class MediaResponse(ORMModel):
@@ -198,4 +198,4 @@ class MediaResponse(ORMModel):
     content_type: str | None
     byte_size: int | None
     folder: str | None
-    created_at: datetime
+    created_at: datetime | None = None
