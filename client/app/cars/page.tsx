@@ -3,7 +3,7 @@ import { ArrowRight, ArrowUpRight, Check, ShieldCheck, Users, Luggage, Fuel, Spa
 import { BreadcrumbStructuredData } from "../Components/structured-data";
 import PageHero from "../Components/page-hero";
 import { generatePageMetadata } from "../../lib/seo";
-import { publicApi, type Vehicle } from "../../lib/transport-api";
+import { publicApi, type PageCopy, type Vehicle } from "../../lib/transport-api";
 
 export const revalidate = 60;
 
@@ -84,13 +84,17 @@ const SPECIAL_FEATURES = [
 ];
 
 export default async function CarsPage() {
-  const [settingsResult, carsResult] = await Promise.allSettled([
+  const [settingsResult, carsResult, copyResult] = await Promise.allSettled([
     publicApi.settings(),
     publicApi.cars(),
+    publicApi.pageCopy(),
   ]);
   const settings = settingsResult.status === "fulfilled" ? settingsResult.value : null;
   const cars: Vehicle[] = carsResult.status === "fulfilled" ? carsResult.value : [];
-  const bannerUrl = cars.find((car) => car.banner_image_url)?.banner_image_url;
+  const copy: PageCopy[] = copyResult.status === "fulfilled" ? copyResult.value : [];
+  const bannerUrl =
+    copy.find((item) => item.key === "cars_banner_url")?.value ||
+    cars.find((car) => car.banner_image_url)?.banner_image_url;
 
   const phone = settings?.phone_primary || PHONE_NUMBER;
   const whatsappDigits = settings?.whatsapp?.replace(/\D/g, "") || WHATSAPP_NUMBER;

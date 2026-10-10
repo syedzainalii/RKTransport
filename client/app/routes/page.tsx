@@ -2,7 +2,7 @@ import { MapPin, MessageCircle, Phone, Route } from "lucide-react";
 import { BreadcrumbStructuredData } from "../Components/structured-data";
 import PageHero from "../Components/page-hero";
 import { generatePageMetadata } from "../../lib/seo";
-import { publicApi, type Location } from "../../lib/transport-api";
+import { publicApi, type Location, type PageCopy } from "../../lib/transport-api";
 
 export const revalidate = 60;
 
@@ -47,17 +47,21 @@ export function generateMetadata() {
 }
 
 export default async function RoutesPage() {
-  const [settingsResult, locationsResult] = await Promise.allSettled([
+  const [settingsResult, locationsResult, copyResult] = await Promise.allSettled([
     publicApi.settings(),
     publicApi.locations(),
+    publicApi.pageCopy(),
   ]);
   const settings = settingsResult.status === "fulfilled" ? settingsResult.value : null;
   const locations: Location[] = locationsResult.status === "fulfilled" ? locationsResult.value : [];
+  const copy: PageCopy[] = copyResult.status === "fulfilled" ? copyResult.value : [];
 
   const phone = settings?.phone_primary || PHONE_NUMBER;
   const whatsappDigits = settings?.whatsapp?.replace(/\D/g, "") || WHATSAPP_NUMBER;
   const routeLabel = settings?.core_route_label || "Dubai ⇄ Abu Dhabi";
-  const bannerUrl = locations.find((location) => location.banner_image_url)?.banner_image_url;
+  const bannerUrl =
+    copy.find((item) => item.key === "locations_banner_url")?.value ||
+    locations.find((location) => location.banner_image_url)?.banner_image_url;
   const hours = settings?.available_24_7 ? settings.hours_label : "";
 
   return (

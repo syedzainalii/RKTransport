@@ -119,7 +119,7 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
       const data = await apiRequest<unknown[]>(`/admin${collection.path}`);
       setRows(data.map(asRecord));
 
-      if (collectionKey === "services" || collectionKey === "testimonials") {
+      if (["services", "testimonials", "cars", "locations"].includes(collectionKey)) {
         try {
           const bannerRes = await apiRequest<{ url: string }>(`/page-banners/${collectionKey}`);
           if (bannerRes?.url) setPageBanner({ url: bannerRes.url });
@@ -248,12 +248,12 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
     <Link href="/admin/dashboard" className="inline-flex min-h-11 items-center font-semibold text-slate-800 hover:underline dark:text-slate-300">← Dashboard</Link>
     <header className="my-5 flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-3xl font-bold">{collection.title}</h1>{collectionKey === "banners" && <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Banners play in this order on the home page.</p>}</div><button type="button" onClick={() => beginEdit()} className="min-h-11 rounded-xl bg-slate-900 px-4 font-semibold text-white">Add new {collection.singular}</button></header>
     
-    {(collectionKey === "services" || collectionKey === "testimonials") && (
+    {["services", "testimonials", "cars", "locations"].includes(collectionKey) && (
       <section className="my-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <h3 className="text-lg font-bold">Page Section Banner Background</h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400">Upload a standalone background image for the top banner of the {collection.title.toLowerCase()} page without needing any text fields.</p>
+        <h3 className="text-lg font-bold">Page Hero Banner</h3>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Upload a standalone hero background image for the {collection.title.toLowerCase()} page. For Cars and Locations, this image takes priority over banner images set on individual records.</p>
         <div className="mt-4">
-          <ImageUpload label="Banner Background Image" value={pageBanner} onChange={(img) => setPageBanner(img && !Array.isArray(img) ? img : null)} />
+          <ImageUpload label="Page Hero Image" value={pageBanner} onChange={(img) => setPageBanner(img && !Array.isArray(img) ? img : null)} folder="page-banners" />
         </div>
         <button 
           type="button" 
@@ -267,7 +267,7 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
                 method: "PUT",
                 body: JSON.stringify({ url: pageBanner?.url || "" }),
               });
-              setToast("Page banner background updated successfully.");
+              setToast("Page hero banner updated successfully.");
             } catch {
               setError("Could not update banner background.");
             } finally {
