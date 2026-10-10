@@ -54,13 +54,13 @@ export default function SiteHeader() {
   const hours = settings
     ? settings.available_24_7 ? settings.hours_label : null
     : "Available 24/7";
-  const cta = settings?.header_cta_label || "Our Reviews";
+  const cta = settings?.header_cta_label || "Get a quote";
   const href = settings?.header_cta_href || "/review";
   const safeCtaHref = href.startsWith("/") && !href.startsWith("//") && href !== "/quote" && href !== "/track" ? href : "/review";
   const logo = transparent || resolvedTheme === "dark"
     ? settings?.logo_dark_url || settings?.logo_url
     : settings?.logo_url;
-  const navClass = transparent ? "text-white hover:text-white/80" : "text-slate-700 hover:text-slate-800 dark:text-slate-200 dark:hover:text-white";
+  
   const isActive = (path: string) => path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(`${path}/`);
 
   return (
@@ -74,21 +74,45 @@ export default function SiteHeader() {
           )}
           <span className="text-sm sm:text-base">{settings?.brand_name || "RK Transport"}</span>
         </Link>
-        <nav aria-label="Main navigation" className="hidden items-center gap-7 md:flex">
-          {links.map(([label, path]) => (
-            <Link key={path} href={path} aria-current={isActive(path) ? "page" : undefined} className={`min-h-11 content-center text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-slate-700 ${navClass} ${isActive(path) ? "underline decoration-2 underline-offset-8" : ""}`}>
-              {label}
-            </Link>
-          ))}
+
+        {/* Desktop Navigation with Spacing & Effects */}
+        <nav aria-label="Main navigation" className="hidden items-center gap-2 sm:gap-3 md:flex">
+          {links.map(([label, path]) => {
+            const active = isActive(path);
+            return (
+              <Link
+                key={path}
+                href={path}
+                aria-current={active ? "page" : undefined}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                  transparent
+                    ? "text-white hover:bg-white/15 hover:text-white"
+                    : "text-slate-700 hover:bg-slate-200/70 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
+                } ${
+                  active
+                    ? transparent
+                      ? "bg-white/25 font-semibold text-white shadow-sm backdrop-blur-sm"
+                      : "bg-slate-900 font-semibold text-white dark:bg-white dark:text-slate-950"
+                    : ""
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
         </nav>
+
+        {/* Right side items */}
         <div className="hidden items-center gap-3 md:flex">
           {hours && <span className={`text-xs font-semibold ${transparent ? "text-white" : "text-slate-800 dark:text-slate-300"}`}>{hours}</span>}
           <ThemeToggle transparent={transparent} />
-          <Link href={safeCtaHref} className="inline-flex min-h-11 items-center rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+          <Link href={safeCtaHref} className="inline-flex min-h-11 items-center rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
             {cta}
           </Link>
         </div>
+
         {hours && <span className={`hidden max-[767px]:inline text-[11px] font-semibold ${transparent ? "text-white" : "text-slate-800 dark:text-slate-300"}`}>{hours}</span>}
+        
         <button
           type="button"
           className={`inline-grid size-11 place-items-center rounded-lg border transition-colors md:hidden ${transparent ? "border-white/50 text-white hover:bg-white/10" : "border-slate-300 text-slate-900 dark:border-slate-700 dark:text-white"}`}
@@ -99,15 +123,28 @@ export default function SiteHeader() {
           {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
         </button>
       </div>
+
+      {/* Mobile Menu */}
       {menuOpen && (
         <nav aria-label="Mobile navigation" className="absolute inset-x-0 top-full max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-slate-200 bg-stone-50 px-4 py-3 text-slate-900 shadow-xl md:hidden dark:border-slate-800 dark:bg-slate-950 dark:text-white">
-          {links.map(([label, path]) => (
-            <Link key={path} href={path} aria-current={isActive(path) ? "page" : undefined} onClick={() => setMenuPath(null)} className={`flex min-h-12 items-center border-b border-slate-100 text-sm font-medium dark:border-slate-800 ${isActive(path) ? "font-bold text-slate-800 dark:text-slate-300" : ""}`}>
-              {label}
-            </Link>
-          ))}
-          {hours && <p className="py-3 text-sm font-semibold text-slate-800 dark:text-slate-300">{hours}</p>}
-          <div className="flex min-h-12 items-center"><ThemeToggle /></div>
+          {links.map(([label, path]) => {
+            const active = isActive(path);
+            return (
+              <Link
+                key={path}
+                href={path}
+                aria-current={active ? "page" : undefined}
+                onClick={() => setMenuPath(null)}
+                className={`flex min-h-12 items-center border-b border-slate-100 px-3 text-sm font-medium transition dark:border-slate-800 ${
+                  active ? "font-bold text-amber-500 dark:text-amber-400" : ""
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
+          {hours && <p className="py-3 px-3 text-sm font-semibold text-slate-800 dark:text-slate-300">{hours}</p>}
+          <div className="flex min-h-12 items-center px-3"><ThemeToggle /></div>
         </nav>
       )}
     </header>
