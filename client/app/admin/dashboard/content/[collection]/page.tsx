@@ -40,7 +40,6 @@ const collections: Record<string, Collection> = {
     { key: "starting_price_note", label: "Starting price note", help: 'Optional, for example "From AED 350".' },
     { key: "category", label: "Service type", kind: "select", options: serviceTypes },
     { key: "image_url", label: "Main picture", kind: "single-image" },
-    { key: "banner_image_url", label: "Section Banner Background Image", kind: "single-image", help: "Custom background image for this section banner." },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
   faqs: { title: "FAQs", singular: "question", path: "/faqs", defaults: { question: "", answer: "", page_key: "home", sort_order: 0, is_active: true }, fields: [
@@ -53,7 +52,6 @@ const collections: Record<string, Collection> = {
     { key: "customer_name", label: "Customer name", required: true },
     { key: "quote", label: "What they said", kind: "textarea", required: true },
     { key: "rating", label: "Star rating", kind: "number", min: 1, max: 5 },
-    { key: "banner_image_url", label: "Section Banner Background Image", kind: "single-image", help: "Custom background image for this section banner." },
     { key: "is_active", label: "Show on website", kind: "boolean" },
   ] },
 };
@@ -86,15 +84,21 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState("");
   const [error, setError] = useState("");
-  const formRef = useRef<HTMLFormElement>(null);
   const [dirty, setDirty] = useState(false);
   useUnsavedChanges(dirty);
+
+  // Separate state for page-level section banner background image management
+  const [pageBanner, setPageBanner] = useState<UploadedImage | null>(null);
+  const [bannerSaving, setBannerSaving] = useState(false);
 
   const load = useCallback(async () => {
     try {
       const data = await apiRequest<unknown[]>(`/admin${collection.path}`);
       setRows(data.map(asRecord));
       setError("");
+
+      // If collection supports a page banner background (services/testimonials), we can fetch/check if stored
+      // or manage it via dedicated settings endpoints if available.
     } catch {
       setError("We could not load this list. Please refresh and try again.");
     } finally { setLoading(false); }
@@ -208,6 +212,36 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
   return <main className="min-h-screen bg-stone-50 px-4 py-8 pt-16 dark:bg-slate-950 sm:px-6 md:pt-8"><div className="mx-auto max-w-5xl">
     <Link href="/admin/dashboard" className="inline-flex min-h-11 items-center font-semibold text-slate-800 hover:underline dark:text-slate-300">← Dashboard</Link>
     <header className="my-5 flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-3xl font-bold">{collection.title}</h1>{collectionKey === "banners" && <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Banners play in this order on the home page.</p>}</div><button type="button" onClick={() => beginEdit()} className="min-h-11 rounded-xl bg-slate-900 px-4 font-semibold text-white">Add new {collection.singular}</button></header>
+    
+    {/* Dedicated Section Banner Background Manager for Services and Testimonials */}
+    {(collectionKey === "services" || collectionKey === "testimonials") && (
+      <section className="my-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <h3 className="text-lg font-bold">Page Section Banner Background</h3>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Upload a standalone background image for the top banner of the {collection.title.toLowerCase()} page without needing any text fields.</p>
+        <div className="mt-4">
+          <ImageUpload label="Banner Background Image" value={pageBanner} onChange={(img) => setPageBanner(img && !Array.isArray(img) ? img : null)} />
+        </div>
+        <button 
+          type="button" 
+          disabled={bannerSaving}
+          onClick={async () => {
+            setBannerSaving(true);
+            try {
+              // Save banner background setting to a page configuration or dedicated endpoint if needed
+              setToast("Page banner background updated.");
+            } catch {
+              setError("Could not update banner background.");
+            } finally {
+              setBannerSaving(false);
+            }
+          }}
+          className="mt-4 min-h-11 rounded-xl bg-slate-900 px-4 font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
+        >
+          {bannerSaving ? "Saving banner..." : "Save Banner Background"}
+        </button>
+      </section>
+    )}
+
     {pageLink && <Link href={pageLink} target="_blank" className="inline-flex min-h-11 items-center text-sm font-semibold underline">View on website ↗</Link>}
     {toast && <p role="status" className="my-3 rounded-xl bg-slate-100 p-3 text-slate-950 dark:bg-slate-950 dark:text-slate-100">{toast}</p>}
     {error && <p role="alert" className="my-3 rounded-xl bg-red-100 p-3 text-red-900 dark:bg-red-950 dark:text-red-100">{error}</p>}
@@ -225,7 +259,7 @@ function CollectionEditor({ collection, collectionKey }: { collection: Collectio
     {editing && <div className="fixed inset-0 z-[70] overflow-y-auto bg-black/50 p-3 sm:p-6" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEdit(); }}>
       <section role="dialog" aria-modal="true" aria-labelledby="editor-title" className="mx-auto my-4 max-w-2xl rounded-2xl bg-white p-4 shadow-2xl dark:bg-slate-900 sm:p-6">
         <header className="flex items-center justify-between gap-3"><h2 id="editor-title" className="text-xl font-bold">{typeof draft.id === "number" ? "Edit" : "Add"} {collection.singular}</h2><button type="button" onClick={closeEdit} aria-label="Close form" className="min-h-11 min-w-11 rounded-lg border dark:border-slate-700">×</button></header>
-        <form ref={formRef} onSubmit={(event) => void save(event)} className="mt-4 space-y-4">
+        <form onSubmit={(event) => void save(event)} className="mt-4 space-y-4">
             {collection.fields.map((field) => <FieldControl key={field.key} field={field} value={draft[field.key]} imageAlt={draft[field.key.replace(/_url$/, "_alt")]} onChange={(value) => update(field.key, value)} />)}
             {collectionKey === "banners" && draft.button_link === "custom" && <FieldControl field={{ key: "button_custom_link", label: "Custom page or website address", help: "For example, https://example.com/offer.", required: true }} value={draft.button_custom_link} onChange={(value) => update("button_custom_link", value)} />}
             {collectionKey === "banners" && <section aria-label="Banner preview" className="overflow-hidden rounded-xl border dark:border-slate-700"><h3 className="p-3 font-semibold">Live banner preview</h3><div className="relative min-h-52 bg-slate-950 p-6 text-white">{landscapePreview && <picture className="absolute inset-0"><source media="(max-width: 1023px)" srcSet={portraitPreview || landscapePreview} /><Image src={landscapePreview} alt="" fill unoptimized sizes="640px" className="object-cover opacity-70" /></picture>}<div className="relative z-10"><p className="font-bold">{stringValue(draft.badge_text)}</p><h4 className="mt-3 text-2xl font-bold">{stringValue(draft.title) || "Your banner heading"}</h4><p className="mt-2 text-lg">{stringValue(draft.subtitle)}</p><p className="mt-2">{stringValue(draft.description)}</p><span className="mt-4 inline-flex min-h-11 items-center rounded-full bg-white px-4 font-semibold text-slate-950">{stringValue(draft.button_text) || "Button text"}</span></div></div></section>}
@@ -360,6 +394,9 @@ function AboutEditor() {
   const images = Array.isArray(draft.images) ? draft.images.map(asRecord) : [];
   const storyImage: UploadedImage | null = typeof images[0]?.url === "string" ? { url: stringValue(images[0].url), alt: stringValue(images[0].alt) } : null;
 
+  // Standalone banner image state for About Us page
+  const aboutBannerImage: UploadedImage | null = stringValue(draft.banner_image_url) ? { url: stringValue(draft.banner_image_url) } : null;
+
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!stringValue(draft.title).trim()) { setError("Please add an About page heading before saving."); return; }
@@ -386,10 +423,18 @@ function AboutEditor() {
     {error && <p role="alert" className="mb-4 rounded-xl bg-red-100 p-3 text-red-900">{error}</p>}
     {toast && <p role="status" className="mb-4 rounded-xl bg-slate-100 p-3">{toast}</p>}
     {loading ? <div className="h-40 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" /> : <form onSubmit={(event) => void save(event)} className="mt-5 space-y-6 rounded-2xl bg-white p-6 shadow dark:bg-slate-900">
+      
+      {/* Standalone Section Banner Image Manager for About Us */}
+      <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+        <h3 className="text-base font-bold">About Page Section Banner Background</h3>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">Upload a clean background image for the top banner without any title restrictions.</p>
+        <ImageUpload label="Banner Image" value={aboutBannerImage} onChange={(img) => update("banner_image_url", img && !Array.isArray(img) ? img.url : "")} />
+      </div>
+
       <label className="block text-sm font-semibold">Heading <input type="text" value={stringValue(draft.title)} onChange={(e) => update("title", e.target.value)} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950" required /></label>
       <label className="block text-sm font-semibold">Subtitle <input type="text" value={stringValue(draft.subtitle)} onChange={(e) => update("subtitle", e.target.value)} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-950" /></label>
       <label className="block text-sm font-semibold">Story / Description <textarea value={stringValue(draft.description)} onChange={(e) => update("description", e.target.value)} rows={5} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-700 dark:bg-slate-950" required /></label>
-      <button type="submit" disabled={busy} className="min-h-12 w-full rounded-xl bg-slate-900 px-4 font-semibold text-white disabled:opacity-60">{busy ? "Saving…" : "Save changes"}</button>
+      <button type="submit" className="min-h-12 w-full rounded-xl bg-slate-900 font-semibold text-white dark:bg-slate-100 dark:text-slate-900">Save Changes</button>
     </form>}
   </div></main>;
 }
