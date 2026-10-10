@@ -12,7 +12,7 @@ const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   { label: "About us", href: "/about" },
-  { label: "Contact & reviews", href: "/contact" },
+  { label: "Reviews", href: "/reviews" }, 
 ];
 
 export default function SiteFooter() {
